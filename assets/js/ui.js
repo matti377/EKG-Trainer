@@ -120,20 +120,25 @@
       return wrap;
     }
 
-    // Sechs Brustwandableitungen nebeneinander, alle im selben Maßstab.
+    // Mehrere Ableitungen nebeneinander, alle im selben Maßstab.
+    // Quelle wahlweise: fertiger Satz (`set`), eine Herzachse (`axis`)
+    // oder eine ausformulierte Liste (`leads`).
     if (spec.k === 'leads') {
-      const set = EKG.LEAD_SETS[spec.set] || EKG.LEAD_SETS.normal;
-      const grid = h('div', { class: 'leadgrid' });
+      const set = spec.leads ? spec.leads
+                : (spec.axis !== undefined ? EKG.axisLeads(spec.axis, spec.ids)
+                : (EKG.LEAD_SETS[spec.set] || EKG.LEAD_SETS.normal));
+      const grid = h('div', { class: 'leadgrid' + (set.length === 3 ? ' three' : '') });
       const cans = [];
       set.forEach(function (L) {
         const cv = h('canvas');
-        cans.push({ cv: cv, tpl: L.tpl, id: L.id });
+        cans.push({ cv: cv, tpl: L.tpl, id: L.id, pAmp: L.pAmp });
         grid.appendChild(h('div', { class: 'leadcell' }, [cv]));
       });
       const paint = function () {
         for (const c of cans) {
           EKG.drawStrip(c.cv, {
             tpl: c.tpl, label: c.id, seconds: spec.seconds || 1.7,
+            pAmp: c.pAmp === undefined ? 0.14 : c.pAmp,
             mvTop: spec.mvTop || 1.9, mvBot: spec.mvBot || -1.75
           });
         }
@@ -500,8 +505,8 @@
 
     if (step.table) {
       const tb = h('table', { class: 'normtab' });
-      const head = h('tr', {}, [h('th', { text: 'Abschnitt' }), h('th', { text: 'Dauer' }), h('th', { text: 'Amplitude' })]);
-      tb.appendChild(head);
+      const heads = step.thead || ['Abschnitt', 'Dauer', 'Amplitude'];
+      tb.appendChild(h('tr', {}, heads.map(function (t) { return h('th', { text: t }); })));
       for (const row of step.table) {
         tb.appendChild(h('tr', {}, row.map(function (c) { return h('td', { html: c }); })));
       }

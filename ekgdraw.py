@@ -251,12 +251,15 @@ class LeadGrid(Flowable):
 
     def draw(self):
         cw = (self.width - (self.cols - 1) * self.gap) / float(self.cols)
-        for i, (label, over) in enumerate(self.leads):
+        for i, entry in enumerate(self.leads):
+            # Einträge sind (Name, Template) oder (Name, Template, P-Amplitude).
+            label, over = entry[0], entry[1]
+            p_amp = entry[2] if len(entry) > 2 else 0.14
             col = i % self.cols
             row = i // self.cols
             x = col * (cw + self.gap)
             y = self.height - (row + 1) * self.cell_h - row * self.gap
-            s = Strip(cw, self.cell_h, tpl(over), label=label,
+            s = Strip(cw, self.cell_h, tpl(over), label=label, p_amp=p_amp,
                       seconds=self.seconds, mv_top=self.mv_top,
                       mv_bot=self.mv_bot)
             s.canv = self.canv
@@ -368,6 +371,29 @@ class BeatDetail(Flowable):
         c.setStrokeColor(PAPER_BOLD)
         c.setLineWidth(1)
         c.roundRect(0, 0, w, h, 8, stroke=1, fill=0)
+
+
+LIMB_ANGLE = {'I': 0, 'II': 60, 'III': 120, 'aVR': -150, 'aVL': -30, 'aVF': 90}
+
+
+def axis_leads(alpha, ids=('I', 'II', 'III')):
+    """Wie derselbe Herzschlag bei gegebener Herzachse in den Extremitäten-
+    ableitungen aussieht: Ausschlag = cos(Achse − Ableitungswinkel).
+
+    Gleiche Formel wie `axisLeads` in ekg.js — Skript und Website zeigen
+    dadurch dieselben Kurven.
+    """
+    out = []
+    for i in ids:
+        net = math.cos(math.radians(alpha - LIMB_ANGLE[i]))
+        pos, neg = max(0.0, net), max(0.0, -net)
+        out.append((i, {
+            'q': {'a': -0.04 * pos},
+            'r': {'a': 0.20 + 1.45 * pos},
+            's': {'a': -(0.20 + 1.45 * neg)},
+            't': {'a': 0.10 + 0.24 * net},
+        }, 0.06 + 0.11 * net))
+    return out
 
 
 class Cabrera(Flowable):

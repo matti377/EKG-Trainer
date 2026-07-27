@@ -485,6 +485,65 @@
         ],
         why: 'Die Reihenfolge von links nach rechts: überdrehter Linkstyp → Linkstyp → Indifferenztyp → Steiltyp → Rechtstyp → überdrehter Rechtstyp.'
       },
+      { t: 'teach',
+        h: 'So liest du den Lagetyp aus I, II und III ab',
+        lead: 'Dafür brauchst du keinen Winkelmesser. Es genügt zu schauen, ob der QRS-Komplex in den drei Einthoven-Ableitungen überwiegend nach <em>oben</em> oder nach <em>unten</em> zeigt — und in welcher er am größten ist.',
+        media: { k: 'leads', axis: 45, ids: ['I', 'II', 'III'], mvTop: 1.95, mvBot: -1.95 },
+        bullets: [
+          { i: '🎯', x: '<b>Grundregel:</b> Die Achse zeigt ungefähr dorthin, wo der QRS-Komplex <b>am größten und positiv</b> ist.' },
+          { i: '✅', x: '<b>I und II beide positiv?</b> Dann liegt der Lagetyp im Normbereich — Links-, Indifferenz- oder Steiltyp.' },
+          { i: '↗️', x: '<b>I negativ?</b> Dann ist die Achse nach rechts gewandert: Rechtstyp oder überdrehter Rechtstyp.' },
+          { i: '↖️', x: '<b>II und III beide negativ?</b> Dann liegt ein überdrehter Linkstyp vor.' },
+          { i: '⚖️', x: '<b>Gleichschenklig?</b> Ist ein Komplex etwa gleich hoch wie tief, steht der Hauptvektor <b>senkrecht</b> auf dieser Ableitung.' }
+        ],
+        thead: ['Lagetyp', 'I', 'II', 'III'],
+        table: [
+          ['Überdrehter Linkstyp', 'positiv', 'negativ', 'negativ'],
+          ['Linkstyp', 'positiv (groß)', 'positiv', 'negativ'],
+          ['Indifferenztyp', 'positiv', 'positiv (am größten)', 'positiv (klein)'],
+          ['Steiltyp', 'positiv (klein)', 'positiv', 'positiv (groß)'],
+          ['Rechtstyp', 'negativ', 'positiv', 'positiv (am größten)'],
+          ['Überdrehter Rechtstyp', 'negativ (groß)', 'negativ', 'positiv']
+        ],
+        key: { h: 'Die Abbildung oben', p: 'Hier ist II am größten, I und III sind beide positiv — das ist der <b>Indifferenztyp</b>, der Normalfall beim Erwachsenen.' }
+      },
+      { t: 'rhythm',
+        q: 'Welcher Lagetyp liegt hier vor?',
+        sub: 'II ist am größten, I und III sind beide positiv.',
+        media: { k: 'leads', axis: 48, ids: ['I', 'II', 'III'], mvTop: 1.95, mvBot: -1.95 },
+        opts: ['Linkstyp', 'Indifferenztyp', 'Steiltyp', 'Rechtstyp'],
+        a: 1,
+        why: 'Alle drei Ableitungen sind positiv, II ist am größten — die Achse zeigt also ungefähr in Richtung von Ableitung II (+60°). Das ist der Indifferenztyp (+30° bis +60°), der Normalfall beim Erwachsenen.'
+      },
+      { t: 'rhythm',
+        q: 'Und dieser hier?',
+        sub: 'Achte darauf, wie flach der Komplex in Ableitung I ist.',
+        media: { k: 'leads', axis: 78, ids: ['I', 'II', 'III'], mvTop: 1.95, mvBot: -1.95 },
+        opts: ['Linkstyp', 'Indifferenztyp', 'Steiltyp', 'Überdrehter Rechtstyp'],
+        a: 2,
+        why: 'II und III sind beide kräftig positiv, I dagegen nur klein — die Achse ist nach unten gekippt. Das ist der Steiltyp (+60° bis +90°). Bei jungen, schlanken Menschen ist er völlig normal.'
+      },
+      { t: 'rhythm',
+        q: 'Hier ist Ableitung I am größten und III negativ. Welcher Lagetyp?',
+        media: { k: 'leads', axis: 0, ids: ['I', 'II', 'III'], mvTop: 1.95, mvBot: -1.95 },
+        opts: ['Steiltyp', 'Rechtstyp', 'Linkstyp', 'Indifferenztyp'],
+        a: 2,
+        why: 'I ist stark positiv, II noch positiv, III bereits negativ — die Achse liegt bei etwa 0°. Das ist der Linkstyp (−30° bis +30°), beim Erwachsenen meist physiologisch.'
+      },
+      { t: 'rhythm',
+        q: 'Jetzt ist Ableitung I negativ. Welcher Lagetyp?',
+        media: { k: 'leads', axis: 108, ids: ['I', 'II', 'III'], mvTop: 1.95, mvBot: -1.95 },
+        opts: ['Linkstyp', 'Indifferenztyp', 'Rechtstyp', 'Überdrehter Linkstyp'],
+        a: 2,
+        why: 'Sobald Ableitung I negativ wird, ist die Achse nach rechts gewandert. III ist hier am größten — das ergibt den Rechtstyp (+90° bis +120°). Beim Erwachsenen ist er ein Hinweis auf eine Rechtsherzbelastung, bei Kindern dagegen normal.'
+      },
+      { t: 'rhythm',
+        q: 'Letzte: I ist positiv, II und III sind beide negativ.',
+        media: { k: 'leads', axis: -55, ids: ['I', 'II', 'III'], mvTop: 1.95, mvBot: -1.95 },
+        opts: ['Linkstyp', 'Überdrehter Linkstyp', 'Steiltyp', 'Überdrehter Rechtstyp'],
+        a: 1,
+        why: 'Ein positives I bei gleichzeitig negativem II <em>und</em> III bedeutet, dass die Achse über −30° hinaus nach links gedreht ist: überdrehter Linkstyp. Der ist immer krankhaft — etwa beim linksanterioren Hemiblock oder bei ausgeprägter Linksherzhypertrophie.'
+      },
       { t: 'mc',
         q: 'Bei einem 8-jährigen Kind findest du einen Rechtstyp. Wie bewertest du das?',
         opts: [

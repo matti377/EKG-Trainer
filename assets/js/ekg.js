@@ -972,11 +972,46 @@
     ]
   };
 
+  /* ------------------------------------------------ Lagetyp → Ableitungen */
+
+  // Blickrichtung der Extremitätenableitungen in der Frontalebene.
+  const LIMB_ANGLE = { I: 0, II: 60, III: 120, aVR: -150, aVL: -30, aVF: 90 };
+
+  /**
+   * Erzeugt aus einer elektrischen Herzachse die passenden QRS-Formen.
+   *
+   * Jede Ableitung misst nur den Anteil des Hauptvektors, der auf sie zuläuft:
+   * Ausschlag = cos(Achse − Ableitungswinkel). Steht der Vektor senkrecht auf
+   * einer Ableitung, wird deren Komplex gleichschenklig (isoelektrisch).
+   *
+   * @param {number} alpha  Herzachse in Grad (positiv = nach unten)
+   * @param {string[]} ids  z. B. ['I','II','III']
+   */
+  function axisLeads(alpha, ids) {
+    ids = ids || ['I', 'II', 'III'];
+    return ids.map(function (id) {
+      const net = Math.cos((alpha - LIMB_ANGLE[id]) * Math.PI / 180);
+      const pos = Math.max(0, net), neg = Math.max(0, -net);
+      return {
+        id: id,
+        pAmp: 0.06 + 0.11 * net,          // die P-Achse läuft meist mit
+        tpl: {
+          q: { a: -0.04 * pos },
+          r: { a: 0.20 + 1.45 * pos },
+          s: { a: -(0.20 + 1.45 * neg) },
+          t: { a: 0.10 + 0.24 * net }     // konkordant zum QRS-Komplex
+        }
+      };
+    });
+  }
+
   /* ---------------------------------------------------------------- Export */
 
   global.EKG = {
     drawStrip: drawStrip,
     LEAD_SETS: LEAD_SETS,
+    axisLeads: axisLeads,
+    LIMB_ANGLE: LIMB_ANGLE,
     Scope: Scope,
     signal: signal,
     defineCustom: defineCustom,

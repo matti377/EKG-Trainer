@@ -13,7 +13,7 @@ from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph,
                                 PageBreak, Flowable)
 from reportlab.platypus.tableofcontents import TableOfContents
 
-from ekgdraw import (Strip, LeadGrid, BeatDetail, Cabrera, tpl,
+from ekgdraw import (Strip, LeadGrid, BeatDetail, Cabrera, tpl, axis_leads,
                      INK, MUTED, BRAND, BRAND_DK, VIOLET, VIOLET_DK, VIOLET_LT,
                      HEART, HEART_DK, GOLD, GOLD_DK, GOLD_LT, OK, OK_DK, OK_LT,
                      BAD, BAD_DK, BAD_LT, LINE, LINE_SOFT, DARK_BG,
@@ -79,7 +79,16 @@ BOX_COLS = {
 }
 
 
+_MISSING_GLYPHS = set()
+
+
 def esc(t):
+    # Zeichen, die Nunito nicht kennt, verschwinden im PDF spurlos —
+    # deshalb hier mitschreiben und am Ende des Laufs melden.
+    face = pdfmetrics.getFont('Nunito').face
+    for ch in t:
+        if ord(ch) > 127 and not face.charToGlyph.get(ord(ch)):
+            _MISSING_GLYPHS.add(ch)
     return t.replace('&', '&amp;')
 
 
@@ -713,6 +722,29 @@ def kapitel1c():
          ['Rechtstyp', '+90° bis +120°', 'Beim Erwachsenen pathologisch — bei Kindern normal'],
          ['Überdrehter Rechtstyp', '+120° bis +180°', 'Immer pathologisch']],
         widths=[132, 96, CW - 228]))
+    o.append(Spacer(1, 14))
+    o.append(h3('Den Lagetyp aus I, II und III ablesen'))
+    o.append(p('Dafür brauchst du keinen Winkelmesser. Es genügt zu schauen, ob der '
+               'QRS-Komplex in den drei Einthoven-Ableitungen überwiegend nach '
+               '<b>oben</b> oder nach <b>unten</b> zeigt — und in welcher er am '
+               'größten ist.'))
+    o.append(LeadGrid(CW, axis_leads(48), cell_h=86, mv_top=1.95, mv_bot=-1.95))
+    o.append(caption('8 — Beispiel: II am größten, I und III positiv. Das ist der '
+                     'Indifferenztyp.'))
+    o.append(KeepTogether(table(
+        ['Lagetyp', 'I', 'II', 'III'],
+        [['Überdrehter Linkstyp', 'positiv', 'negativ', 'negativ'],
+         ['Linkstyp', 'positiv (groß)', 'positiv', 'negativ'],
+         ['Indifferenztyp', 'positiv', 'positiv (am größten)', 'positiv (klein)'],
+         ['Steiltyp', 'positiv (klein)', 'positiv', 'positiv (groß)'],
+         ['Rechtstyp', 'negativ', 'positiv', 'positiv (am größten)'],
+         ['Überdrehter Rechtstyp', 'negativ (groß)', 'negativ', 'positiv']],
+        widths=[136, 108, 128, CW - 372])))
+    o.append(Spacer(1, 10))
+    o.append(box('key', 'Drei Kurzregeln',
+                 '<b>I und II beide positiv:</b> Lagetyp im Normbereich.<br/>'
+                 '<b>I negativ:</b> Rechtstyp oder überdrehter Rechtstyp.<br/>'
+                 '<b>II und III beide negativ:</b> überdrehter Linkstyp.'))
     o.append(Spacer(1, 10))
     o.append(box('warn', 'Alter mitdenken',
                  'Bei Kindern und Jugendlichen ist ein Rechtstyp <b>physiologisch</b>, '
@@ -743,7 +775,7 @@ def kapitel2():
     ]))
     o.append(Spacer(1, 8))
     o.append(Strip(CW, 104, tpl({}), seconds=3.4, rate=70))
-    o.append(caption('8 — Normaler Sinusrhythmus: vor jedem QRS-Komplex eine P-Welle, '
+    o.append(caption('9 — Normaler Sinusrhythmus: vor jedem QRS-Komplex eine P-Welle, '
                      'konstante Abstände.'))
     o.append(table(
         ['Variante', 'Kennzeichen'],
@@ -793,7 +825,7 @@ def kapitel2():
                'Sinusknoten unbeirrt weitertaktet.'))
     o.append(Spacer(1, 4))
     o.append(Strip(CW, 104, tpl({}), seconds=3.8, rate=70))
-    o.append(caption('9 — Zum Vergleich der Normalbefund: gleichmäßige Abstände ohne Ausfall.'))
+    o.append(caption('10 — Zum Vergleich der Normalbefund: gleichmäßige Abstände ohne Ausfall.'))
     o.append(h3('Grad III'))
     o.append(p('Kompletter Sinusarrest — es kommt kein Impuls mehr an. Ein Ersatzzentrum '
                'muss übernehmen, sonst droht die Asystolie.'))
@@ -870,7 +902,7 @@ def kapitel2b():
         ('V5', {'q': {'a': -0.07}, 'r': {'a': 1.35}, 's': {'c': 0.086, 'w': 0.030, 'a': -0.52}, 't': {'c': 0.275, 'a': 0.26}, 'stEnd': 0.225}),
         ('V6', {'q': {'a': -0.08}, 'r': {'a': 1.15}, 's': {'c': 0.090, 'w': 0.032, 'a': -0.48}, 't': {'c': 0.275, 'a': 0.24}, 'stEnd': 0.225}),
     ]))
-    o.append(caption('10 — Rechtsschenkelblock: M-Form in V1/V2, breite S-Zacke in V5/V6.'))
+    o.append(caption('11 — Rechtsschenkelblock: M-Form in V1/V2, breite S-Zacke in V5/V6.'))
     o.append(box('ok', 'Klinische Einordnung',
                  'Ein Rechtsschenkelblock kann auch bei Herzgesunden als Zufallsbefund '
                  'vorkommen — der inkomplette RSB ist bei jungen Menschen sogar häufig.'))
@@ -902,7 +934,7 @@ def kapitel2b():
         ('V6', {'q': {'a': 0}, 'r': {'c': 0.058, 'w': 0.042, 'a': 1.20}, 'r2': {'c': 0.100, 'w': 0.028, 'a': 0.30},
                 's': {'a': 0}, 't': {'c': 0.315, 'w': 0.078, 'a': -0.40}, 'st': -0.07, 'stEnd': 0.240}),
     ]))
-    o.append(caption('11 — Linksschenkelblock: QS in V1–V3, breites plumpes R in V5/V6.'))
+    o.append(caption('12 — Linksschenkelblock: QS in V1–V3, breites plumpes R in V5/V6.'))
     o.append(box('bad', 'Häufige Verwechslung',
                  'Die breite, plumpe <b>S-Zacke in Ableitung I und V6</b> gehört zum '
                  '<b>Rechts</b>schenkelblock. Beim <b>Links</b>schenkelblock steht dort '
@@ -1002,7 +1034,7 @@ def kapitel3():
         ('V5', {'q': {'a': -0.12}, 'r': {'a': 0.95}, 's': {'a': -0.20}, 't': {'a': 0.18}}),
         ('V6', {'q': {'a': -0.10}, 'r': {'a': 1.10}, 's': {'a': -0.10}, 't': {'a': 0.22}}),
     ]))
-    o.append(caption('12 — Fehlender R-Aufbau mit Q-Zacken über der Vorderwand. '
+    o.append(caption('13 — Fehlender R-Aufbau mit Q-Zacken über der Vorderwand. '
                      'Vergleiche mit Abbildung 4.'))
     o.append(box('bad', 'Verdacht — kein Beweis',
                  'Gestörte R-Progression plus pathologische Q-Zacken machen einen '
@@ -1019,7 +1051,7 @@ def kapitel3():
     o.append(Spacer(1, 4))
     o.append(Strip(CW, 104, tpl({'t': {'c': 0.420, 'w': 0.085, 'a': 0.26}}),
                    seconds=3.4, rate=62))
-    o.append(caption('13 — Verlängerte QT-Zeit: Die T-Welle liegt weit vom QRS-Komplex '
+    o.append(caption('14 — Verlängerte QT-Zeit: Die T-Welle liegt weit vom QRS-Komplex '
                      'entfernt.'))
     o.append(bullets([
         ('Folgen —', 'Das LQTS kann Synkopen auslösen und in eine <b>Torsade de '
@@ -1175,3 +1207,7 @@ if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else 'EKG-Skript.pdf'
     n = build(out)
     print('geschrieben:', out, '/ Seiten:', n)
+    if _MISSING_GLYPHS:
+        print('WARNUNG — diese Zeichen fehlen in Nunito und werden im PDF '
+              'nicht dargestellt:', ' '.join(sorted(_MISSING_GLYPHS)))
+        sys.exit(1)
