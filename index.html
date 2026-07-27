@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EKG lernen — interaktiv und Schritt für Schritt</title>
+<meta name="description" content="Interaktiver EKG-Kurs auf Deutsch: Erregungsleitung, Kurvenabschnitte, Rhythmusstörungen, Blockbilder und Infarktzeichen — mit animierten Kurven, Übungen und einem EKG-Labor zum Ausprobieren.">
+<meta name="theme-color" content="#eef3fa">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css?v=7">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💓</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#/pfad">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12h4l2-6 3.5 12L15 9l2 3h5"/>
+        </svg>
+      </span>
+      <span>EKG&nbsp;lernen</span>
+    </a>
+    <div id="top-stats" style="display:flex;align-items:center;gap:8px"></div>
+  </div>
+</header>
+
+<main>
+  <div class="app" id="app"></div>
+</main>
+
+<nav class="nav" id="nav" aria-label="Hauptnavigation">
+  <div class="nav-in">
+    <a href="#/pfad"        data-r="pfad"><span class="ni">🗺️</span>Lernpfad</a>
+    <a href="#/bibliothek"  data-r="bibliothek"><span class="ni">📚</span>Befunde</a>
+    <a href="#/labor"       data-r="labor"><span class="ni">🧪</span>Labor</a>
+    <a href="#/ableitungen" data-r="ableitungen"><span class="ni">🧭</span>Ableitungen</a>
+  </div>
+</nav>
+
+<script src="assets/js/ekg.js?v=7"></script>
+<script src="assets/js/heart.js?v=7"></script>
+<script src="assets/js/content.js?v=7"></script>
+<script src="assets/js/ui.js?v=7"></script>
+<script src="assets/js/app.js?v=7"></script>
+</body>
+</html>
