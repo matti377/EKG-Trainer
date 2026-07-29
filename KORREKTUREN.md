@@ -137,7 +137,7 @@ Skript, das an Auszubildende verteilt wird, habe ich sie **nicht übernommen** �
 Abbildungen aus einem Lehrbuch sind urheberrechtlich geschützt, unabhängig
 davon, ob die Quelle genannt wird.
 
-Stattdessen sind **alle 13 Abbildungen im PDF neu berechnet**: Jede Zacke ist
+Stattdessen sind **alle 14 Abbildungen im PDF neu berechnet**: Jede Zacke ist
 eine Gauß-Funktion mit Lage, Breite und Amplitude in Sekunden und Millivolt.
 Das hat zwei Nebeneffekte, die dem Skript zugutekommen:
 

@@ -26,11 +26,11 @@ python3 -m http.server 8000
 | `assets/js/content.js` | Sämtliche Lektionen, Aufgaben und Bibliothekstexte |
 | `assets/js/ui.js` | Aufgabentypen, Medien-Bausteine, Töne |
 | `assets/js/app.js` | Zustand, Navigation und die einzelnen Bildschirme |
-| `EKG-Skript.pdf` | Begleitskript zum Verteilen (18 Seiten, A4) |
+| `EKG-Skript.pdf` | Begleitskript zum Verteilen (19 Seiten, A4) |
 | `build_pdf.py`, `ekgdraw.py` | Erzeugen das PDF; Schriften in `skript-fonts/` |
 | `KORREKTUREN.md` | Was gegenüber der Vorlage `ECG ++.docx` geändert wurde |
 
-Die Skripte hängen an `<script>`-Tags mit `?v=7`. Nach einer Änderung diese
+Die Skripte hängen an `<script>`-Tags mit `?v=9`. Nach einer Änderung diese
 Zahl erhöhen, damit der Browser nicht die alte Datei aus dem Cache nimmt.
 
 ## Das PDF neu bauen
