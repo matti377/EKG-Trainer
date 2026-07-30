@@ -137,7 +137,7 @@ Skript, das an Auszubildende verteilt wird, habe ich sie **nicht übernommen** �
 Abbildungen aus einem Lehrbuch sind urheberrechtlich geschützt, unabhängig
 davon, ob die Quelle genannt wird.
 
-Stattdessen sind **alle 14 Abbildungen im PDF neu berechnet**: Jede Zacke ist
+Stattdessen sind **alle 15 Abbildungen im PDF neu berechnet**: Jede Zacke ist
 eine Gauß-Funktion mit Lage, Breite und Amplitude in Sekunden und Millivolt.
 Das hat zwei Nebeneffekte, die dem Skript zugutekommen:
 
@@ -176,3 +176,34 @@ Neu in der Befund-Bibliothek: SA-Block II° Typ 1 und Typ 2, WPW, LGL.
 
 Behalten habe ich deinen Praxisbezug — dass LIFEPAK 15 und corpuls³ J-Punkt und
 Herzachse automatisch berechnen, steht im Skript weiterhin drin.
+
+---
+
+## 6. Später ergänzt (nicht aus dem Dokument)
+
+Diese Inhalte kamen auf ausdrücklichen Wunsch dazu und standen nicht in
+`ECG ++.docx`:
+
+**Lagetyp-Bestimmung aus I, II und III** — Lektion 3.2 auf der Website und
+Abschnitt 1.11 im Skript. Die Kurven werden aus der Herzachse berechnet
+(`cos(Achse − Ableitungswinkel)`), dazu fünf Erkennungsaufgaben.
+
+**EKG bei Synkopen** — Lektion 7.4 auf der Website (12 Schritte) und Abschnitt
+3.4 im Skript. Kern sind die drei roten Flaggen:
+
+- QTc über **500 ms** ist kardial auffällig
+- eine vasovagale Synkope dauert meist **höchstens eine Minute**
+- **Palpitationen unmittelbar vor der Synkope** bedeuten kardial, bis das
+  Gegenteil bewiesen ist
+
+Dazu die Gegenüberstellung Reflexsynkope gegen kardiale Synkope, die
+EKG-Fahndungsliste und das **Brugada-Muster** als neue Kurvenform (V1/V2
+gewölbte ST-Hebung mit negativem T, in V3 nicht mehr nachweisbar).
+
+Zur QT-Zeit: Die 500 ms widersprechen den 440/460 ms aus Kapitel 1 nicht —
+darüber ist die QTc *verlängert*, ab 500 ms wird sie bei einer Synkope
+*alarmierend*. Beide Schwellen stehen an beiden Stellen nebeneinander, damit
+es beim Lesen nicht wie ein Widerspruch wirkt.
+
+Was aus einem auffälligen Befund folgt, richtet sich nach den Vorgaben deines
+Dienstes — das Skript nennt bewusst keine Handlungsanweisung.

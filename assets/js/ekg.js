@@ -452,6 +452,20 @@
       vTpl: { t: { c: 0.420, w: 0.085, a: 0.26 } }
     }),
 
+    // Brugada Typ 1: hoher J-Punkt, von dort eine nach oben gewölbte
+    // („coved") ST-Hebung, die stetig abfällt und in ein negatives T mündet.
+    brugada: sinusLike({
+      rate: 74, pq: 0.16,
+      vTpl: {
+        q: { a: 0 },
+        r: { c: 0.026, w: 0.012, a: 0.60 },
+        s: { c: 0.052, w: 0.011, a: -0.15 },
+        r2: { c: 0.095, w: 0.055, a: 0.95 },
+        t: { c: 0.235, w: 0.062, a: -0.45 },
+        stEnd: 0.200
+      }
+    }),
+
     // Digitalis: muldenförmige ST-Senkung ("Lyszeichen").
     digitalis: sinusLike({
       rate: 60, pq: 0.21,
@@ -931,6 +945,21 @@
                             r2: { c: 0.096, w: 0.021, a: 1.05 }, t: { c: 0.285, a: -0.26 }, stEnd: 0.225 } },
       { id: 'QR',  tpl: { q: { c: 0.016, w: 0.016, a: -0.62 }, r: { c: 0.048, w: 0.014, a: 1.10 },
                           s: { a: 0 }, t: { a: 0.26 } } }
+    ],
+
+    // Brugada Typ 1: nur rechtspräkordial zu sehen, ab V3 verschwindet es.
+    brugada: [
+      { id: 'V1', tpl: { q: { a: 0 }, r: { c: 0.026, w: 0.012, a: 0.60 },
+                         s: { c: 0.052, w: 0.011, a: -0.15 },
+                         r2: { c: 0.095, w: 0.055, a: 0.95 },
+                         t: { c: 0.235, w: 0.062, a: -0.45 }, stEnd: 0.200 } },
+      { id: 'V2', tpl: { q: { a: 0 }, r: { c: 0.026, w: 0.012, a: 0.55 },
+                         s: { c: 0.052, w: 0.011, a: -0.20 },
+                         r2: { c: 0.098, w: 0.058, a: 1.05 },
+                         t: { c: 0.240, w: 0.064, a: -0.50 }, stEnd: 0.200 } },
+      { id: 'V3', tpl: { q: { a: 0 }, r: { a: 0.80 },
+                         s: { c: 0.062, w: 0.014, a: -0.70 },
+                         t: { c: 0.250, w: 0.060, a: 0.30 } } }
     ],
 
     // Gestörter R-Aufbau mit Q-Zacken — Bild nach abgelaufenem Vorderwandinfarkt.

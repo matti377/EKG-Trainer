@@ -1062,6 +1062,83 @@ def kapitel3():
         ('Therapie der Torsade —', 'unter anderem Magnesium; auslösende Medikamente '
                                    'absetzen, Elektrolyte ausgleichen.'),
     ], colour=VIOLET_DK))
+
+    # ------------------------------------------------------------- Synkopen
+    o.append(sec('3.4 EKG bei Synkopen'))
+    o.append(p('Eine Synkope ist eine kurze Bewusstlosigkeit durch vorübergehende '
+               'Minderdurchblutung des Gehirns: plötzlicher Beginn, kurze Dauer, '
+               'vollständige Erholung von allein. Die allermeisten sind harmlos — '
+               'genau darin liegt die Schwierigkeit. Die wenigen kardialen Synkopen '
+               'musst du aus der großen Masse herausfischen, und oft ist das EKG der '
+               'einzige Hinweis, den du in der Akutsituation bekommst.'))
+    o.append(bullets([
+        ('Reflexsynkope (vasovagal) —', 'die häufigste Form. Auslöser wie Schmerz, '
+         'langes Stehen, Hitze oder Blutsehen; typische Vorboten wie Übelkeit, '
+         'Schwitzen und Schwarzwerden vor den Augen.'),
+        ('Orthostatische Synkope —', 'beim Aufstehen, oft bei Volumenmangel oder unter '
+         'blutdrucksenkenden Medikamenten.'),
+        ('Kardiale Synkope —', 'Rhythmusstörung oder strukturelle Herzerkrankung. Die '
+         'seltenste Gruppe — aber die einzige, die tödlich enden kann.'),
+    ]))
+    o.append(Spacer(1, 10))
+    o.append(box('bad', 'Die drei wichtigsten roten Flaggen',
+                 '<b>QTc über 500 ms</b> ist kardial auffällig.<br/>'
+                 '<b>Eine vasovagale Synkope dauert meist höchstens eine Minute</b> — '
+                 'wer länger weg war, gehört genauer angesehen.<br/>'
+                 '<b>Palpitationen unmittelbar vor der Synkope</b> bedeuten: kardial, '
+                 'bis das Gegenteil bewiesen ist.'))
+    o.append(Spacer(1, 12))
+    o.append(table(
+        ['', 'Spricht für Reflexsynkope', 'Spricht für kardiale Synkope'],
+        [['Vorboten', 'Übelkeit, Schwitzen, Augenflimmern', 'keine — Sturz ohne Vorwarnung'],
+         ['Davor', 'Schmerz, Hitze, langes Stehen', 'Palpitationen, Herzrasen'],
+         ['Situation', 'im Stehen, nach Belastung', 'im Liegen/Sitzen, während Belastung'],
+         ['Dauer', 'meist unter 1 Minute', 'oft länger'],
+         ['Umfeld', 'unauffällige Vorgeschichte', 'Herzerkrankung, plötzlicher Herztod in der Familie unter 40']],
+        widths=[74, 176, CW - 250]))
+
+    o.append(h3('Die Fahndungsliste im EKG'))
+    o.append(p('Nach diesen Befunden suchst du gezielt, wenn ein Patient wegen einer '
+               'Synkope vor dir liegt. Fast alle kennst du aus den vorherigen '
+               'Kapiteln — hier stehen sie unter einer gemeinsamen Fragestellung.'))
+    o.append(bullets([
+        ('QT-Zeit —', 'QTc über <b>500 ms</b>: deutliches Risiko für Torsade de pointes. '
+                      'Auch eine auffällig <i>kurze</i> QT-Zeit ist verdächtig.'),
+        ('Delta-Welle mit kurzer PQ-Zeit —', 'Präexzitation (WPW).'),
+        ('Brugada-Muster —', 'gewölbte ST-Hebung mit negativem T in V1/V2.'),
+        ('Leitungsstörungen —', 'AV-Block II° oder III°, bifaszikulärer Block, '
+                                'ausgeprägte Bradykardie, lange Pausen.'),
+        ('Strukturelle Hinweise —', 'pathologische Q-Zacken nach altem Infarkt, Zeichen '
+                                    'einer Linksherzhypertrophie.'),
+        ('Ventrikuläre Salven —', 'gehäufte VES oder eine dokumentierte '
+                                  'Kammertachykardie.'),
+    ], colour=HexColor('#c2410c')))
+    o.append(Spacer(1, 8))
+    o.append(box('key', 'Kein Widerspruch zu Kapitel 1',
+                 'Verlängert ist die QTc bereits <b>über 440 ms bei Männern bzw. '
+                 '460 ms bei Frauen</b>. Die <b>500 ms</b> sind die Schwelle, ab der es '
+                 'bei einer Synkope klar alarmierend wird.'))
+    o.append(Spacer(1, 12))
+    o.append(LeadGrid(CW, [
+        ('V1', {'q': {'a': 0}, 'r': {'c': 0.026, 'w': 0.012, 'a': 0.60},
+                's': {'c': 0.052, 'w': 0.011, 'a': -0.15},
+                'r2': {'c': 0.095, 'w': 0.055, 'a': 0.95},
+                't': {'c': 0.235, 'w': 0.062, 'a': -0.45}, 'stEnd': 0.200}),
+        ('V2', {'q': {'a': 0}, 'r': {'c': 0.026, 'w': 0.012, 'a': 0.55},
+                's': {'c': 0.052, 'w': 0.011, 'a': -0.20},
+                'r2': {'c': 0.098, 'w': 0.058, 'a': 1.05},
+                't': {'c': 0.240, 'w': 0.064, 'a': -0.50}, 'stEnd': 0.200}),
+        ('V3', {'q': {'a': 0}, 'r': {'a': 0.80}, 's': {'c': 0.062, 'w': 0.014, 'a': -0.70},
+                't': {'c': 0.250, 'w': 0.060, 'a': 0.30}}),
+    ], cell_h=86))
+    o.append(caption('15 — Brugada-Muster Typ 1: gewölbte ST-Hebung mit negativem T in '
+                     'V1 und V2, in V3 nicht mehr nachweisbar.'))
+    o.append(box('warn', 'Ein normales EKG beweist nichts',
+                 'Rhythmusstörungen treten anfallsweise auf — zwischen den Episoden kann '
+                 'das EKG völlig unauffällig sein. Ein normales EKG senkt das Risiko, '
+                 'schließt eine kardiale Ursache aber nicht aus. Entscheidend bleibt die '
+                 'Zusammenschau mit der Vorgeschichte. Was daraus folgt, regeln die '
+                 'Vorgaben deines Dienstes.'))
     return o
 
 

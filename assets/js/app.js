@@ -174,12 +174,12 @@
       ]),
       h('div', { class: 'pdfbody' }, [
         h('h3', { text: 'EKG ++ — das komplette Skript' }),
-        h('p', { text: '19 Seiten im selben Design wie diese Seite: alle Bausteine der ' +
+        h('p', { text: '22 Seiten im selben Design wie diese Seite: alle Bausteine der ' +
                        'Kurve, Rhythmus- und Blockbilder, Ischämiezeichen und eine ' +
                        'Normwert-Übersicht zum Nachschlagen. Zum Ausdrucken und Verteilen.' }),
         h('div', { class: 'taglist' }, [
-          h('span', { class: 'tag2 ok', text: '19 Seiten' }),
-          h('span', { class: 'tag2', text: '14 Abbildungen' }),
+          h('span', { class: 'tag2 ok', text: '22 Seiten' }),
+          h('span', { class: 'tag2', text: '15 Abbildungen' }),
           h('span', { class: 'tag2', text: 'A4, druckfertig' })
         ]),
         h('a', { class: 'btn heart', href: SKRIPT_PDF, target: '_blank', rel: 'noopener',

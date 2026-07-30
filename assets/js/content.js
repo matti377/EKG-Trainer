@@ -1356,7 +1356,7 @@
   /* --------------------------------------- Einheit 7: Spezialfälle */
   {
     id: 'u7', title: 'Spezialfälle', icon: '🔬',
-    sub: 'Elektrolyte, Medikamente, Schrittmacher',
+    sub: 'Elektrolyte, Schrittmacher, Synkopen',
     color: '#12b3a6', dark: '#0a8d83', light: '#e2f7f5',
     lessons: [
 
@@ -1542,6 +1542,130 @@
         a: false,
         why: 'Nein, das ist völlig erwartbar. Die Erregung startet an der Elektrodenspitze und breitet sich langsam über die Muskulatur aus — genau wie bei einer ventrikulären Extrasystole.'
       }
+    ]},
+
+    { id: 'l7_3', title: 'EKG bei Synkopen', icon: '💫', steps: [
+      { t: 'teach',
+        h: 'Kurz weg — und dann? ',
+        lead: 'Eine Synkope ist eine kurze Bewusstlosigkeit durch eine vorübergehende Minderdurchblutung des Gehirns: plötzlicher Beginn, kurze Dauer, vollständige Erholung von allein. Die allermeisten sind harmlos. Genau darin liegt die Schwierigkeit — die wenigen kardialen Synkopen musst du aus der großen Masse herausfischen.',
+        bullets: [
+          { i: '🧠', x: '<b>Reflexsynkope (vasovagal):</b> die häufigste Form. Auslöser wie Schmerz, langes Stehen, Hitze oder Blutsehen; typische Vorboten (Übelkeit, Schwitzen, Ohrensausen, Schwarzwerden vor den Augen).' },
+          { i: '🧍', x: '<b>Orthostatische Synkope:</b> beim Aufstehen, oft bei Volumenmangel oder unter blutdrucksenkenden Medikamenten.' },
+          { i: '🫀', x: '<b>Kardiale Synkope:</b> Rhythmusstörung oder strukturelle Herzerkrankung. Die seltenste Gruppe — aber die einzige, die tödlich enden kann.' }
+        ],
+        key: { h: 'Warum das EKG so zentral ist', p: 'Bei der kardialen Synkope ist das EKG oft der <b>einzige</b> Hinweis, den du in der Akutsituation überhaupt bekommst. Deshalb gehört zu jeder Synkope ein 12-Kanal-EKG — auch wenn der Patient längst wieder wach und beschwerdefrei ist.' }
+      },
+      { t: 'teach',
+        h: 'Die roten Flaggen',
+        lead: 'Drei Fragen trennen die harmlose von der gefährlichen Synkope schneller als alles andere: <em>Wie lange war der Patient weg? Was war unmittelbar davor? Und was zeigt das EKG?</em>',
+        bullets: [
+          { i: '⏱️', x: '<b>Dauer:</b> Eine vasovagale Synkope dauert meist <b>höchstens eine Minute</b>. Wer länger weg war, gehört genauer angesehen.' },
+          { i: '💓', x: '<b>Palpitationen unmittelbar davor:</b> Hat der Patient vor dem Umkippen sein Herz rasen oder stolpern gespürt, ist die Synkope <b>kardial</b>, bis das Gegenteil bewiesen ist.' },
+          { i: '🏃', x: '<b>Unter Belastung:</b> Eine Synkope <em>während</em> der Anstrengung ist kardial. (Kurz <em>danach</em> ist meist vasovagal.)' },
+          { i: '🛏️', x: '<b>Im Liegen oder Sitzen:</b> Ohne Orthostase fehlt der vasovagale Mechanismus — verdächtig.' },
+          { i: '⚡', x: '<b>Ohne jede Vorwarnung:</b> Der „Sturz wie ein Brett" ohne Prodromi, oft mit Verletzung, spricht gegen eine Reflexsynkope.' },
+          { i: '👪', x: '<b>Plötzlicher Herztod in der Familie</b> vor dem 40. Lebensjahr oder eine bekannte strukturelle Herzerkrankung.' }
+        ],
+        key: { h: 'Der Kernsatz', p: 'Vorboten und Auslöser sprechen <b>für</b> eine harmlose Reflexsynkope. Palpitationen, Belastung, Liegen und fehlende Vorwarnung sprechen <b>dagegen</b>.' }
+      },
+      { t: 'teach',
+        h: 'Die Fahndungsliste im EKG',
+        lead: 'Nach diesen Befunden suchst du gezielt, wenn ein Patient wegen einer Synkope vor dir liegt. Fast alle kennst du aus den vorherigen Lektionen — hier stehen sie unter einer gemeinsamen Fragestellung.',
+        media: { k: 'scope', rhythm: 'langes_qt', h: 'md', theme: 'paper', label: 'Verlängerte QT-Zeit' },
+        bullets: [
+          { i: '⏳', x: '<b>QT-Zeit:</b> Eine QTc über <b>500 ms</b> gilt als kardial auffällig und bringt ein deutliches Risiko für Torsade de pointes mit sich. Auch eine auffällig <em>kurze</em> QT-Zeit ist verdächtig.' },
+          { i: '⚡', x: '<b>Delta-Welle mit kurzer PQ-Zeit:</b> Präexzitation (WPW).' },
+          { i: '🪧', x: '<b>Brugada-Muster:</b> gewölbte ST-Hebung mit negativem T in V1/V2.' },
+          { i: '🚧', x: '<b>Leitungsstörungen:</b> AV-Block II° oder III°, bifaszikulärer Block, ausgeprägte Bradykardie oder lange Pausen.' },
+          { i: '🫀', x: '<b>Strukturelle Hinweise:</b> pathologische Q-Zacken nach altem Infarkt, Zeichen einer Linksherzhypertrophie.' },
+          { i: '💫', x: '<b>Ventrikuläre Extrasystolen in Salven</b> oder eine dokumentierte Kammertachykardie.' }
+        ],
+        key: { h: 'Wichtig zur QT-Zeit', p: 'Das ist kein Widerspruch zur Normwert-Lektion: <b>über 440 ms (♂) bzw. 460 ms (♀)</b> ist die QTc verlängert. Die <b>500 ms</b> sind die Schwelle, ab der es bei einer Synkope klar alarmierend wird.' }
+      },
+      { t: 'num',
+        q: 'Ab welcher QTc (in Millisekunden) gilt eine Synkope als kardial auffällig?',
+        a: 500, tol: 0, unit: 'ms',
+        why: 'Ab einer QTc über 500 ms steigt das Risiko für Torsade de pointes deutlich. Bei einer Synkope ist das ein klares Alarmzeichen — auch wenn der Patient inzwischen wieder völlig unauffällig wirkt.'
+      },
+      { t: 'mc',
+        q: 'Wie lange dauert eine vasovagale Synkope typischerweise?',
+        opts: [
+          'Höchstens etwa eine Minute',
+          'Ungefähr fünf Minuten',
+          'Zehn bis fünfzehn Minuten',
+          'Das ist völlig unvorhersehbar'
+        ], a: 0,
+        why: 'Die vasovagale Synkope ist kurz — meist unter einer Minute. Sobald der Patient liegt, normalisiert sich die Hirndurchblutung von allein. Eine deutlich längere Bewusstlosigkeit passt nicht zur Reflexsynkope und muss weiter abgeklärt werden.'
+      },
+      { t: 'mc',
+        q: 'Ein Patient berichtet, er habe unmittelbar vor dem Umkippen sein Herz rasen gespürt. Wie ordnest du das ein?',
+        opts: [
+          'Typisch vasovagal — das Herzrasen kommt von der Aufregung',
+          'Kardiale Synkope, bis das Gegenteil bewiesen ist',
+          'Orthostatische Synkope',
+          'Ein Hinweis auf einen Krampfanfall'
+        ], a: 1,
+        why: 'Palpitationen unmittelbar vor der Synkope sprechen dafür, dass eine Rhythmusstörung die Ursache war. Das ist eine der stärksten roten Flaggen überhaupt — der Patient gehört ans Monitoring.'
+      },
+      { t: 'multi',
+        q: 'Welche Angaben sind rote Flaggen für eine kardiale Synkope? (mehrere richtig)',
+        opts: [
+          'Palpitationen unmittelbar vor dem Ereignis',
+          'Synkope während körperlicher Anstrengung',
+          'Übelkeit, Schwitzen und Schwarzwerden vor den Augen als Vorboten',
+          'Plötzlicher Herztod bei einem Verwandten unter 40 Jahren'
+        ],
+        a: [0, 1, 3],
+        why: 'Vorboten wie Übelkeit, Schwitzen und Augenflimmern sind gerade das Kennzeichen der <em>harmlosen</em> Reflexsynkope. Palpitationen, Belastung und eine familiäre Vorbelastung sprechen dagegen für eine kardiale Ursache.'
+      },
+      { t: 'rhythm',
+        q: 'Synkope ohne Vorwarnung. Was fällt an diesem EKG auf?',
+        media: { k: 'scope', rhythm: 'langes_qt', h: 'md', theme: 'paper' },
+        opts: [
+          'Eine ST-Hebung',
+          'Eine deutlich verlängerte QT-Zeit',
+          'Ein Rechtsschenkelblock',
+          'Ein völlig unauffälliger Befund'
+        ], a: 1,
+        why: 'Die T-Welle liegt weit vom QRS-Komplex entfernt — die QT-Zeit nimmt einen großen Teil des RR-Abstands ein. Bei einer Synkope ist das ein Alarmbefund: Es droht eine Torsade de pointes.'
+      },
+      { t: 'rhythm',
+        q: 'Junger Patient, Synkope aus dem Schlaf heraus. Welches Muster siehst du?',
+        sub: 'Achte auf V1 und V2 — und darauf, dass V3 unauffällig ist.',
+        media: { k: 'leads', set: 'brugada', seconds: 1.7 },
+        opts: [
+          'Perikarditis',
+          'Brugada-Muster',
+          'Vorderwandinfarkt',
+          'Linksschenkelblock'
+        ], a: 1,
+        why: 'In V1 und V2 steigt die ST-Strecke nach dem QRS-Komplex hoch an, wölbt sich nach oben und fällt in ein negatives T ab — das gewölbte („coved") Brugada-Muster. In V3 ist davon nichts mehr zu sehen. Es ist mit dem plötzlichen Herztod assoziiert und gehört immer kardiologisch abgeklärt.'
+      },
+      { t: 'match',
+        q: 'Ordne den EKG-Befund der Gefahr zu, für die er steht.',
+        pairs: [
+          ['QTc über 500 ms', 'Torsade de pointes'],
+          ['Delta-Welle, kurze PQ-Zeit', 'WPW mit schneller Überleitung'],
+          ['Gewölbte ST-Hebung in V1/V2', 'Brugada-Syndrom'],
+          ['AV-Block III°', 'Asystolie / Adams-Stokes-Anfall']
+        ],
+        why: 'Diese vier Muster sind die wichtigsten EKG-Befunde, nach denen du bei einer Synkope gezielt suchst. Jeder von ihnen kann eine erneute, dann möglicherweise tödliche Episode ankündigen.'
+      },
+      { t: 'tf',
+        q: 'Ein unauffälliges EKG schließt eine kardiale Ursache der Synkope sicher aus.',
+        a: false,
+        why: 'Nein. Rhythmusstörungen treten anfallsweise auf — zwischen den Episoden kann das EKG völlig normal sein. Ein unauffälliges EKG senkt das Risiko, beweist aber nichts. Entscheidend bleibt die Zusammenschau mit der Vorgeschichte.'
+      },
+      { t: 'mc',
+        q: 'Welche Konstellation spricht am ehesten für eine harmlose Reflexsynkope?',
+        opts: [
+          'Synkope beim Gewichtheben, ohne Vorboten',
+          'Langes Stehen in der Hitze, Übelkeit und Schwitzen vorher, nach 30 Sekunden wieder wach',
+          'Synkope im Sitzen mit vorangehendem Herzrasen',
+          'Synkope mit Kopfplatzwunde und ohne Erinnerung an Vorboten'
+        ], a: 1,
+        why: 'Typischer Auslöser, typische Vorboten, kurze Dauer, rasche vollständige Erholung — das ist das Lehrbuchbild der vasovagalen Synkope. Die drei anderen Konstellationen enthalten jeweils mindestens eine rote Flagge.'
+      }
     ]}
     ]
   }
@@ -1639,9 +1763,12 @@
     { id: 'hypokaliaemie', cat: 'Elektrolyte', name: 'Hypokaliämie',
       desc: 'Flache T-Welle mit deutlicher U-Welle, ST-Senkung und verlängerte QT(U)-Zeit. Begünstigt Torsade de pointes.',
       tags: [['U-Welle', 'warn'], ['Torsade-Risiko', 'warn']] },
-    { id: 'langes_qt', cat: 'Sonstiges', name: 'Verlängerte QT-Zeit',
-      desc: 'QTc über 0,44 s (♂) bzw. 0,46 s (♀). Ursachen sind Medikamente, Elektrolytstörungen oder angeborene Syndrome.',
-      tags: [['Torsade-Risiko', 'warn']] },
+    { id: 'langes_qt', cat: 'Synkope', name: 'Verlängerte QT-Zeit',
+      desc: 'QTc über 0,44 s (♂) bzw. 0,46 s (♀). Ab 500 ms bei einer Synkope klar alarmierend. Ursachen: Medikamente, Elektrolytstörungen, angeborene Syndrome.',
+      tags: [['Torsade-Risiko', 'crit'], ['ab 500 ms Alarm', 'warn']] },
+    { id: 'brugada', cat: 'Synkope', name: 'Brugada-Muster (Typ 1)',
+      desc: 'Gewölbte („coved") ST-Hebung in V1/V2, die in ein negatives T abfällt. Assoziiert mit dem plötzlichen Herztod — bei Synkope immer kardiologisch abklären.',
+      tags: [['Plötzlicher Herztod', 'crit'], ['nur V1/V2', '']] },
     { id: 'digitalis', cat: 'Sonstiges', name: 'Digitaliswirkung',
       desc: 'Muldenförmige ST-Senkung („Lyszeichen") mit verkürzter QT-Zeit. Ein Wirkungszeichen, kein Beweis für eine Überdosierung.',
       tags: [['Muldenform', '']] },
@@ -1652,7 +1779,8 @@
 
   const LIB_CATS = ['Alle', 'Normalbefund', 'Frequenz', 'Vorhof', 'Tachykardie',
                     'Extrasystolen', 'SA-Block', 'AV-Block', 'Schenkelblock',
-                    'Präexzitation', 'Ischämie', 'Elektrolyte', 'Reanimation', 'Sonstiges'];
+                    'Präexzitation', 'Ischämie', 'Elektrolyte', 'Synkope',
+                    'Reanimation', 'Sonstiges'];
 
   /* ======================================================================
      ABLEITUNGEN — Cabrera-Kreis
