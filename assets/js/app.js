@@ -492,6 +492,210 @@
     fill();
   }
 
+  /* -------------------------------------------------------------- Trainer */
+
+  // Sitzungswerte überleben den Bildschirmwechsel innerhalb einer Sitzung.
+  const trainer = { group: 'alle', seen: 0, right: 0, streak: 0, last: [], theme: 'paper' };
+
+  function viewTrainer() {
+    setNav('trainer');
+    const root = screen();
+
+    root.appendChild(h('div', { class: 'sec-head' }, [
+      h('h2', { text: 'Diagnose-Trainer' }),
+      h('span', { text: 'Kurve ansehen, Befund eintippen' })
+    ]));
+
+    const scoreEl = h('div', { class: 'tr-score' });
+    const bar = h('div', { class: 'filterbar' });
+    const stage = h('div', {});
+    root.appendChild(scoreEl);
+    root.appendChild(bar);
+    root.appendChild(stage);
+
+    CONTENT.TRAINER_GROUPS.forEach(function (g) {
+      const b = h('button', { class: 'fchip' + (g.id === trainer.group ? ' on' : ''), text: g.name });
+      b.addEventListener('click', function () {
+        if (trainer.group === g.id) return;
+        trainer.group = g.id;
+        Array.prototype.forEach.call(bar.children, function (x) {
+          x.classList.toggle('on', x.textContent === g.name);
+        });
+        nextCase();
+      });
+      bar.appendChild(b);
+    });
+
+    function pool() {
+      const g = CONTENT.TRAINER_GROUPS.find(function (x) { return x.id === trainer.group; });
+      if (!g) return CONTENT.LIBRARY.slice();
+      if (g.ids) return CONTENT.LIBRARY.filter(function (i) { return g.ids.indexOf(i.id) >= 0; });
+      if (g.cats) return CONTENT.LIBRARY.filter(function (i) { return g.cats.indexOf(i.cat) >= 0; });
+      return CONTENT.LIBRARY.slice();
+    }
+
+    function drawScore() {
+      const quote = trainer.seen ? Math.round((trainer.right / trainer.seen) * 100) : 0;
+      scoreEl.innerHTML = '';
+      scoreEl.appendChild(h('span', { class: 'stat', html: '<span class="ic">🎯</span>' +
+        trainer.right + '/' + trainer.seen }));
+      scoreEl.appendChild(h('span', { class: 'stat fire', html: '<span class="ic">🔥</span>' +
+        trainer.streak + ' in Folge' }));
+      if (trainer.seen) {
+        scoreEl.appendChild(h('span', { class: 'stat gold', html: '<span class="ic">📊</span>' +
+          quote + '%' }));
+      }
+    }
+
+    // Nicht zweimal hintereinander denselben Fall zeigen.
+    function pickCase() {
+      const p = pool();
+      if (!p.length) return null;
+      const fresh = p.filter(function (i) { return trainer.last.indexOf(i.id) < 0; });
+      const from = fresh.length ? fresh : p;
+      const c = from[Math.floor(Math.random() * from.length)];
+      trainer.last.push(c.id);
+      while (trainer.last.length > Math.min(5, Math.max(1, p.length - 1))) trainer.last.shift();
+      return c;
+    }
+
+    function nextCase() {
+      UI.clearLive();
+      stage.innerHTML = '';
+      drawScore();
+
+      const kase = pickCase();
+      if (!kase) {
+        stage.appendChild(h('div', { class: 'card', text: 'Keine Befunde in dieser Gruppe.' }));
+        return;
+      }
+
+      const cv = h('canvas');
+      const scopeBox = h('div', { class: 'scope h-lg' + (trainer.theme === 'paper' ? ' paper' : '') }, [cv]);
+
+      const themeBtn = h('button', { class: 'btn-ghost',
+        text: trainer.theme === 'paper' ? '🖥️ Monitor' : '📄 Papier' });
+      const leadBtn = kase.leadSet
+        ? h('button', { class: 'btn-ghost', text: '🔍 V1–V6 ansehen' })
+        : null;
+      const tools = h('div', { class: 'tr-tools' }, [themeBtn, leadBtn]);
+      const leadHost = h('div', {});
+
+      let scope = null;
+      themeBtn.addEventListener('click', function () {
+        trainer.theme = trainer.theme === 'paper' ? 'monitor' : 'paper';
+        themeBtn.textContent = trainer.theme === 'paper' ? '🖥️ Monitor' : '📄 Papier';
+        scopeBox.classList.toggle('paper', trainer.theme === 'paper');
+        if (scope) scope.set('theme', trainer.theme);
+      });
+      if (leadBtn) {
+        leadBtn.addEventListener('click', function () {
+          if (leadHost.firstChild) { leadHost.innerHTML = ''; leadBtn.textContent = '🔍 V1–V6 ansehen'; return; }
+          leadBtn.textContent = '🔍 V1–V6 ausblenden';
+          const m = UI.media({ k: 'leads', set: kase.leadSet });
+          if (m) leadHost.appendChild(h('div', { style: 'margin-top:12px' }, [m]));
+        });
+      }
+
+      const items = pool().map(function (i) {
+        return { id: i.id, label: i.name, hint: i.cat, alias: i.alias };
+      });
+
+      const checkBtn = h('button', { class: 'btn wide', text: 'Prüfen', disabled: 'disabled' });
+      const hint = h('div', { class: 'tr-hint' });
+
+      // Mehrdeutiges wie „Mobitz" bewusst nicht raten lassen — sonst würde
+      // eine eigentlich richtige Überlegung als falsch gewertet.
+      function sync() {
+        const v = cb.value();
+        checkBtn.disabled = !v;
+        hint.textContent = (!v && cb.hasText())
+          ? 'Noch nicht eindeutig — bitte einen Eintrag aus der Liste wählen.' : '';
+      }
+
+      const cb = UI.combo({
+        items: items,
+        placeholder: 'Diagnose tippen … z. B. „VHF" oder „Mobitz"',
+        onpick: sync,
+        onenter: function () { if (!checkBtn.disabled) doCheck(); }
+      });
+      // Auch reines Tippen ohne Listenauswahl kann eindeutig sein.
+      cb.el.addEventListener('input', function () { setTimeout(sync, 0); });
+
+      const result = h('div', {});
+
+      stage.appendChild(h('div', { class: 'card tr-card' }, [
+        scopeBox, tools, leadHost,
+        h('label', { class: 'tr-label', text: 'Deine Diagnose' }),
+        cb.el,
+        hint,
+        h('div', { class: 'tr-actions' }, [checkBtn]),
+        result
+      ]));
+
+      requestAnimationFrame(function () {
+        scope = UI.track(new EKG.Scope(cv, {
+          rhythm: kase.id, speed: 25, mvRange: 3.4, theme: trainer.theme
+        }));
+        cb.focus();
+      });
+
+      function doCheck() {
+        const given = cb.value();
+        if (!given) return;
+        const ok = given === kase.id;
+        trainer.seen++;
+        if (ok) {
+          trainer.right++;
+          trainer.streak++;
+          state.xp += 3;
+          S.right();
+          flyXp('+3');
+        } else {
+          trainer.streak = 0;
+          S.wrong();
+        }
+        save();
+        renderTop();
+        drawScore();
+
+        cb.setDisabled(true);
+        checkBtn.remove();
+
+        const wrong = ok ? null : CONTENT.LIBRARY.find(function (i) { return i.id === given; });
+        const nextBtn = h('button', { class: 'btn wide ' + (ok ? 'ok' : 'heart'), text: 'Nächster Fall' });
+        nextBtn.addEventListener('click', nextCase);
+
+        result.innerHTML = '';
+        result.appendChild(h('div', { class: 'tr-result ' + (ok ? 'good' : 'bad') }, [
+          h('div', { class: 'trr-head' }, [
+            h('span', { class: 'trr-icon', text: ok ? '🎯' : '💡' }),
+            h('strong', { text: ok ? 'Richtig!' : 'Nicht ganz' }),
+            h('span', { class: 'tag2 ' + (ok ? 'ok' : 'crit'), text: kase.cat })
+          ]),
+          wrong ? h('p', { class: 'trr-wrong',
+            html: 'Du hast <b>' + wrong.name + '</b> getippt.' }) : null,
+          h('h3', { class: 'trr-name', text: kase.name }),
+          h('p', { class: 'trr-desc', text: kase.desc }),
+          h('div', { class: 'taglist' }, kase.tags.map(function (t) {
+            return h('span', { class: 'tag2 ' + (t[1] || ''), text: t[0] });
+          }))
+        ]));
+        result.appendChild(h('div', { class: 'tr-actions' }, [nextBtn]));
+        nextBtn.focus();
+      }
+
+      checkBtn.addEventListener('click', doCheck);
+    }
+
+    nextCase();
+
+    root.appendChild(h('div', { class: 'pill-note', style: 'margin-top:18px' }, [
+      h('span', { class: 'bi', text: '⌨️' }),
+      h('span', { html: 'Tipp: Mit den <b>Pfeiltasten</b> durch die Vorschläge, mit <b>Enter</b> auswählen und prüfen. Kurzformen wie <b>VHF</b>, <b>VT</b> oder <b>RSB</b> funktionieren auch.' })
+    ]));
+  }
+
   /* ---------------------------------------------------------------- Labor */
 
   function viewLab() {
@@ -895,6 +1099,7 @@
     renderTop();
     if (parts[0] === 'lektion' && parts[1]) viewLesson(parts[1]);
     else if (parts[0] === 'bibliothek') viewLibrary();
+    else if (parts[0] === 'trainer') viewTrainer();
     else if (parts[0] === 'labor') viewLab();
     else if (parts[0] === 'ableitungen') viewLeads();
     else viewPath();
@@ -902,10 +1107,12 @@
 
   global.addEventListener('hashchange', route);
 
-  // Bei verstecktem Tab die Animationen anhalten — spart Akku spürbar.
+  // Bei verstecktem Tab nur die Animationen anhalten — das spart Akku. Den
+  // Bildschirm dabei *nicht* neu aufbauen, sonst begänne eine laufende
+  // Lektion wieder von vorn.
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) UI.clearLive();
-    else route();
+    if (document.hidden) UI.pauseLive();
+    else UI.resumeLive();
   });
 
   S.on = state.sound;

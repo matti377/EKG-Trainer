@@ -1886,6 +1886,75 @@
       tags: [['Spike', ''], ['Breiter QRS', '']] }
   ];
 
+  /* --------------------------------------------- Trainer: Kurzformen etc. */
+
+  // Gebräuchliche Abkürzungen und Schreibweisen, damit im Diagnose-Trainer
+  // auch „VHF" oder „VT" gefunden wird.
+  const ALIASES = {
+    sinus:                ['SR', 'Sinusrhythmus', 'normal'],
+    // Generische Begriffe wie „Tachykardie" oder „Infarkt" sind bewusst
+    // *keine* Kurzformen — sie könnten mehrere Befunde meinen und würden
+    // sonst stillschweigend auf einen davon aufgelöst.
+    sinusbradykardie:     ['Sinusbradykardie'],
+    sinustachykardie:     ['Sinustachykardie'],
+    sinusarrhythmie:      ['respiratorische Arrhythmie'],
+    vorhofflimmern:       ['VHF', 'AF', 'Afib', 'absolute Arrhythmie', 'Tachyarrhythmia absoluta'],
+    vorhofflattern:       ['Flattern', 'AFL', 'Sägezahn'],
+    avnrt:                ['SVT', 'supraventrikuläre Tachykardie', 'AVNRT', 'Schmalkomplextachykardie'],
+    ves:                  ['VES', 'ventrikuläre Extrasystolen'],
+    sves:                 ['SVES', 'supraventrikuläre Extrasystolen'],
+    kammertachykardie:    ['VT', 'ventrikuläre Tachykardie', 'Breitkomplextachykardie'],
+    torsade:              ['TdP', 'Torsade', 'Spitzenumkehrtachykardie'],
+    kammerflimmern:       ['VF', 'Kammerflimmern', 'defibrillierbar'],
+    asystolie:            ['Nulllinie', 'Herzstillstand'],
+    sa_block_wenckebach:  ['SA-Block II Typ 1', 'SA Wenckebach', 'SAB II Typ 1'],
+    sa_block_mobitz:      ['SA-Block II Typ 2', 'SA Mobitz', 'SAB II Typ 2'],
+    wpw:                  ['WPW', 'Präexzitation', 'Delta-Welle', 'Kent'],
+    lgl:                  ['LGL', 'James', 'Lown-Ganong-Levine'],
+    avblock1:             ['AV-Block 1', 'AVB I', 'AV-Block ersten Grades'],
+    // Bewusst *nicht* nur „Wenckebach": den gibt es auch als SA-Block.
+    // So bleibt die Eingabe mehrdeutig und muss aus der Liste gewählt werden.
+    avblock2_wenckebach:  ['AV-Block 2 Typ 1', 'AV Wenckebach', 'Mobitz I', 'AVB II'],
+    avblock2_mobitz:      ['AV-Block 2 Typ 2', 'Mobitz II', 'AVB II Typ 2'],
+    avblock3:             ['AV-Block 3', 'AVB III', 'totaler Block', 'AV-Dissoziation'],
+    rechtsschenkelblock:  ['RSB', 'RBBB', 'Rechtsschenkelblock'],
+    linksschenkelblock:   ['LSB', 'LBBB', 'Linksschenkelblock'],
+    stemi:                ['STEMI', 'ST-Hebung', 'Hebungsinfarkt'],
+    stemi_spaet:          ['Infarkt im Verlauf', 'STEMI Stadium'],
+    alter_infarkt:        ['Pardee-Q', 'alter Infarkt', 'Narbe', 'abgelaufener Infarkt'],
+    nstemi:               ['NSTEMI', 'ST-Senkung', 'Ischämie'],
+    perikarditis:         ['Perikarditis'],
+    hyperkaliaemie:       ['Hyperkaliämie', 'Zelt-T', 'Kalium hoch'],
+    hypokaliaemie:        ['Hypokaliämie', 'U-Welle', 'Kalium niedrig'],
+    langes_qt:            ['Long QT', 'LQTS', 'QT-Verlängerung'],
+    brugada:              ['Brugada', 'coved'],
+    digitalis:            ['Digitalis', 'Muldenform', 'Lyszeichen'],
+    schrittmacher:        ['Pacer', 'Spike', 'Pacemaker', 'PM']
+  };
+
+  // Befunde, zu denen es einen passenden Brustwand-Ableitungssatz gibt.
+  const LEAD_FOR = {
+    rechtsschenkelblock: 'rsb',
+    linksschenkelblock:  'lsb',
+    brugada:             'brugada',
+    alter_infarkt:       'r_verlust'
+  };
+
+  // Gruppen für den Trainer — die 14 Einzelkategorien wären als Filter zu viel.
+  // Eine Gruppe nennt entweder Kategorien (`cats`) oder einzelne Befunde (`ids`).
+  const TRAINER_GROUPS = [
+    { id: 'alle',     name: 'Alle',     cats: null },
+    { id: 'rhythmus', name: 'Rhythmus', cats: ['Normalbefund', 'Frequenz', 'Vorhof', 'Tachykardie', 'Extrasystolen'] },
+    { id: 'bloecke',  name: 'Blöcke',   cats: ['SA-Block', 'AV-Block', 'Schenkelblock', 'Präexzitation'] },
+    { id: 'ischaemie',name: 'Ischämie', cats: ['Ischämie'] },
+    // Quer durch die Kategorien: was im Einsatz sofort erkannt werden muss.
+    { id: 'notfall',  name: 'Notfall',  ids: [
+        'kammerflimmern', 'asystolie', 'kammertachykardie', 'torsade',
+        'stemi', 'avblock3', 'avblock2_mobitz', 'hyperkaliaemie',
+        'brugada', 'wpw', 'vorhofflattern', 'langes_qt'] },
+    { id: 'sonstige', name: 'Sonstige', cats: ['Elektrolyte', 'Synkope', 'Sonstiges'] }
+  ];
+
   const LIB_CATS = ['Alle', 'Normalbefund', 'Frequenz', 'Vorhof', 'Tachykardie',
                     'Extrasystolen', 'SA-Block', 'AV-Block', 'Schenkelblock',
                     'Präexzitation', 'Ischämie', 'Elektrolyte', 'Synkope',
@@ -1942,11 +2011,18 @@
     }
   }
 
+  // Kurzformen und Ableitungssätze an die Bibliothekseinträge hängen.
+  for (const item of LIBRARY) {
+    item.alias = (ALIASES[item.id] || []).concat([item.name]);
+    if (LEAD_FOR[item.id]) item.leadSet = LEAD_FOR[item.id];
+  }
+
   global.CONTENT = {
     UNITS: UNITS,
     ALL_LESSONS: ALL_LESSONS,
     LIBRARY: LIBRARY,
     LIB_CATS: LIB_CATS,
+    TRAINER_GROUPS: TRAINER_GROUPS,
     LEADS: LEADS,
     CHEST_LEADS: CHEST_LEADS,
     REGIONS: REGIONS,

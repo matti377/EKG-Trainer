@@ -166,14 +166,21 @@ a { color: var(--brand-dk); }
   display: flex; align-items: stretch; justify-content: center;
   padding-bottom: env(safe-area-inset-bottom);
 }
-.nav-in { max-width: 560px; width: 100%; display: flex; }
+.nav-in { max-width: 620px; width: 100%; display: flex; }
 .nav a {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 3px; text-decoration: none; color: var(--muted); font-size: 10.5px; font-weight: 800;
-  letter-spacing: .03em; text-transform: uppercase; border-top: 3px solid transparent;
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; text-decoration: none; color: var(--muted); font-size: 9.5px; font-weight: 800;
+  letter-spacing: .01em; text-transform: uppercase; border-top: 3px solid transparent;
   transition: .15s; -webkit-tap-highlight-color: transparent;
+  padding: 0 2px; text-align: center;
 }
-.nav a .ni { font-size: 21px; line-height: 1; }
+.nav a .ni { font-size: 20px; line-height: 1; }
+/* Mit fünf Einträgen wird es eng — der Text darf nie umbrechen,
+   sonst wächst die Leiste in der Höhe. */
+.nav a span:last-child, .nav a { white-space: nowrap; }
+@media (max-width: 400px) { .nav a { font-size: 8.6px; letter-spacing: 0; } }
+@media (max-width: 340px) { .nav a { font-size: 8px; } .nav a .ni { font-size: 18px; } }
 .nav a.on { color: var(--brand-dk); border-top-color: var(--brand); background: var(--brand-lt); }
 
 main { padding: 22px 0 calc(var(--nav-h) + 34px); }
@@ -547,6 +554,60 @@ main { padding: 22px 0 calc(var(--nav-h) + 34px); }
          font-size: 13px; font-weight: 800; cursor: pointer; color: var(--muted); transition: .15s; }
 .fchip:hover { border-color: #cfdcee; }
 .fchip.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+/* --------------------------------------------------------- Trainer ------ */
+
+.tr-score { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.tr-card { padding: 18px; }
+.tr-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.tr-label { display: block; font-size: 12px; font-weight: 900; letter-spacing: .07em;
+            text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+.tr-actions { margin-top: 14px; }
+.tr-hint { font-size: 12.5px; font-weight: 700; color: var(--gold-dk); margin-top: 8px;
+           min-height: 16px; }
+
+/* Combobox */
+.combo { position: relative; }
+.combo-input {
+  width: 100%; padding: 15px 16px; font-family: inherit; font-size: 16px; font-weight: 700;
+  color: var(--ink); background: var(--card);
+  border: 2px solid var(--line); border-bottom-width: 4px; border-radius: var(--r-md);
+  outline: none; transition: border-color .15s;
+}
+.combo-input::placeholder { color: #9aa8c2; font-weight: 600; }
+.combo-input:focus { border-color: var(--blue); }
+.combo-input:disabled { background: var(--line-soft); color: var(--muted); }
+
+.combo-list {
+  display: none; position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 30;
+  background: var(--card); border: 2px solid var(--line); border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg); overflow: auto; max-height: 300px; padding: 5px;
+}
+.combo-list.open { display: block; }
+.combo-item {
+  display: flex; align-items: baseline; gap: 9px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; font-size: 14.5px; font-weight: 700; color: var(--ink);
+}
+.combo-item:hover, .combo-item.on { background: var(--violet-lt); color: var(--violet-dk); }
+.ci-label { flex: 1; min-width: 0; }
+.ci-hint { font-size: 10.5px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
+           color: var(--muted); flex: 0 0 auto; }
+.combo-empty { padding: 12px; font-size: 13.5px; font-weight: 700; color: var(--muted); text-align: center; }
+
+/* Ergebniskarte */
+.tr-result { margin-top: 16px; padding: 16px 17px; border-radius: var(--r-md); border: 2px solid; }
+.tr-result.good { background: var(--ok-lt); border-color: #b6ebc4; }
+.tr-result.bad  { background: var(--bad-lt); border-color: #ffc3c3; }
+.trr-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 9px; }
+.trr-icon { font-size: 20px; }
+.trr-head strong { font-size: 16px; }
+.tr-result.good .trr-head strong { color: var(--ok-dk); }
+.tr-result.bad .trr-head strong { color: var(--bad-dk); }
+.trr-head .tag2 { margin-left: auto; }
+.trr-wrong { font-size: 13.5px; font-weight: 700; color: var(--bad-dk); margin-bottom: 8px; }
+.trr-name { font-size: 17px; margin-bottom: 5px; }
+.trr-desc { font-size: 14px; line-height: 1.55; color: var(--ink); opacity: .85; font-weight: 600; }
+.tr-result .taglist { margin-top: 10px; }
 
 /* ----------------------------------------------------------- Labor ------ */
 

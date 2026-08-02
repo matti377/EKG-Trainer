@@ -42,6 +42,26 @@
     live = [];
   }
 
+  // Anhalten und Fortsetzen, ohne die Objekte wegzuwerfen — nötig beim
+  // Tabwechsel, denn ein Neuaufbau des Bildschirms würde den Fortschritt
+  // in der laufenden Lektion verlieren.
+  function pauseLive() {
+    for (const o of live) {
+      const running = typeof o.stop === 'function' && o.o && o.o.running;
+      o._wasRunning = !!running;
+      if (running) { try { o.stop(); } catch (e) { /* egal */ } }
+    }
+  }
+
+  function resumeLive() {
+    for (const o of live) {
+      if (o._wasRunning && typeof o.start === 'function') {
+        o._wasRunning = false;
+        try { o.start(); } catch (e) { /* egal */ }
+      }
+    }
+  }
+
   /* ----------------------------------------------------------------- Töne */
 
   const Sound = {
@@ -482,6 +502,160 @@
     return String(n).replace('.', ',');
   }
 
+  /* ------------------------------------------------- Suchfeld mit Vorschlag */
+
+  // Umlaute und Sonderzeichen raus, damit „AV-Block II°" auch als
+  // „avblockii" gefunden wird.
+  function norm(s) {
+    return String(s).toLowerCase()
+      .replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/ü/g, 'u')
+      .replace(/ß/g, 'ss').replace(/[^a-z0-9]/g, '');
+  }
+
+  /**
+   * Tippfeld mit Auswahlliste (Combobox).
+   *
+   * @param {Object} o  items: [{id, label, hint, alias[]}], placeholder,
+   *                    onpick(id|null), onenter()
+   * @returns {Object}  el, value(), setDisabled(), focus(), reset()
+   */
+  function combo(o) {
+    const items = o.items.map(function (it) {
+      return Object.assign({}, it, {
+        _n: norm(it.label),
+        _a: (it.alias || []).map(norm)
+      });
+    });
+
+    const inp = h('input', {
+      type: 'text', class: 'combo-input', placeholder: o.placeholder || '',
+      autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off',
+      spellcheck: 'false', role: 'combobox', 'aria-expanded': 'false',
+      'aria-autocomplete': 'list', 'aria-label': o.placeholder || 'Diagnose'
+    });
+    const list = h('div', { class: 'combo-list', role: 'listbox' });
+    const el = h('div', { class: 'combo' }, [inp, list]);
+
+    let chosen = null, shown = [], active = -1;
+
+    // Kleinere Zahl = besserer Treffer.
+    function rank(it, q) {
+      if (it._n.indexOf(q) === 0) return 0;
+      if (it._n.indexOf(q) > 0) return 1;
+      for (const a of it._a) {
+        if (a.indexOf(q) === 0) return 2;
+        if (a.indexOf(q) > 0) return 3;
+      }
+      return -1;
+    }
+
+    function close() {
+      list.classList.remove('open');
+      inp.setAttribute('aria-expanded', 'false');
+      active = -1;
+    }
+
+    function render() {
+      const q = norm(inp.value);
+      const hits = [];
+      for (const it of items) {
+        const r = q ? rank(it, q) : 0;
+        if (r >= 0) hits.push({ it: it, r: r });
+      }
+      hits.sort(function (a, b) {
+        return a.r - b.r || a.it.label.localeCompare(b.it.label, 'de');
+      });
+      shown = hits.slice(0, 8).map(function (x) { return x.it; });
+
+      list.innerHTML = '';
+      if (!shown.length) {
+        list.appendChild(h('div', { class: 'combo-empty', text: 'Kein Treffer' }));
+      }
+      shown.forEach(function (it, i) {
+        const row = h('div', {
+          class: 'combo-item' + (i === active ? ' on' : ''),
+          role: 'option', 'aria-selected': i === active ? 'true' : 'false'
+        }, [
+          h('span', { class: 'ci-label', text: it.label }),
+          it.hint ? h('span', { class: 'ci-hint', text: it.hint }) : null
+        ]);
+        // mousedown statt click: sonst schließt der Blur die Liste zuerst.
+        row.addEventListener('mousedown', function (e) { e.preventDefault(); pick(i); });
+        list.appendChild(row);
+      });
+      list.classList.add('open');
+      inp.setAttribute('aria-expanded', 'true');
+    }
+
+    function pick(i) {
+      const it = shown[i];
+      if (!it) return;
+      chosen = it.id;
+      inp.value = it.label;
+      close();
+      Sound.tap();
+      if (o.onpick) o.onpick(chosen);
+    }
+
+    inp.addEventListener('input', function () {
+      chosen = null;
+      active = -1;
+      render();
+      if (o.onpick) o.onpick(null);
+    });
+    inp.addEventListener('focus', function () { if (!chosen) render(); });
+    inp.addEventListener('blur', function () { setTimeout(close, 120); });
+
+    inp.addEventListener('keydown', function (e) {
+      // Ältere Browser melden „Down"/„Up"/„Esc" statt der ArrowX-Namen.
+      const k = { Down: 'ArrowDown', Up: 'ArrowUp', Esc: 'Escape' }[e.key] || e.key;
+      const isOpen = list.classList.contains('open');
+
+      if (k === 'ArrowDown' || k === 'ArrowUp') {
+        e.preventDefault();
+        const down = k === 'ArrowDown';
+        if (!isOpen) {
+          render();                                   // füllt `shown`
+          active = down ? 0 : Math.max(0, shown.length - 1);
+        } else {
+          active += down ? 1 : -1;
+          if (active < 0) active = shown.length - 1;
+          if (active >= shown.length) active = 0;
+        }
+        render();
+        const on = list.querySelector('.combo-item.on');
+        if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest' });
+      } else if (k === 'Enter') {
+        e.preventDefault();
+        if (isOpen && shown.length) pick(active >= 0 ? active : 0);
+        else if (o.onenter) o.onenter();
+      } else if (k === 'Escape') {
+        close();
+      }
+    });
+
+    return {
+      el: el,
+      // Auch ohne Auswahl aus der Liste akzeptieren, wenn der getippte Text
+      // eindeutig auf einen Eintrag passt.
+      value: function () {
+        if (chosen) return chosen;
+        const q = norm(inp.value);
+        if (!q) return null;
+        const exact = items.filter(function (it) {
+          return it._n === q || it._a.indexOf(q) >= 0;
+        });
+        if (exact.length === 1) return exact[0].id;
+        const part = items.filter(function (it) { return rank(it, q) >= 0; });
+        return part.length === 1 ? part[0].id : null;
+      },
+      hasText: function () { return inp.value.trim().length > 0; },
+      setDisabled: function (v) { inp.disabled = !!v; if (v) close(); },
+      focus: function () { try { inp.focus(); } catch (e) { /* egal */ } },
+      reset: function () { chosen = null; inp.value = ''; inp.disabled = false; close(); }
+    };
+  }
+
   /* ------------------------------------------------------------ Lehrfolie */
 
   function buildTeach(step, host) {
@@ -529,11 +703,15 @@
     h: h,
     shuffle: shuffle,
     media: media,
+    combo: combo,
+    norm: norm,
     buildExercise: buildExercise,
     buildTeach: buildTeach,
     Sound: Sound,
     track: track,
     clearLive: clearLive,
+    pauseLive: pauseLive,
+    resumeLive: resumeLive,
     fmt: fmt
   };
 

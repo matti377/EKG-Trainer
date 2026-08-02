@@ -30,7 +30,7 @@ python3 -m http.server 8000
 | `build_pdf.py`, `ekgdraw.py` | Erzeugen das PDF; Schriften in `skript-fonts/` |
 | `KORREKTUREN.md` | Was gegenüber der Vorlage `ECG ++.docx` geändert wurde |
 
-Die Skripte hängen an `<script>`-Tags mit `?v=11`. Nach einer Änderung diese
+Die Skripte hängen an `<script>`-Tags mit `?v=16`. Nach einer Änderung diese
 Zahl erhöhen, damit der Browser nicht die alte Datei aus dem Cache nimmt.
 
 ## Das PDF neu bauen
@@ -44,7 +44,7 @@ PDF werden aus demselben Wellenmodell berechnet wie die auf der Website —
 `ekgdraw.py` ist die Portierung von `ekg.js` nach Python. Ändert sich also eine
 Kurvenform, muss sie an beiden Stellen angepasst werden.
 
-## Die vier Bereiche
+## Die fünf Bereiche
 
 - **Lernpfad** — 27 Lektionen in 7 Einheiten, von den Grundlagen bis zu
   Elektrolytstörungen. Jede Lektion mischt Lehrfolien und Übungen.
@@ -52,6 +52,10 @@ Kurvenform, muss sie an beiden Stellen angepasst werden.
   Kategorie filterbar.
 - **Labor** — Frequenz, PQ-Zeit, QRS-Breite, ST-Strecke sowie P- und T-Welle
   frei einstellen; die Auswertung darunter benennt die Befunde automatisch.
+- **Trainer** — Diagnose-Training: EKG ansehen, Befund ins Suchfeld tippen,
+  aus der Vorschlagsliste wählen. Kurzformen wie `VHF`, `VT` oder `RSB`
+  funktionieren; nach Gruppen filterbar. Bei mehrdeutiger Eingabe (etwa
+  „Mobitz") verlangt das Feld bewusst eine Auswahl, statt zu raten.
 - **Ableitungen** — Cabrera-Kreis der Frontalebene, Brustwandableitungen und
   die Zuordnung Infarktlokalisation → Gefäß.
 
