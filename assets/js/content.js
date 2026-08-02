@@ -1296,6 +1296,112 @@
       }
     ]},
 
+    { id: 'l6_2c', title: 'Pathologische Q-Zacken', icon: '📉', steps: [
+      { t: 'teach',
+        h: 'Woher die Q-Zacke überhaupt kommt',
+        lead: 'Die Erregung der Kammern beginnt nicht an der Herzspitze, sondern in der <b>Kammerscheidewand</b> — und zwar von links nach rechts. Dieser erste kleine Vektor läuft von den linkslateralen Ableitungen <em>weg</em> und erzeugt dort eine kleine negative Zacke: die septale q-Zacke.',
+        media: { k: 'beat', tpl: { q: { a: -0.14, w: 0.009 } }, pq: 0.16 },
+        bullets: [
+          { i: '📖', x: '<b>Definition:</b> Die Q-Zacke ist die negative Zacke <b>vor</b> der ersten R-Zacke. Kommt sie erst nach einer R-Zacke, heißt sie S-Zacke.' },
+          { i: '✅', x: '<b>Normal — die septalen q:</b> klein und schmal in <b>I, aVL, V5 und V6</b>. Sie gehören zum gesunden EKG.' },
+          { i: '🚫', x: '<b>In V1 bis V3</b> ist praktisch jede Q-Zacke verdächtig. Ein reiner QS-Komplex allein in V1 kann noch eine Normvariante sein.' }
+        ],
+        key: { h: 'Warum ein Infarkt eine Q-Zacke macht', p: 'Abgestorbenes Muskelgewebe ist <b>elektrisch stumm</b>. Die Elektrode über der Narbe sieht deshalb kein Signal mehr von dort — sondern nur noch die Erregung, die sich von ihr <em>wegbewegt</em>. Das ergibt einen negativen Ausschlag: ein „Fenster" auf die gegenüberliegende Wand.' }
+      },
+      { t: 'teach',
+        h: 'Wann ist eine Q-Zacke pathologisch?',
+        lead: 'Zwei Maße entscheiden — und es genügt, wenn <em>eines</em> davon zutrifft.',
+        media: { k: 'leads', leads: [
+          { id: 'q normal', tpl: { q: { c: 0.010, w: 0.008, a: -0.09 }, r: { a: 1.35 }, s: { a: -0.18 }, t: { a: 0.30 } } },
+          { id: 'Q pathologisch', tpl: { q: { c: 0.018, w: 0.018, a: -0.48 }, r: { c: 0.052, w: 0.013, a: 0.90 }, s: { a: -0.10 }, t: { a: 0.22 } } },
+          { id: 'QS', tpl: { q: { c: 0.048, w: 0.032, a: -1.30 }, r: { a: 0 }, s: { a: 0 }, t: { a: -0.20 } } }
+        ], mvTop: 1.7, mvBot: -1.7 },
+        bullets: [
+          { i: '📏', x: '<b>Breite ab 0,04 s.</b> Das ist bei 25 mm/s <b>ein</b> kleines Kästchen, bei 50 mm/s <b>zwei</b>.' },
+          { i: '📐', x: '<b>Tiefe über ein Viertel der nachfolgenden R-Zacke.</b>' },
+          { i: '🕳️', x: '<b>QS-Komplex:</b> gar keine R-Zacke mehr — nur noch ein einziger negativer Ausschlag. Das größtmögliche Ausmaß.' },
+          { i: '🪧', x: '<b>Pardee-Q</b> heißt das pathologische Q nach einem Infarkt. Es dokumentiert die Narbe und bleibt oft <b>lebenslang</b> bestehen.' }
+        ],
+        key: { h: 'Zwei Kästchen zählen genügt', p: 'Du brauchst kein Lineal. Ist die Q-Zacke breiter als ein kleines Kästchen (bei 25 mm/s) <b>oder</b> tiefer als ein Viertel des folgenden R, ist sie auffällig.' }
+      },
+      { t: 'teach',
+        h: 'Nicht jedes Q ist ein Infarkt',
+        lead: 'Bevor du eine Narbe befundest, geh die Alternativen durch. Die häufigste Ursache für ein „neues" Q in der Vorderwand ist banal — und in zwei Minuten behoben.',
+        media: { k: 'scope', rhythm: 'alter_infarkt', h: 'md', theme: 'paper', label: 'Abgelaufener Infarkt' },
+        bullets: [
+          { i: '🔌', x: '<b>Falsch geklebte Elektroden.</b> Zu hoch angebrachte Brustwandelektroden erzeugen Q-Zacken und fehlenden R-Aufbau. Immer zuerst prüfen.' },
+          { i: '🌿', x: '<b>Linksschenkelblock.</b> Der QS-Komplex in V1 bis V3 gehört zum Blockbild und darf nicht als Infarkt gewertet werden.' },
+          { i: '⚡', x: '<b>WPW-Syndrom.</b> Eine negative Delta-Welle kann eine Q-Zacke täuschend echt imitieren.' },
+          { i: '💪', x: '<b>Hypertrophe Kardiomyopathie.</b> Das verdickte Septum erzeugt tiefe, aber typischerweise <em>schmale</em> Q-Zacken.' },
+          { i: '🫁', x: '<b>Lungenembolie.</b> Das SI-QIII-TIII-Muster bringt eine Q-Zacke in Ableitung III mit sich.' },
+          { i: '🔄', x: '<b>Lagebedingt.</b> Eine isolierte Q-Zacke nur in Ableitung III verschwindet oft bei tiefer Einatmung — dann ist sie harmlos.' }
+        ]
+      },
+      { t: 'num',
+        q: 'Ab welcher Breite (in Sekunden) gilt eine Q-Zacke als pathologisch?',
+        a: 0.04, tol: 0.002, unit: 's', dec: true,
+        why: '0,04 s ist die Grenze — bei 25 mm/s genau ein kleines Kästchen, bei 50 mm/s zwei. Zusammen mit dem Tiefenkriterium ist das der schnellste Test am Streifen.'
+      },
+      { t: 'mc',
+        q: 'Wie tief darf eine Q-Zacke höchstens sein, um noch als normal zu gelten?',
+        opts: [
+          'Bis zur Hälfte der nachfolgenden R-Zacke',
+          'Bis zu einem Viertel der nachfolgenden R-Zacke',
+          'Bis zur gleichen Höhe wie die R-Zacke',
+          'Die Tiefe spielt keine Rolle'
+        ], a: 1,
+        why: 'Über einem Viertel der nachfolgenden R-Zacke gilt die Q-Zacke als pathologisch. Beide Kriterien — Breite und Tiefe — werden unabhängig geprüft; eines genügt.'
+      },
+      { t: 'multi',
+        q: 'Wo sind kleine, schmale q-Zacken ein Normalbefund? (mehrere richtig)',
+        opts: ['I und aVL', 'V5 und V6', 'V1 bis V3', 'In jeder Ableitung gleichermaßen'],
+        a: [0, 1],
+        why: 'Die septalen q-Zacken finden sich in den linkslateralen Ableitungen I, aVL, V5 und V6 — dort läuft der Septumvektor von der Elektrode weg. In V1 bis V3 ist dagegen praktisch jede Q-Zacke verdächtig.'
+      },
+      { t: 'rhythm',
+        q: 'Welcher der drei Komplexe ist pathologisch?',
+        sub: 'Vergleiche Breite und Tiefe der negativen Zacke jeweils mit der folgenden R-Zacke.',
+        media: { k: 'leads', leads: [
+          { id: 'A', tpl: { q: { c: 0.010, w: 0.008, a: -0.09 }, r: { a: 1.35 }, s: { a: -0.18 }, t: { a: 0.30 } } },
+          { id: 'B', tpl: { q: { c: 0.018, w: 0.018, a: -0.48 }, r: { c: 0.052, w: 0.013, a: 0.90 }, s: { a: -0.10 }, t: { a: 0.22 } } },
+          { id: 'C', tpl: { q: { c: 0.010, w: 0.008, a: -0.12 }, r: { a: 1.10 }, s: { a: -0.22 }, t: { a: 0.28 } } }
+        ], mvTop: 1.7, mvBot: -1.7 },
+        opts: ['A', 'B', 'C', 'Alle drei sind normal'],
+        a: 1,
+        why: 'In B ist die Q-Zacke deutlich breiter und erreicht mehr als ein Viertel der folgenden R-Zacke. A und C zeigen dagegen die kleinen, schmalen septalen q-Zacken, wie sie in I, aVL, V5 und V6 dazugehören.'
+      },
+      { t: 'mc',
+        q: 'Was bedeutet ein Pardee-Q?',
+        opts: [
+          'Einen frischen Gefäßverschluss, der sofort behandelt werden muss',
+          'Eine Narbe nach abgelaufenem Infarkt, die oft lebenslang sichtbar bleibt',
+          'Eine harmlose Normvariante',
+          'Ein Zeichen für einen Schenkelblock'
+        ], a: 1,
+        why: 'Das Pardee-Q entsteht durch elektrisch stummes Narbengewebe. Es dokumentiert einen abgelaufenen Infarkt — oft noch Jahre später — sagt aber nichts über ein akutes Geschehen aus.'
+      },
+      { t: 'match',
+        q: 'Ordne jeder Q-Zacke ihre Ursache zu.',
+        pairs: [
+          ['Breites Q mit R-Verlust in V1–V4', 'Abgelaufener Vorderwandinfarkt'],
+          ['QS in V1–V3 bei breitem QRS', 'Linksschenkelblock'],
+          ['Q verschwindet nach Umkleben', 'Falsch platzierte Elektroden'],
+          ['Negative Delta-Welle', 'WPW-Syndrom']
+        ],
+        why: 'Genau diese Differenzialdiagnosen trennen den echten Infarkt vom Fehlalarm. Die Elektrodenlage steht dabei ganz oben auf der Liste — sie ist die häufigste und die am schnellsten zu klärende Ursache.'
+      },
+      { t: 'tf',
+        q: 'Ein pathologisches Q nach einem Infarkt bildet sich in der Regel innerhalb weniger Wochen zurück.',
+        a: false,
+        why: 'Nein. Das Narbengewebe bleibt elektrisch stumm, deshalb bleibt auch das Pardee-Q meist dauerhaft bestehen. Genau darum lässt sich ein alter Infarkt oft noch Jahre später im EKG ablesen.'
+      },
+      { t: 'tf',
+        q: 'Eine isolierte Q-Zacke nur in Ableitung III kann bei tiefer Einatmung verschwinden und ist dann harmlos.',
+        a: true,
+        why: 'Richtig. Diese Q-Zacke ist lagebedingt: Bei tiefer Inspiration senkt sich das Zwerchfell, das Herz dreht sich, und die Zacke verschwindet. Isoliert in III ist eine Q-Zacke deshalb kein Infarktbeweis.'
+      }
+    ]},
+
     { id: 'l6_3', title: 'NSTEMI & Infarktstadien', icon: '⏳', steps: [
       { t: 'teach',
         h: 'Nicht jeder Infarkt hebt die ST-Strecke',
@@ -1751,6 +1857,9 @@
     { id: 'stemi_spaet', cat: 'Ischämie', name: 'Infarkt im Verlauf',
       desc: 'Die ST-Hebung bildet sich zurück, das R wird kleiner und ein pathologisches Q entsteht — Zeichen des fortgeschrittenen Infarkts.',
       tags: [['Pardee-Q', 'warn'], ['R-Verlust', '']] },
+    { id: 'alter_infarkt', cat: 'Ischämie', name: 'Abgelaufener Infarkt (Pardee-Q)',
+      desc: 'Breite, tiefe Q-Zacke mit kleinem Rest-R und negativem T, ohne ST-Hebung. Zeichen einer alten Narbe — bleibt oft lebenslang bestehen.',
+      tags: [['Pardee-Q', 'warn'], ['Nicht akut', 'ok']] },
     { id: 'nstemi', cat: 'Ischämie', name: 'ST-Senkung / NSTEMI',
       desc: 'Horizontale oder deszendierende ST-Senkung mit T-Negativierung. Die Abgrenzung zur instabilen Angina gelingt nur über das Troponin.',
       tags: [['Troponin', 'warn'], ['Ischämie', 'warn']] },

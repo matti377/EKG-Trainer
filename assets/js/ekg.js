@@ -421,6 +421,18 @@
       }
     }),
 
+    // Abgelaufener Infarkt: die ST-Hebung ist längst weg, geblieben sind das
+    // breite Pardee-Q und ein kleines R — elektrisch stummes Narbengewebe.
+    alter_infarkt: sinusLike({
+      rate: 70, pq: 0.16,
+      vTpl: {
+        q: { c: 0.018, w: 0.018, a: -0.62 },
+        r: { c: 0.052, w: 0.013, a: 0.42 },
+        s: { c: 0.076, w: 0.011, a: -0.10 },
+        t: { c: 0.250, w: 0.062, a: -0.26 }
+      }
+    }),
+
     // NSTEMI-Bild: horizontale ST-Senkung plus präterminal negatives T.
     nstemi: sinusLike({
       rate: 92, pq: 0.16,

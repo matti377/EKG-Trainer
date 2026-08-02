@@ -514,22 +514,51 @@ def kapitel1():
                      '(Delta-Welle).'))
 
     o.append(sec('1.6 Die Q-Zacke'))
-    o.append(p('Die Q-Zacke entsteht durch die initiale Kammererregung — die Erregung '
-               'der Kammerscheidewand von links nach rechts. Sie ist klein, schmal und '
-               'negativ.'))
+    o.append(p('Die Erregung der Kammern beginnt in der <b>Kammerscheidewand</b>, und '
+               'zwar von links nach rechts. Dieser erste kleine Vektor läuft von den '
+               'linkslateralen Ableitungen weg und erzeugt dort eine kleine negative '
+               'Zacke — die septale q-Zacke.'))
     o.append(bullets([
         ('Normal —', 'kleine, schmale q-Zacken in <b>I, aVL, V5 und V6</b>. Das sind '
                      'die septalen q-Zacken; sie gehören zum gesunden EKG.'),
-        ('Pathologisch —', 'eine Q-Zacke ab <b>0,04 s Breite</b> oder tiefer als '
-                           '<b>ein Viertel</b> der nachfolgenden R-Zacke.'),
+        ('Pathologisch —', 'eine Q-Zacke ab <b>0,04 s Breite</b> <i>oder</i> tiefer als '
+                           '<b>ein Viertel</b> der nachfolgenden R-Zacke. Ein Kriterium genügt.'),
         ('In V1 bis V3 —', 'ist praktisch jede Q-Zacke verdächtig. Ein reiner '
                            'QS-Komplex allein in V1 kann dagegen noch eine Normvariante sein.'),
+        ('Pardee-Q —', 'so heißt das pathologische Q nach einem Infarkt. Es dokumentiert '
+                       'die Narbe und bleibt oft <b>lebenslang</b> bestehen.'),
     ]))
     o.append(Spacer(1, 8))
-    o.append(box('warn', 'Erst die Elektroden prüfen',
-                 'Zu hoch geklebte Brustwandelektroden erzeugen scheinbare Q-Zacken und '
-                 'einen fehlenden R-Aufbau. Bevor ein alter Infarkt in den Raum gestellt '
-                 'wird, gehört immer der Blick auf die Elektrodenlage.'))
+    o.append(LeadGrid(CW, [
+        ('q normal', {'q': {'c': 0.010, 'w': 0.008, 'a': -0.09}, 'r': {'a': 1.35},
+                      's': {'a': -0.18}, 't': {'a': 0.30}}),
+        ('Q pathologisch', {'q': {'c': 0.018, 'w': 0.018, 'a': -0.48},
+                            'r': {'c': 0.052, 'w': 0.013, 'a': 0.90},
+                            's': {'a': -0.10}, 't': {'a': 0.22}}),
+        ('QS', {'q': {'c': 0.048, 'w': 0.032, 'a': -1.30}, 'r': {'a': 0}, 's': {'a': 0},
+                't': {'a': -0.20}}),
+    ], cell_h=86, mv_top=1.7, mv_bot=-1.7))
+    o.append(caption('4 — Links das normale septale q, in der Mitte ein pathologisches Q, '
+                     'rechts ein QS-Komplex ohne jede R-Zacke.'))
+    o.append(box('key', 'Zwei Kästchen zählen genügt',
+                 'Du brauchst kein Lineal: Ist die Q-Zacke breiter als ein kleines '
+                 'Kästchen (bei 25 mm/s) <b>oder</b> tiefer als ein Viertel des '
+                 'folgenden R, ist sie auffällig.'))
+
+    o.append(h3('Nicht jedes Q ist ein Infarkt'))
+    o.append(bullets([
+        ('Falsch geklebte Elektroden —', 'zu hoch angebrachte Brustwandelektroden '
+         'erzeugen Q-Zacken und fehlenden R-Aufbau. <b>Immer zuerst prüfen</b> — das ist '
+         'die häufigste und die am schnellsten zu klärende Ursache.'),
+        ('Linksschenkelblock —', 'der QS-Komplex in V1 bis V3 gehört zum Blockbild.'),
+        ('WPW-Syndrom —', 'eine negative Delta-Welle kann eine Q-Zacke imitieren.'),
+        ('Hypertrophe Kardiomyopathie —', 'das verdickte Septum erzeugt tiefe, aber '
+         'typischerweise <i>schmale</i> Q-Zacken.'),
+        ('Lungenembolie —', 'das SI-QIII-TIII-Muster bringt eine Q-Zacke in Ableitung III '
+         'mit sich.'),
+        ('Lagebedingt —', 'eine isolierte Q-Zacke nur in Ableitung III verschwindet oft '
+         'bei tiefer Einatmung — dann ist sie harmlos.'),
+    ], colour=GOLD_DK))
     return o
 
 
@@ -553,7 +582,7 @@ def kapitel1b():
         ('V5', {'q': {'a': -0.07}, 'r': {'a': 1.55}, 's': {'a': -0.22}, 't': {'a': 0.32}}),
         ('V6', {'q': {'a': -0.09}, 'r': {'a': 1.25}, 's': {'a': -0.10}, 't': {'a': 0.26}}),
     ]]))
-    o.append(caption('4 — Regelrechter R-Aufbau. Alle sechs Felder haben denselben '
+    o.append(caption('5 — Regelrechter R-Aufbau. Alle sechs Felder haben denselben '
                      'Maßstab — nur so ist das Wachstum ablesbar.'))
     o.append(bullets([
         ('R wächst —', 'von V1 bis etwa V5 kontinuierlich an. In V6 nimmt sie oft '
@@ -611,7 +640,7 @@ def kapitel1b():
         ('BOTTOMPADDING', (0, 0), (-1, 0), 0),
     ]))
     o.append(figs)
-    o.append(caption('5 — Derselbe Befund „ST-Hebung", zwei völlig verschiedene Ursachen.'))
+    o.append(caption('6 — Derselbe Befund „ST-Hebung", zwei völlig verschiedene Ursachen.'))
     o.append(Spacer(1, 4))
     o.append(bullets([
         ('Zweites Unterscheidungsmerkmal —', 'Der Infarkt hebt in den Ableitungen '
@@ -678,7 +707,7 @@ def kapitel1c():
         ('TOPPADDING', (0, 1), (-1, 1), 6), ('BOTTOMPADDING', (0, 0), (-1, 0), 0),
     ]))
     o.append(tt)
-    o.append(caption('6 — Die beiden Kalium-Bilder im direkten Vergleich.'))
+    o.append(caption('7 — Die beiden Kalium-Bilder im direkten Vergleich.'))
 
     o.append(sec('1.10 Die QT-Zeit'))
     o.append(p('Die QT-Zeit umfasst die gesamte Kammeraktion — vom Beginn des '
@@ -711,7 +740,7 @@ def kapitel1c():
                  'berechnen die Achse zusätzlich automatisch.'))
     o.append(Spacer(1, 12))
     o.append(Cabrera(CW, 210))
-    o.append(caption('7 — Cabrera-Kreis: Blickrichtung der sechs Extremitätenableitungen. '
+    o.append(caption('8 — Cabrera-Kreis: Blickrichtung der sechs Extremitätenableitungen. '
                      'Positive Winkel zeigen nach unten.'))
     o.append(table(
         ['Lagetyp', 'Bereich', 'Bewertung'],
@@ -729,7 +758,7 @@ def kapitel1c():
                '<b>oben</b> oder nach <b>unten</b> zeigt — und in welcher er am '
                'größten ist.'))
     o.append(LeadGrid(CW, axis_leads(48), cell_h=86, mv_top=1.95, mv_bot=-1.95))
-    o.append(caption('8 — Beispiel: II am größten, I und III positiv. Das ist der '
+    o.append(caption('9 — Beispiel: II am größten, I und III positiv. Das ist der '
                      'Indifferenztyp.'))
     o.append(KeepTogether(table(
         ['Lagetyp', 'I', 'II', 'III'],
@@ -775,7 +804,7 @@ def kapitel2():
     ]))
     o.append(Spacer(1, 8))
     o.append(Strip(CW, 104, tpl({}), seconds=3.4, rate=70))
-    o.append(caption('9 — Normaler Sinusrhythmus: vor jedem QRS-Komplex eine P-Welle, '
+    o.append(caption('10 — Normaler Sinusrhythmus: vor jedem QRS-Komplex eine P-Welle, '
                      'konstante Abstände.'))
     o.append(table(
         ['Variante', 'Kennzeichen'],
@@ -825,7 +854,7 @@ def kapitel2():
                'Sinusknoten unbeirrt weitertaktet.'))
     o.append(Spacer(1, 4))
     o.append(Strip(CW, 104, tpl({}), seconds=3.8, rate=70))
-    o.append(caption('10 — Zum Vergleich der Normalbefund: gleichmäßige Abstände ohne Ausfall.'))
+    o.append(caption('11 — Zum Vergleich der Normalbefund: gleichmäßige Abstände ohne Ausfall.'))
     o.append(h3('Grad III'))
     o.append(p('Kompletter Sinusarrest — es kommt kein Impuls mehr an. Ein Ersatzzentrum '
                'muss übernehmen, sonst droht die Asystolie.'))
@@ -902,7 +931,7 @@ def kapitel2b():
         ('V5', {'q': {'a': -0.07}, 'r': {'a': 1.35}, 's': {'c': 0.086, 'w': 0.030, 'a': -0.52}, 't': {'c': 0.275, 'a': 0.26}, 'stEnd': 0.225}),
         ('V6', {'q': {'a': -0.08}, 'r': {'a': 1.15}, 's': {'c': 0.090, 'w': 0.032, 'a': -0.48}, 't': {'c': 0.275, 'a': 0.24}, 'stEnd': 0.225}),
     ]))
-    o.append(caption('11 — Rechtsschenkelblock: M-Form in V1/V2, breite S-Zacke in V5/V6.'))
+    o.append(caption('12 — Rechtsschenkelblock: M-Form in V1/V2, breite S-Zacke in V5/V6.'))
     o.append(box('ok', 'Klinische Einordnung',
                  'Ein Rechtsschenkelblock kann auch bei Herzgesunden als Zufallsbefund '
                  'vorkommen — der inkomplette RSB ist bei jungen Menschen sogar häufig.'))
@@ -934,7 +963,7 @@ def kapitel2b():
         ('V6', {'q': {'a': 0}, 'r': {'c': 0.058, 'w': 0.042, 'a': 1.20}, 'r2': {'c': 0.100, 'w': 0.028, 'a': 0.30},
                 's': {'a': 0}, 't': {'c': 0.315, 'w': 0.078, 'a': -0.40}, 'st': -0.07, 'stEnd': 0.240}),
     ]))
-    o.append(caption('12 — Linksschenkelblock: QS in V1–V3, breites plumpes R in V5/V6.'))
+    o.append(caption('13 — Linksschenkelblock: QS in V1–V3, breites plumpes R in V5/V6.'))
     o.append(box('bad', 'Häufige Verwechslung',
                  'Die breite, plumpe <b>S-Zacke in Ableitung I und V6</b> gehört zum '
                  '<b>Rechts</b>schenkelblock. Beim <b>Links</b>schenkelblock steht dort '
@@ -1034,8 +1063,8 @@ def kapitel3():
         ('V5', {'q': {'a': -0.12}, 'r': {'a': 0.95}, 's': {'a': -0.20}, 't': {'a': 0.18}}),
         ('V6', {'q': {'a': -0.10}, 'r': {'a': 1.10}, 's': {'a': -0.10}, 't': {'a': 0.22}}),
     ]))
-    o.append(caption('13 — Fehlender R-Aufbau mit Q-Zacken über der Vorderwand. '
-                     'Vergleiche mit Abbildung 4.'))
+    o.append(caption('14 — Fehlender R-Aufbau mit Q-Zacken über der Vorderwand. '
+                     'Vergleiche mit Abbildung 5.'))
     o.append(box('bad', 'Verdacht — kein Beweis',
                  'Gestörte R-Progression plus pathologische Q-Zacken machen einen '
                  'abgelaufenen Vorderwandinfarkt <b>wahrscheinlich</b>, beweisen ihn aber '
@@ -1051,7 +1080,7 @@ def kapitel3():
     o.append(Spacer(1, 4))
     o.append(Strip(CW, 104, tpl({'t': {'c': 0.420, 'w': 0.085, 'a': 0.26}}),
                    seconds=3.4, rate=62))
-    o.append(caption('14 — Verlängerte QT-Zeit: Die T-Welle liegt weit vom QRS-Komplex '
+    o.append(caption('15 — Verlängerte QT-Zeit: Die T-Welle liegt weit vom QRS-Komplex '
                      'entfernt.'))
     o.append(bullets([
         ('Folgen —', 'Das LQTS kann Synkopen auslösen und in eine <b>Torsade de '
@@ -1131,7 +1160,7 @@ def kapitel3():
         ('V3', {'q': {'a': 0}, 'r': {'a': 0.80}, 's': {'c': 0.062, 'w': 0.014, 'a': -0.70},
                 't': {'c': 0.250, 'w': 0.060, 'a': 0.30}}),
     ], cell_h=86))
-    o.append(caption('15 — Brugada-Muster Typ 1: gewölbte ST-Hebung mit negativem T in '
+    o.append(caption('16 — Brugada-Muster Typ 1: gewölbte ST-Hebung mit negativem T in '
                      'V1 und V2, in V3 nicht mehr nachweisbar.'))
     o.append(box('warn', 'Ein normales EKG beweist nichts',
                  'Rhythmusstörungen treten anfallsweise auf — zwischen den Episoden kann '

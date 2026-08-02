@@ -30,7 +30,7 @@ python3 -m http.server 8000
 | `build_pdf.py`, `ekgdraw.py` | Erzeugen das PDF; Schriften in `skript-fonts/` |
 | `KORREKTUREN.md` | Was gegenüber der Vorlage `ECG ++.docx` geändert wurde |
 
-Die Skripte hängen an `<script>`-Tags mit `?v=10`. Nach einer Änderung diese
+Die Skripte hängen an `<script>`-Tags mit `?v=11`. Nach einer Änderung diese
 Zahl erhöhen, damit der Browser nicht die alte Datei aus dem Cache nimmt.
 
 ## Das PDF neu bauen
@@ -46,9 +46,9 @@ Kurvenform, muss sie an beiden Stellen angepasst werden.
 
 ## Die vier Bereiche
 
-- **Lernpfad** — 26 Lektionen in 7 Einheiten, von den Grundlagen bis zu
+- **Lernpfad** — 27 Lektionen in 7 Einheiten, von den Grundlagen bis zu
   Elektrolytstörungen. Jede Lektion mischt Lehrfolien und Übungen.
-- **Befunde** — Nachschlagewerk mit 33 laufenden Rhythmusstreifen, nach
+- **Befunde** — Nachschlagewerk mit 34 laufenden Rhythmusstreifen, nach
   Kategorie filterbar.
 - **Labor** — Frequenz, PQ-Zeit, QRS-Breite, ST-Strecke sowie P- und T-Welle
   frei einstellen; die Auswertung darunter benennt die Befunde automatisch.

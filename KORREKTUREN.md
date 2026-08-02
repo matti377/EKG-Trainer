@@ -137,7 +137,7 @@ Skript, das an Auszubildende verteilt wird, habe ich sie **nicht übernommen** �
 Abbildungen aus einem Lehrbuch sind urheberrechtlich geschützt, unabhängig
 davon, ob die Quelle genannt wird.
 
-Stattdessen sind **alle 15 Abbildungen im PDF neu berechnet**: Jede Zacke ist
+Stattdessen sind **alle 16 Abbildungen im PDF neu berechnet**: Jede Zacke ist
 eine Gauß-Funktion mit Lage, Breite und Amplitude in Sekunden und Millivolt.
 Das hat zwei Nebeneffekte, die dem Skript zugutekommen:
 
@@ -207,3 +207,24 @@ es beim Lesen nicht wie ein Widerspruch wirkt.
 
 Was aus einem auffälligen Befund folgt, richtet sich nach den Vorgaben deines
 Dienstes — das Skript nennt bewusst keine Handlungsanweisung.
+
+**Pathologische Q-Zacken** — Lektion 6.4 auf der Website (11 Schritte) und
+Abschnitt 1.6 im Skript, dort deutlich ausgebaut. Neu darin:
+
+- warum die Q-Zacke überhaupt entsteht (Septumerregung von links nach rechts)
+  und warum ein Infarkt eine erzeugt (elektrisch stummes Narbengewebe als
+  „Fenster" auf die Gegenwand)
+- eine Vergleichsabbildung: normales septales q, pathologisches Q, QS-Komplex
+- **Pardee-Q** als Begriff samt der Feststellung, dass es meist dauerhaft
+  bleibt
+- die Differenzialdiagnosen unter „Nicht jedes Q ist ein Infarkt": falsch
+  geklebte Elektroden, Linksschenkelblock, WPW, hypertrophe Kardiomyopathie,
+  Lungenembolie (SI-QIII-TIII) und die lagebedingte Q-Zacke in Ableitung III,
+  die bei tiefer Einatmung verschwindet
+
+Neu in der Befund-Bibliothek: **Abgelaufener Infarkt (Pardee-Q)** — breites Q
+mit kleinem Rest-R und negativem T, ohne ST-Hebung.
+
+Die Q-Kriterien standen vorher nur als Randnotiz in der Lektion „R-Aufbau &
+R-Verlust". Diese Stelle ist bewusst stehengeblieben: Wiederholung über zwei
+Lektionen hinweg festigt, und beide Themen hängen ohnehin zusammen.

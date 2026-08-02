@@ -179,7 +179,7 @@
                        'Normwert-Übersicht zum Nachschlagen. Zum Ausdrucken und Verteilen.' }),
         h('div', { class: 'taglist' }, [
           h('span', { class: 'tag2 ok', text: '22 Seiten' }),
-          h('span', { class: 'tag2', text: '15 Abbildungen' }),
+          h('span', { class: 'tag2', text: '16 Abbildungen' }),
           h('span', { class: 'tag2', text: 'A4, druckfertig' })
         ]),
         h('a', { class: 'btn heart', href: SKRIPT_PDF, target: '_blank', rel: 'noopener',
