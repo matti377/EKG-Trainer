@@ -36,6 +36,48 @@ Anderer Port: `PORT=9000 python3 server.py`.
 
 **Alle übrigen Bereiche laufen weiterhin ohne Server**, direkt aus dem Ordner.
 
+## Auf dem Server ausrollen
+
+Einmalig auf dem Ubuntu-Server:
+
+```bash
+git clone https://github.com/matti377/EKG-Trainer.git
+cd EKG-Trainer
+./deploy.sh
+```
+
+Danach reicht bei jeder Änderung wieder `./deploy.sh`. Das Skript holt den
+Stand, richtet einen systemd-Dienst ein (oder frischt ihn auf), startet neu und
+prüft, ob die Seite auch wirklich antwortet.
+
+| Aufruf | Wirkung |
+|---|---|
+| `./deploy.sh` | Stand holen, Dienst einrichten/neu starten, prüfen |
+| `./deploy.sh --status` | Nachsehen, was gerade läuft |
+| `./deploy.sh --logs` | Log mitlesen |
+| `./deploy.sh --no-pull` | Lokalen Stand ausrollen, ohne zu holen |
+| `./deploy.sh --force` | Auch neu starten, wenn eine Challenge läuft |
+
+Einstellungen kommen aus `deploy.env` neben dem Skript (nicht im Repository):
+
+```bash
+PORT=8000
+SERVICE=ekg-lernen
+RUN_USER=ekg
+```
+
+Zwei Dinge, die das Skript bewusst tut:
+
+- **Es baut das PDF nicht neu.** Das fertige `EKG-Skript.pdf` liegt im
+  Repository. Würde der Server es neu erzeugen, wäre der Arbeitsbereich
+  verändert und der nächste `git pull --ff-only` blockiert. Gebaut wird lokal,
+  eingecheckt wird das Ergebnis.
+- **Es fragt nach, wenn gerade eine Challenge läuft.** Die Lobbys liegen nur im
+  Arbeitsspeicher; ein Neustart mitten im Kurs würde alle hinauswerfen.
+
+Auf dem Server sind **keine Python-Pakete nötig** — `server.py` kommt mit der
+Standardbibliothek aus. `reportlab` braucht nur, wer das PDF baut.
+
 ## Aufbau
 
 | Datei | Inhalt |
@@ -50,6 +92,7 @@ Anderer Port: `PORT=9000 python3 server.py`.
 | `EKG-Skript.pdf` | Begleitskript zum Verteilen (24 Seiten, A4) |
 | `build_pdf.py`, `ekgdraw.py` | Erzeugen das PDF; Schriften in `skript-fonts/` |
 | `server.py` | Nur für die Challenge: liefert die Seite aus und verwaltet die Lobbys |
+| `deploy.sh` | Ausrollen auf dem Ubuntu-Server (siehe oben) |
 | `KORREKTUREN.md` | Was gegenüber der Vorlage `ECG ++.docx` geändert wurde |
 
 Die Skripte hängen an `<script>`-Tags mit `?v=23`. Nach einer Änderung diese

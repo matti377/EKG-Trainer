@@ -1,0 +1,10 @@
+# Server-eigene Einstellungen (Port, Dienstname, Benutzer) — bleiben lokal
+deploy.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# macOS
+.DS_Store
