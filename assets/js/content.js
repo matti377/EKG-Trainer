@@ -1455,6 +1455,141 @@
         a: true,
         why: 'Ja. Das breite, tiefe Q entsteht durch abgestorbenes, elektrisch stummes Gewebe. Es dokumentiert einen abgelaufenen Infarkt oft noch Jahre später.'
       }
+    ]},
+
+    { id: 'l6_4', title: 'Negative T-Wellen', icon: '🔻', steps: [
+      { t: 'teach',
+        h: 'Erst die Frage: Darf sie hier überhaupt negativ sein?',
+        lead: 'Eine negative T-Welle ist einer der häufigsten Befunde überhaupt — und einer der am schnellsten überbewerteten. Bevor du an eine Ischämie denkst, klärst du, ob sie an dieser Stelle nicht ganz normal ist.',
+        media: { k: 'leads', set: 't_normal' },
+        bullets: [
+          { i: '✅', x: '<b>aVR:</b> Hier ist die T-Welle <b>immer</b> negativ. Diese Ableitung schaut entgegen der Erregungsrichtung.' },
+          { i: '✅', x: '<b>V1:</b> häufig negativ, das ist unauffällig. Auch V2 kann es bei jungen Menschen noch sein.' },
+          { i: '✅', x: '<b>III:</b> oft negativ und lagebedingt — verschwindet dann bei tiefer Einatmung.' },
+          { i: '🧭', x: '<b>Die Grundregel:</b> Die T-Welle folgt der Hauptrichtung des QRS-Komplexes (Konkordanz). Ist der QRS überwiegend <b>negativ</b>, darf das T es auch sein.' },
+          { i: '🧒', x: '<b>Persistierendes juveniles T-Muster:</b> negative T in V1–V3 bei jungen, vor allem weiblichen Erwachsenen — eine Normvariante.' }
+        ],
+        key: { h: 'Der erste Griff', p: 'Vergleiche die T-Welle immer mit „ihrem" QRS-Komplex und mit einem <b>Vor-EKG</b>, wenn es eines gibt. <b>Neu aufgetreten</b> wiegt schwerer als jede Beschreibung der Form.' }
+      },
+      { t: 'teach',
+        h: 'Wie eine krankhafte T-Negativierung aussieht',
+        lead: 'Nicht die Richtung allein entscheidet, sondern <em>Form, Tiefe und Ausdehnung</em>. Die ischämische T-Welle hat ein sehr charakteristisches Aussehen.',
+        media: { k: 'scope', rhythm: 't_negativierung', h: 'md', theme: 'paper',
+                 label: 'Symmetrisch negatives T' },
+        bullets: [
+          { i: '🔻', x: '<b>Symmetrisch:</b> ab- und aufsteigender Schenkel gleich steil, die Spitze schmal. Das spricht für eine <b>Ischämie</b>.' },
+          { i: '〰️', x: '<b>Asymmetrisch:</b> träge abfallend, dann rascher Anstieg — typisch für eine <b>sekundäre</b> Ursache wie Hypertrophie oder Schenkelblock.' },
+          { i: '📏', x: '<b>Tiefe:</b> über 1–2 mm wird es auffällig, über 5 mm deutlich.' },
+          { i: '🗺️', x: '<b>Ausdehnung:</b> Mehrere <b>benachbarte</b> Ableitungen eines Gefäßgebiets wiegen schwerer als eine einzelne.' },
+          { i: '📉', x: '<b>Begleitbefunde:</b> ST-Senkung, verlängerte QT-Zeit oder pathologische Q-Zacken machen die Sache klarer.' }
+        ],
+        key: { h: 'Wichtig zur ST-Strecke', p: 'Im Bild oben liegt die ST-Strecke auf der <b>Nulllinie</b> — nur die T-Welle ist negativ. Das ist eine isolierte T-Negativierung. Kommt eine ST-Senkung dazu, wird die Ischämie wahrscheinlicher.' }
+      },
+      { t: 'teach',
+        h: 'Wellens: das Zeichen, das man kennen muss',
+        lead: 'Ein Sonderfall mit eigenem Namen — und einer der wenigen EKG-Befunde, bei denen der Patient <em>beschwerdefrei</em> vor dir sitzt und trotzdem hochgefährdet ist.',
+        media: { k: 'leads', set: 'wellens' },
+        bullets: [
+          { i: '🔻', x: '<b>Typ B (häufiger):</b> tief negative, <b>symmetrische</b> T-Wellen in V2 und V3.' },
+          { i: '〽️', x: '<b>Typ A:</b> biphasische T-Wellen in V2/V3 — erst nach oben, dann nach unten.' },
+          { i: '✅', x: '<b>Entscheidend:</b> Die <b>R-Zacken bleiben erhalten</b>, es gibt <b>keine</b> pathologischen Q-Zacken und die ST-Strecke ist kaum gehoben. Der Muskel ist also noch nicht abgestorben.' },
+          { i: '🚨', x: '<b>Bedeutung:</b> hochgradige Verengung des <b>RIVA</b>. Die Zeichen erscheinen typischerweise im <b>schmerzfreien Intervall</b> nach einer Episode.' },
+          { i: '⛔', x: '<b>Konsequenz:</b> Ein Belastungstest ist hier gefährlich. Diese Patienten gehören in die Katheter-Abklärung.' }
+        ],
+        key: { h: 'Warum das so tückisch ist', p: 'Beschwerdefrei, Troponin oft normal, keine ST-Hebung — das EKG ist der einzige Hinweis. Wer das Muster nicht kennt, schickt den Patienten nach Hause.' }
+      },
+      { t: 'teach',
+        h: 'Die Differenzialdiagnosen',
+        lead: 'Nicht jede negative T-Welle kommt vom Herzkranzgefäß. Diese Liste geht dir im Zweifel durch den Kopf:',
+        bullets: [
+          { i: '🫀', x: '<b>Ischämie</b> — akut, im Verlauf nach Infarkt oder als Wellens-Muster.' },
+          { i: '🌿', x: '<b>Sekundär bei breitem QRS:</b> Schenkelblock, Schrittmacher, WPW. Dort ist das gegenläufige T <b>normal</b> und darf nicht als Ischämie gewertet werden.' },
+          { i: '💪', x: '<b>Linksherzhypertrophie</b> — mit ST-Senkung als „Schädigungsbild", asymmetrisch geformt.' },
+          { i: '🫁', x: '<b>Lungenembolie</b> — Rechtsherzbelastung mit T-Negativierung in <b>III und V1–V3</b>, oft zusammen mit SI-QIII-TIII.' },
+          { i: '🧠', x: '<b>Zerebrale Ereignisse</b> wie eine Subarachnoidalblutung — tiefe, breite T-Wellen mit verlängerter QT-Zeit.' },
+          { i: '🔁', x: '<b>Nach Tachykardie oder Schrittmacherphasen</b> („kardiales Gedächtnis") — vorübergehend.' },
+          { i: '🧒', x: '<b>Normvarianten</b> — juveniles T-Muster, lagebedingtes T in III.' }
+        ]
+      },
+      { t: 'mc',
+        q: 'In welcher Ableitung ist eine negative T-Welle <b>immer</b> ein Normalbefund?',
+        opts: ['In V5', 'In aVR', 'In II', 'In aVF'], a: 1,
+        why: 'aVR schaut von rechts oben auf das Herz und damit entgegen der normalen Erregungsrichtung. Dort sind P-Welle, QRS-Komplex und T-Welle regelhaft negativ.'
+      },
+      { t: 'multi',
+        q: 'Wo kann eine negative T-Welle unauffällig sein? (mehrere richtig)',
+        opts: [
+          'In aVR',
+          'In V1',
+          'In Ableitung III, wenn sie bei tiefer Einatmung verschwindet',
+          'In V5 und V6 bei einem gesunden Erwachsenen'
+        ],
+        a: [0, 1, 2],
+        why: 'In V5 und V6 ist der QRS-Komplex kräftig positiv — dort gehört auch ein positives T hin. Eine Negativierung ist an dieser Stelle immer abklärungsbedürftig.'
+      },
+      { t: 'mc',
+        q: 'Welche Form der negativen T-Welle spricht am ehesten für eine Ischämie?',
+        opts: [
+          'Flach und breit auslaufend',
+          'Tief und symmetrisch mit schmaler Spitze',
+          'Träge abfallend mit raschem Wiederanstieg',
+          'Die Form spielt keine Rolle'
+        ], a: 1,
+        why: 'Die ischämische T-Welle ist symmetrisch — beide Schenkel gleich steil. Die asymmetrische Form mit trägem Abfall spricht eher für eine sekundäre Ursache wie eine Hypertrophie oder einen Schenkelblock.'
+      },
+      { t: 'rhythm',
+        q: 'Wie beurteilst du diesen Befund?',
+        sub: 'Achte darauf, wo die ST-Strecke verläuft.',
+        media: { k: 'scope', rhythm: 't_negativierung', h: 'md', theme: 'paper' },
+        opts: [
+          'ST-Hebung mit positivem T',
+          'Isolierte T-Negativierung bei isoelektrischer ST-Strecke',
+          'Völlig normaler Befund',
+          'Zeltförmiges T bei Hyperkaliämie'
+        ], a: 1,
+        why: 'Die ST-Strecke liegt auf der Nulllinie, nur die T-Welle ist tief und symmetrisch negativ. Das ist eine isolierte T-Negativierung — ein Ischämiezeichen, das aber viele Differenzialdiagnosen hat.'
+      },
+      { t: 'rhythm',
+        q: 'Beschwerdefreier Patient nach einer Episode von Brustschmerz. Was siehst du in V2 und V3?',
+        media: { k: 'leads', set: 'wellens' },
+        opts: [
+          'Ein Wellens-Muster',
+          'Einen abgelaufenen Vorderwandinfarkt',
+          'Ein Brugada-Muster',
+          'Einen Normalbefund'
+        ], a: 0,
+        why: 'Tief negative, symmetrische T-Wellen in V2/V3 bei <em>erhaltenen</em> R-Zacken und ohne pathologische Q-Zacken: das Wellens-Muster. Es steht für eine hochgradige RIVA-Stenose — trotz Beschwerdefreiheit ein Fall für die Katheter-Abklärung.'
+      },
+      { t: 'tf',
+        q: 'Beim Linksschenkelblock ist eine gegenläufige (diskordante) negative T-Welle ein Ischämiezeichen.',
+        a: false,
+        why: 'Nein — beim Linksschenkelblock gehört sie zum Bild. Weil die Kammern über Umwege erregt werden, läuft auch die Rückbildung anders ab. Diese sekundäre T-Negativierung darf nicht als Ischämie gewertet werden.'
+      },
+      { t: 'match',
+        q: 'Ordne jede T-Negativierung ihrer wahrscheinlichsten Ursache zu.',
+        pairs: [
+          ['Tief, symmetrisch, in V2/V3, R erhalten', 'Wellens-Muster'],
+          ['In III und V1–V3, mit SI-QIII-TIII', 'Lungenembolie'],
+          ['Gegenläufig bei breitem QRS', 'Schenkelblock'],
+          ['Nur in aVR', 'Normalbefund']
+        ],
+        why: 'Ausdehnung und Begleitbefunde führen dich zur Ursache — die Richtung der T-Welle allein reicht nie. Deshalb steht am Anfang immer die Frage, welche Ableitungen betroffen sind.'
+      },
+      { t: 'mc',
+        q: 'Was macht das Wellens-Muster so gefährlich?',
+        opts: [
+          'Es geht immer sofort in Kammerflimmern über',
+          'Die Betroffenen sind beschwerdefrei und wirken unauffällig, obwohl ein Hauptgefäß hochgradig verengt ist',
+          'Es ist im EKG kaum zu erkennen',
+          'Es tritt nur bei sehr alten Menschen auf'
+        ], a: 1,
+        why: 'Das Muster zeigt sich typischerweise im schmerzfreien Intervall, das Troponin ist oft normal und eine ST-Hebung fehlt. Das EKG ist dann der einzige Hinweis — und ein Belastungstest wäre hier gefährlich.'
+      },
+      { t: 'tf',
+        q: 'Eine neu aufgetretene T-Negativierung wiegt schwerer als eine, die schon im Vor-EKG zu sehen war.',
+        a: true,
+        why: 'Genau deshalb ist der Vergleich mit einem Vor-EKG so wertvoll. Eine seit Jahren bestehende Negativierung ist meist harmlos; dieselbe Kurve neu aufgetreten kann eine akute Ischämie bedeuten.'
+      }
     ]}
     ]
   },
@@ -1860,6 +1995,9 @@
     { id: 'alter_infarkt', cat: 'Ischämie', name: 'Abgelaufener Infarkt (Pardee-Q)',
       desc: 'Breite, tiefe Q-Zacke mit kleinem Rest-R und negativem T, ohne ST-Hebung. Zeichen einer alten Narbe — bleibt oft lebenslang bestehen.',
       tags: [['Pardee-Q', 'warn'], ['Nicht akut', 'ok']] },
+    { id: 't_negativierung', cat: 'Ischämie', name: 'T-Negativierung',
+      desc: 'Tief negative, symmetrische T-Welle bei isoelektrischer ST-Strecke. Ischämiezeichen — aber erst nach Ausschluss der Normvarianten in aVR, V1 und III.',
+      tags: [['Symmetrisch', 'warn'], ['ST normal', '']] },
     { id: 'nstemi', cat: 'Ischämie', name: 'ST-Senkung / NSTEMI',
       desc: 'Horizontale oder deszendierende ST-Senkung mit T-Negativierung. Die Abgrenzung zur instabilen Angina gelingt nur über das Troponin.',
       tags: [['Troponin', 'warn'], ['Ischämie', 'warn']] },
@@ -1922,6 +2060,7 @@
     stemi:                ['STEMI', 'ST-Hebung', 'Hebungsinfarkt'],
     stemi_spaet:          ['Infarkt im Verlauf', 'STEMI Stadium'],
     alter_infarkt:        ['Pardee-Q', 'alter Infarkt', 'Narbe', 'abgelaufener Infarkt'],
+    t_negativierung:      ['T-Negativierung', 'negatives T', 'T-Inversion'],
     nstemi:               ['NSTEMI', 'ST-Senkung', 'Ischämie'],
     perikarditis:         ['Perikarditis'],
     hyperkaliaemie:       ['Hyperkaliämie', 'Zelt-T', 'Kalium hoch'],

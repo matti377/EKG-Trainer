@@ -9,7 +9,8 @@
 
   const KEY = 'ekg-lernen-v1';
   const DEFAULT_STATE = {
-    xp: 0, streak: 0, lastDay: null, done: {}, sound: true, unlockAll: false
+    xp: 0, streak: 0, lastDay: null, done: {}, sound: true, unlockAll: false,
+    mmPerSec: 25          // Papiergeschwindigkeit im Trainer und in der Challenge
   };
   let state = load();
 
@@ -174,12 +175,12 @@
       ]),
       h('div', { class: 'pdfbody' }, [
         h('h3', { text: 'EKG ++ — das komplette Skript' }),
-        h('p', { text: '22 Seiten im selben Design wie diese Seite: alle Bausteine der ' +
+        h('p', { text: '24 Seiten im selben Design wie diese Seite: alle Bausteine der ' +
                        'Kurve, Rhythmus- und Blockbilder, Ischämiezeichen und eine ' +
                        'Normwert-Übersicht zum Nachschlagen. Zum Ausdrucken und Verteilen.' }),
         h('div', { class: 'taglist' }, [
-          h('span', { class: 'tag2 ok', text: '22 Seiten' }),
-          h('span', { class: 'tag2', text: '16 Abbildungen' }),
+          h('span', { class: 'tag2 ok', text: '24 Seiten' }),
+          h('span', { class: 'tag2', text: '18 Abbildungen' }),
           h('span', { class: 'tag2', text: 'A4, druckfertig' })
         ]),
         h('a', { class: 'btn heart', href: SKRIPT_PDF, target: '_blank', rel: 'noopener',
@@ -497,6 +498,20 @@
   // Sitzungswerte überleben den Bildschirmwechsel innerhalb einer Sitzung.
   const trainer = { group: 'alle', seen: 0, right: 0, streak: 0, last: [], theme: 'paper' };
 
+  // Einzeltraining und Challenge sind dieselbe Übung — allein oder gegeneinander.
+  // Deshalb teilen sie sich einen Navigationspunkt und wechseln hier oben.
+  function modeSwitch(active) {
+    const mk = function (id, label, route) {
+      const b = h('button', { class: 'segbtn' + (id === active ? ' on' : ''), text: label });
+      b.addEventListener('click', function () { if (id !== active) location.hash = route; });
+      return b;
+    };
+    return h('div', { class: 'segmented' }, [
+      mk('einzel', '🎯 Einzeltraining', '#/trainer'),
+      mk('challenge', '⚔️ Challenge', '#/challenge')
+    ]);
+  }
+
   function viewTrainer() {
     setNav('trainer');
     const root = screen();
@@ -505,6 +520,7 @@
       h('h2', { text: 'Diagnose-Trainer' }),
       h('span', { text: 'Kurve ansehen, Befund eintippen' })
     ]));
+    root.appendChild(modeSwitch('einzel'));
 
     const scoreEl = h('div', { class: 'tr-score' });
     const bar = h('div', { class: 'filterbar' });
@@ -573,27 +589,47 @@
       const cv = h('canvas');
       const scopeBox = h('div', { class: 'scope h-lg' + (trainer.theme === 'paper' ? ' paper' : '') }, [cv]);
 
+      // Beide Knöpfe zeigen den *aktuellen* Zustand und schalten beim Klick um.
       const themeBtn = h('button', { class: 'btn-ghost',
-        text: trainer.theme === 'paper' ? '🖥️ Monitor' : '📄 Papier' });
+        text: trainer.theme === 'paper' ? '📄 Papier' : '🖥️ Monitor' });
+      const speedBtn = h('button', { class: 'btn-ghost',
+        text: '📏 ' + state.mmPerSec + ' mm/s' });
       const leadBtn = kase.leadSet
         ? h('button', { class: 'btn-ghost', text: '🔍 V1–V6 ansehen' })
         : null;
-      const tools = h('div', { class: 'tr-tools' }, [themeBtn, leadBtn]);
+      const tools = h('div', { class: 'tr-tools' }, [themeBtn, speedBtn, leadBtn]);
       const leadHost = h('div', {});
 
       let scope = null;
       themeBtn.addEventListener('click', function () {
         trainer.theme = trainer.theme === 'paper' ? 'monitor' : 'paper';
-        themeBtn.textContent = trainer.theme === 'paper' ? '🖥️ Monitor' : '📄 Papier';
+        themeBtn.textContent = trainer.theme === 'paper' ? '📄 Papier' : '🖥️ Monitor';
         scopeBox.classList.toggle('paper', trainer.theme === 'paper');
         if (scope) scope.set('theme', trainer.theme);
       });
+      speedBtn.addEventListener('click', function () {
+        state.mmPerSec = state.mmPerSec === 25 ? 50 : 25;
+        save();
+        speedBtn.textContent = '📏 ' + state.mmPerSec + ' mm/s';
+        if (scope) scope.set('speed', state.mmPerSec);
+        // Die Ableitungstafel zeigt eine feste Papierlänge — bei doppelter
+        // Geschwindigkeit passt daher nur die halbe Zeit hinein.
+        if (leadHost.firstChild) { leadHost.innerHTML = ''; showLeads(); }
+      });
+
+      function showLeads() {
+        const m = UI.media({ k: 'leads', set: kase.leadSet, speed: state.mmPerSec });
+        if (m) leadHost.appendChild(h('div', { style: 'margin-top:12px' }, [m]));
+      }
       if (leadBtn) {
         leadBtn.addEventListener('click', function () {
-          if (leadHost.firstChild) { leadHost.innerHTML = ''; leadBtn.textContent = '🔍 V1–V6 ansehen'; return; }
+          if (leadHost.firstChild) {
+            leadHost.innerHTML = '';
+            leadBtn.textContent = '🔍 V1–V6 ansehen';
+            return;
+          }
           leadBtn.textContent = '🔍 V1–V6 ausblenden';
-          const m = UI.media({ k: 'leads', set: kase.leadSet });
-          if (m) leadHost.appendChild(h('div', { style: 'margin-top:12px' }, [m]));
+          showLeads();
         });
       }
 
@@ -635,7 +671,7 @@
 
       requestAnimationFrame(function () {
         scope = UI.track(new EKG.Scope(cv, {
-          rhythm: kase.id, speed: 25, mvRange: 3.4, theme: trainer.theme
+          rhythm: kase.id, speed: state.mmPerSec, mvRange: 3.4, theme: trainer.theme
         }));
         cb.focus();
       });
@@ -694,6 +730,481 @@
       h('span', { class: 'bi', text: '⌨️' }),
       h('span', { html: 'Tipp: Mit den <b>Pfeiltasten</b> durch die Vorschläge, mit <b>Enter</b> auswählen und prüfen. Kurzformen wie <b>VHF</b>, <b>VT</b> oder <b>RSB</b> funktionieren auch.' })
     ]));
+  }
+
+  /* ------------------------------------------------------------ Challenge */
+
+  // Mehrspieler braucht eine Vermittlungsstelle — deshalb läuft dieser Modus
+  // nur, wenn `server.py` die Seite ausliefert. Alles andere funktioniert
+  // weiterhin auch direkt aus dem Ordner.
+  const chal = {
+    code: null, player: null, token: null, name: '',
+    count: 10, seconds: 20, group: 'alle',
+    state: null, lastKey: '', deadline: 0, timer: null, poll: null, scope: null
+  };
+
+  function apiBase() {
+    return location.protocol === 'file:' ? null : './';
+  }
+
+  function api(path, body) {
+    const base = apiBase();
+    if (!base) return Promise.reject('Der Server läuft nicht.');
+    const opt = body
+      ? { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body) }
+      : {};
+    return fetch(base + 'api/' + path, opt).then(function (r) {
+      return r.json().then(function (j) {
+        return r.ok ? j : Promise.reject(j.error || ('Fehler ' + r.status));
+      });
+    });
+  }
+
+  // Wird beim Verlassen des Bildschirms über UI.track aufgerufen.
+  function chalStop() {
+    if (chal.poll) { clearInterval(chal.poll); chal.poll = null; }
+    if (chal.timer) { clearInterval(chal.timer); chal.timer = null; }
+    if (chal.scope) {
+      try { chal.scope.destroy(); } catch (e) { /* egal */ }
+      chal.scope = null;
+    }
+  }
+
+  // Vier Antwortkacheln im Kahoot-Stil.
+  const TILES = [
+    { c: 'tile-a', s: '▲' }, { c: 'tile-b', s: '◆' },
+    { c: 'tile-c', s: '●' }, { c: 'tile-d', s: '■' }
+  ];
+
+  function viewChallenge() {
+    setNav('trainer');
+    const root = screen();
+    chalStop();
+    UI.track({ destroy: chalStop });
+
+    root.appendChild(h('div', { class: 'sec-head' }, [
+      h('h2', { text: 'Challenge' }),
+      h('span', { text: 'Gemeinsam gegen die Uhr' })
+    ]));
+    root.appendChild(modeSwitch('challenge'));
+
+    const stage = h('div', {});
+    root.appendChild(stage);
+
+    if (!apiBase()) { paintNoServer(stage); return; }
+
+    // Erreichbarkeit prüfen, bevor irgendetwas angeboten wird.
+    api('ping').then(function () {
+      if (chal.code) startPolling(stage); else paintIntro(stage);
+    }).catch(function () { paintNoServer(stage); });
+  }
+
+  function paintNoServer(stage) {
+    stage.innerHTML = '';
+    stage.appendChild(h('div', { class: 'card' }, [
+      h('h3', { style: 'font-size:18px;margin-bottom:8px', text: 'Dafür muss der Server laufen' }),
+      h('p', { style: 'font-size:14.5px;line-height:1.6;color:var(--muted);font-weight:600',
+        html: 'Bei der Challenge spielen mehrere Geräte zusammen — dafür braucht es eine ' +
+              'Stelle, die sie verbindet. Öffne ein Terminal im Projektordner und starte:' }),
+      h('pre', { class: 'codeline', text: 'python3 server.py' }),
+      h('p', { style: 'font-size:14.5px;line-height:1.6;color:var(--muted);font-weight:600',
+        html: 'Der Server nennt dir dann zwei Adressen. Die zweite (<b>http://192.168…</b>) ' +
+              'geben alle Mitspielenden im selben WLAN in ihrem Browser ein. ' +
+              'Danach ist die Challenge hier verfügbar.' }),
+      h('div', { class: 'pill-note', style: 'margin-top:14px' }, [
+        h('span', { class: 'bi', text: '💡' }),
+        h('span', { html: 'Alle anderen Bereiche — Lernpfad, Trainer, Labor — laufen ' +
+                          'weiterhin ohne Server.' })
+      ])
+    ]));
+  }
+
+  /* ---- Einstieg: erstellen oder beitreten ---- */
+
+  function paintIntro(stage) {
+    stage.innerHTML = '';
+    const err = h('div', { class: 'tr-hint' });
+
+    const nameInp = h('input', { class: 'combo-input', type: 'text', maxlength: '24',
+      placeholder: 'Dein Name', value: chal.name });
+
+    // --- beitreten ---
+    const codeInp = h('input', { class: 'combo-input codebox', type: 'text', maxlength: '4',
+      placeholder: 'CODE', autocapitalize: 'characters', autocomplete: 'off' });
+    codeInp.addEventListener('input', function () {
+      codeInp.value = codeInp.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
+    const joinBtn = h('button', { class: 'btn wide violet', text: 'Beitreten' });
+    joinBtn.addEventListener('click', function () {
+      const name = nameInp.value.trim();
+      if (!name) { err.textContent = 'Bitte zuerst einen Namen eintragen.'; return; }
+      if (codeInp.value.length < 4) { err.textContent = 'Der Code hat vier Zeichen.'; return; }
+      chal.name = name;
+      api('join', { code: codeInp.value, name: name }).then(function (r) {
+        chal.code = codeInp.value; chal.player = r.player; chal.token = null;
+        startPolling(stage);
+      }).catch(function (e) { err.textContent = String(e); });
+    });
+
+    // --- erstellen ---
+    const cntSel = h('select', { class: 'combo-input' });
+    [5, 10, 15, 20, 30].forEach(function (n) {
+      cntSel.appendChild(h('option', { value: String(n), text: n + ' EKGs',
+        selected: n === chal.count ? 'selected' : null }));
+    });
+    const secSel = h('select', { class: 'combo-input' });
+    [10, 15, 20, 30, 45].forEach(function (n) {
+      secSel.appendChild(h('option', { value: String(n), text: n + ' Sekunden pro EKG',
+        selected: n === chal.seconds ? 'selected' : null }));
+    });
+    const grpSel = h('select', { class: 'combo-input' });
+    CONTENT.TRAINER_GROUPS.forEach(function (g) {
+      grpSel.appendChild(h('option', { value: g.id, text: g.name,
+        selected: g.id === chal.group ? 'selected' : null }));
+    });
+    const spdSel = h('select', { class: 'combo-input' });
+    [25, 50].forEach(function (v) {
+      spdSel.appendChild(h('option', { value: String(v), text: v + ' mm/s',
+        selected: v === state.mmPerSec ? 'selected' : null }));
+    });
+
+    const makeBtn = h('button', { class: 'btn wide', text: 'Lobby eröffnen' });
+    makeBtn.addEventListener('click', function () {
+      const name = nameInp.value.trim();
+      if (!name) { err.textContent = 'Bitte zuerst einen Namen eintragen.'; return; }
+      chal.name = name;
+      chal.count = parseInt(cntSel.value, 10);
+      chal.seconds = parseInt(secSel.value, 10);
+      chal.group = grpSel.value;
+      state.mmPerSec = parseInt(spdSel.value, 10);
+      save();
+      api('lobby', { name: name, seconds: chal.seconds }).then(function (r) {
+        chal.code = r.code; chal.token = r.token; chal.player = r.player;
+        startPolling(stage);
+      }).catch(function (e) { err.textContent = String(e); });
+    });
+
+    stage.appendChild(h('div', { class: 'card' }, [
+      h('label', { class: 'tr-label', text: 'Wie heißt du?' }),
+      nameInp, err
+    ]));
+
+    stage.appendChild(h('div', { class: 'chal-cols' }, [
+      h('div', { class: 'card' }, [
+        h('h3', { class: 'chal-h', text: '🎬 Challenge starten' }),
+        h('p', { class: 'chal-p', text: 'Du eröffnest die Lobby, verteilst den Code und ' +
+                                        'gibst den Start frei.' }),
+        h('label', { class: 'tr-label', text: 'Umfang' }), cntSel,
+        h('label', { class: 'tr-label', text: 'Zeit' }), secSel,
+        h('label', { class: 'tr-label', text: 'Themengebiet' }), grpSel,
+        h('label', { class: 'tr-label', text: 'Papiergeschwindigkeit' }), spdSel,
+        h('div', { style: 'margin-top:16px' }, [makeBtn])
+      ]),
+      h('div', { class: 'card' }, [
+        h('h3', { class: 'chal-h', text: '🚪 Einer Challenge beitreten' }),
+        h('p', { class: 'chal-p', text: 'Tippe den vierstelligen Code ein, den der Host ' +
+                                        'euch zeigt.' }),
+        h('label', { class: 'tr-label', text: 'Code' }), codeInp,
+        h('div', { style: 'margin-top:16px' }, [joinBtn])
+      ])
+    ]));
+  }
+
+  /* ---- Abfrage-Schleife ---- */
+
+  function startPolling(stage) {
+    chalStop();
+    const tick = function () {
+      api('state?code=' + chal.code + '&player=' + (chal.player || ''))
+        .then(function (s) {
+          chal.state = s;
+          const key = s.phase + '|' + s.rev;
+          if (key !== chal.lastKey) {
+            chal.lastKey = key;
+            if (s.phase === 'frage') {
+              chal.deadline = Date.now() + (s.remaining || s.seconds) * 1000;
+            }
+            paintGame(stage);
+          }
+        })
+        .catch(function (e) {
+          if (String(e).indexOf('nicht gefunden') >= 0) {
+            chalStop();
+            chal.code = null; chal.player = null; chal.token = null; chal.lastKey = '';
+            paintIntro(stage);
+            toast('Die Lobby wurde geschlossen.');
+          }
+        });
+    };
+    tick();
+    chal.poll = setInterval(tick, 700);
+  }
+
+  function paintGame(stage) {
+    const s = chal.state;
+    if (!s) return;
+    // Hier *nicht* UI.clearLive() aufrufen: das würde auch den Aufräum-Haken
+    // dieses Bildschirms auslösen und damit die Abfrage-Schleife stoppen.
+    // Aufzuräumen ist ohnehin nur die Kurve der vorigen Frage.
+    if (chal.scope) {
+      try { chal.scope.destroy(); } catch (e) { /* egal */ }
+      chal.scope = null;
+    }
+    if (chal.timer) { clearInterval(chal.timer); chal.timer = null; }
+    stage.innerHTML = '';
+
+    if (s.phase === 'lobby') return paintLobby(stage, s);
+    if (s.phase === 'frage') return paintQuestion(stage, s);
+    if (s.phase === 'aufloesung') return paintReveal(stage, s);
+    if (s.phase === 'ende') return paintEnd(stage, s);
+  }
+
+  function leaveBtn(stage) {
+    const b = h('button', { class: 'btn-ghost', text: 'Challenge verlassen' });
+    b.addEventListener('click', function () {
+      const done = function () {
+        chalStop();
+        chal.code = null; chal.player = null; chal.token = null;
+        chal.lastKey = ''; chal.state = null;
+        paintIntro(stage);
+      };
+      if (chal.token) api('close', { code: chal.code, token: chal.token }).then(done, done);
+      else api('leave', { code: chal.code, player: chal.player }).then(done, done);
+    });
+    return b;
+  }
+
+  function paintLobby(stage, s) {
+    const isHost = !!chal.token;
+
+    const startBtn = h('button', { class: 'btn wide', text: 'Challenge starten' });
+    startBtn.addEventListener('click', function () {
+      startBtn.disabled = true;
+      const qs = buildQuestions(chal.count, chal.group);
+      api('start', { code: chal.code, token: chal.token, questions: qs })
+        .catch(function (e) { startBtn.disabled = false; toast(String(e)); });
+    });
+
+    stage.appendChild(h('div', { class: 'card chal-lobby' }, [
+      h('p', { class: 'chal-p', text: 'Mit diesem Code treten alle bei:' }),
+      h('div', { class: 'chal-code', text: s.code }),
+      h('p', { class: 'chal-p', style: 'text-align:center',
+        html: 'Alle öffnen dieselbe Adresse im Browser und gehen auf <b>Challenge</b>.' })
+    ]));
+
+    stage.appendChild(h('div', { class: 'card', style: 'margin-top:14px' }, [
+      h('div', { class: 'sec-head', style: 'margin:0 0 12px' }, [
+        h('h2', { style: 'font-size:17px', text: 'Dabei sind' }),
+        h('span', { text: s.players.length + (s.players.length === 1 ? ' Person' : ' Personen') })
+      ]),
+      h('div', { class: 'chal-players' }, s.players.map(function (p) {
+        return h('span', { class: 'chal-chip' + (p.id === chal.player ? ' me' : ''),
+          text: p.name });
+      })),
+      isHost
+        ? h('div', { style: 'margin-top:18px' }, [
+            h('p', { class: 'chal-p', text: chal.count + ' EKGs · ' + s.seconds +
+                     ' Sekunden pro Frage · ' + state.mmPerSec + ' mm/s · ' +
+                     (CONTENT.TRAINER_GROUPS.find(function (g) { return g.id === chal.group; }) || {}).name }),
+            startBtn
+          ])
+        : h('p', { class: 'chal-p', style: 'margin-top:18px',
+            text: 'Warte, bis der Host startet …' })
+    ]));
+
+    stage.appendChild(h('div', { style: 'margin-top:14px' }, [leaveBtn(stage)]));
+  }
+
+  function paintQuestion(stage, s) {
+    const q = s.question;
+    const bar = h('i');
+    const clock = h('span', { class: 'chal-clock' });
+
+    const cv = h('canvas');
+    const answered = s.myAnswer !== undefined && s.myAnswer !== null;
+
+    const tiles = h('div', { class: 'chal-tiles' + (answered ? ' locked' : '') });
+    q.options.forEach(function (label, i) {
+      const t = TILES[i % 4];
+      const b = h('button', {
+        class: 'chal-tile ' + t.c + (answered && s.myAnswer === i ? ' picked' : ''),
+        type: 'button'
+      }, [
+        h('span', { class: 'ct-sym', text: t.s }),
+        h('span', { class: 'ct-label', text: label })
+      ]);
+      b.addEventListener('click', function () {
+        if (tiles.classList.contains('locked')) return;
+        tiles.classList.add('locked');
+        b.classList.add('picked');
+        Sound.tap();
+        api('answer', { code: chal.code, player: chal.player, index: i })
+          .catch(function (e) { toast(String(e)); });
+      });
+      tiles.appendChild(b);
+    });
+
+    stage.appendChild(h('div', { class: 'card' }, [
+      h('div', { class: 'chal-top' }, [
+        h('span', { class: 'chal-count', text: 'EKG ' + (s.index + 1) + ' / ' + s.total }),
+        clock
+      ]),
+      h('div', { class: 'pbar chal-bar' }, [bar]),
+      h('div', { class: 'scope h-lg paper', style: 'margin-top:14px' }, [cv]),
+      answered
+        ? h('p', { class: 'chal-wait', text: '✅ Antwort ist raus — ' + s.answered +
+                   ' von ' + s.players.length + ' haben geantwortet.' })
+        : null,
+      tiles
+    ]));
+
+    requestAnimationFrame(function () {
+      chal.scope = new EKG.Scope(cv, { rhythm: q.rhythm, speed: q.speed || 25,
+                                       mvRange: 3.4, theme: 'paper' });
+    });
+
+    // Der Balken läuft lokal weiter, damit er flüssig bleibt.
+    const total = s.seconds * 1000;
+    chal.timer = setInterval(function () {
+      const left = Math.max(0, chal.deadline - Date.now());
+      bar.style.width = (left / total * 100) + '%';
+      clock.textContent = Math.ceil(left / 1000) + ' s';
+      if (left <= 0) { clearInterval(chal.timer); chal.timer = null; }
+    }, 100);
+  }
+
+  function paintReveal(stage, s) {
+    const q = s.question;
+    const mine = s.myAnswer;
+    const ok = s.myCorrect;
+
+    const tiles = h('div', { class: 'chal-tiles locked' });
+    q.options.forEach(function (label, i) {
+      const t = TILES[i % 4];
+      tiles.appendChild(h('button', {
+        class: 'chal-tile ' + t.c + (i === q.correct ? ' right' : ' dim') +
+               (mine === i && i !== q.correct ? ' wrong' : ''),
+        type: 'button', disabled: 'disabled'
+      }, [
+        h('span', { class: 'ct-sym', text: i === q.correct ? '✓' : t.s }),
+        h('span', { class: 'ct-label', text: label })
+      ]));
+    });
+
+    let head;
+    if (mine === undefined || mine === null) {
+      head = h('div', { class: 'chal-verdict miss' }, [
+        h('span', { class: 'cv-icon', text: '⏱️' }),
+        h('div', {}, [h('strong', { text: 'Zu langsam' }),
+                      h('p', { text: 'Diesmal keine Punkte.' })])
+      ]);
+    } else if (ok) {
+      head = h('div', { class: 'chal-verdict good' }, [
+        h('span', { class: 'cv-icon', text: '🎯' }),
+        h('div', {}, [h('strong', { text: 'Richtig!' }),
+                      h('p', { text: '+' + s.myPoints + ' Punkte' })])
+      ]);
+    } else {
+      head = h('div', { class: 'chal-verdict bad' }, [
+        h('span', { class: 'cv-icon', text: '💡' }),
+        h('div', {}, [h('strong', { text: 'Daneben' }),
+                      h('p', { text: 'Keine Punkte für diese Runde.' })])
+      ]);
+    }
+
+    const rows = (s.standings || []).slice(0, 8);
+    const nextBtn = chal.token
+      ? h('button', { class: 'btn wide', text: s.index + 1 >= s.total ? 'Auswertung zeigen' : 'Nächstes EKG' })
+      : h('p', { class: 'chal-p', style: 'text-align:center', text: 'Der Host geht gleich weiter …' });
+    if (chal.token) {
+      nextBtn.addEventListener('click', function () {
+        nextBtn.disabled = true;
+        api('next', { code: chal.code, token: chal.token })
+          .catch(function (e) { nextBtn.disabled = false; toast(String(e)); });
+      });
+    }
+
+    stage.appendChild(h('div', { class: 'card' }, [
+      head,
+      h('h3', { style: 'font-size:19px;margin:14px 0 5px', text: q.name }),
+      h('p', { class: 'chal-p', text: q.desc }),
+      tiles,
+      h('div', { class: 'sec-head', style: 'margin:22px 0 10px' }, [
+        h('h2', { style: 'font-size:16px', text: 'Zwischenstand' })
+      ]),
+      h('div', { class: 'chal-board' }, rows.map(function (r) {
+        return h('div', { class: 'cb-row' + (r.id === chal.player ? ' me' : '') }, [
+          h('span', { class: 'cb-rank', text: String(r.rank) }),
+          h('span', { class: 'cb-name', text: r.name }),
+          h('span', { class: 'cb-pts', text: r.score })
+        ]);
+      })),
+      h('div', { style: 'margin-top:18px' }, [nextBtn])
+    ]));
+  }
+
+  function paintEnd(stage, s) {
+    const rows = s.standings || [];
+    const me = rows.find(function (r) { return r.id === chal.player; });
+    const podium = rows.slice(0, 3);
+    S.win();
+
+    stage.appendChild(h('div', { class: 'card', style: 'text-align:center' }, [
+      h('div', { style: 'font-size:52px' , text: '🏆' }),
+      h('h2', { style: 'font-size:24px;margin:6px 0 4px', text: rows.length ? rows[0].name + ' gewinnt!' : 'Challenge beendet' }),
+      me ? h('p', { class: 'chal-p', text: 'Du bist auf Platz ' + me.rank + ' mit ' + me.score + ' Punkten.' }) : null,
+      h('div', { class: 'chal-podium' }, podium.map(function (r, i) {
+        return h('div', { class: 'cp-col cp-' + (i + 1) }, [
+          h('span', { class: 'cp-medal', text: ['🥇', '🥈', '🥉'][i] }),
+          h('span', { class: 'cp-name', text: r.name }),
+          h('span', { class: 'cp-pts', text: r.score })
+        ]);
+      })),
+      h('div', { class: 'chal-board', style: 'margin-top:20px;text-align:left' },
+        rows.map(function (r) {
+          return h('div', { class: 'cb-row' + (r.id === chal.player ? ' me' : '') }, [
+            h('span', { class: 'cb-rank', text: String(r.rank) }),
+            h('span', { class: 'cb-name', text: r.name }),
+            h('span', { class: 'cb-pts', text: r.score })
+          ]);
+        }))
+    ]));
+    stage.appendChild(h('div', { style: 'margin-top:14px' }, [leaveBtn(stage)]));
+  }
+
+  /* ---- Fragen bauen (nur auf dem Host-Gerät) ---- */
+
+  function buildQuestions(count, groupId) {
+    const g = CONTENT.TRAINER_GROUPS.find(function (x) { return x.id === groupId; });
+    let pool = CONTENT.LIBRARY.slice();
+    if (g && g.ids) pool = CONTENT.LIBRARY.filter(function (i) { return g.ids.indexOf(i.id) >= 0; });
+    else if (g && g.cats) pool = CONTENT.LIBRARY.filter(function (i) { return g.cats.indexOf(i.cat) >= 0; });
+
+    const rnd = function () { return Math.floor(Math.random() * 1e9); };
+    const bag = UI.shuffle(pool, rnd());
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      // Ist die Gruppe kleiner als die Rundenzahl, wird sie neu gemischt.
+      if (!bag.length) UI.shuffle(pool, rnd()).forEach(function (x) { bag.push(x); });
+      const c = bag.shift();
+
+      // Ablenker möglichst aus derselben Kategorie — das macht es schwerer.
+      const others = CONTENT.LIBRARY.filter(function (x) { return x.id !== c.id; });
+      const near = UI.shuffle(others.filter(function (x) { return x.cat === c.cat; }), rnd());
+      const far = UI.shuffle(others.filter(function (x) { return x.cat !== c.cat; }), rnd());
+      const picks = near.concat(far).slice(0, 3);
+      const opts = UI.shuffle([c].concat(picks), rnd());
+
+      out.push({
+        rhythm: c.id, name: c.name, desc: c.desc, leadSet: c.leadSet || null,
+        // Reist mit, damit alle Geräte dieselbe Papiergeschwindigkeit zeigen.
+        speed: state.mmPerSec,
+        options: opts.map(function (o) { return o.name; }),
+        correct: opts.findIndex(function (o) { return o.id === c.id; })
+      });
+    }
+    return out;
   }
 
   /* ---------------------------------------------------------------- Labor */
@@ -1100,6 +1611,7 @@
     if (parts[0] === 'lektion' && parts[1]) viewLesson(parts[1]);
     else if (parts[0] === 'bibliothek') viewLibrary();
     else if (parts[0] === 'trainer') viewTrainer();
+    else if (parts[0] === 'challenge') viewChallenge();
     else if (parts[0] === 'labor') viewLab();
     else if (parts[0] === 'ableitungen') viewLeads();
     else viewPath();

@@ -433,6 +433,13 @@
       }
     }),
 
+    // Isolierte T-Negativierung: ST liegt auf der Nulllinie, das T ist tief
+    // und *symmetrisch* — genau diese Symmetrie spricht für eine Ischämie.
+    t_negativierung: sinusLike({
+      rate: 74, pq: 0.16,
+      vTpl: { t: { c: 0.250, w: 0.058, a: -0.62 } }
+    }),
+
     // NSTEMI-Bild: horizontale ST-Senkung plus präterminal negatives T.
     nstemi: sinusLike({
       rate: 92, pq: 0.16,
@@ -865,7 +872,7 @@
   function drawStrip(canvas, opts) {
     opts = Object.assign({
       theme: 'paper', tpl: {}, pq: 0.16, pAmp: 0.14, rate: 70,
-      seconds: 1.9, mvTop: 1.8, mvBot: -1.6, label: null
+      seconds: 1.9, speed: null, mvTop: 1.8, mvBot: -1.6, label: null
     }, opts || {});
 
     const ctx = canvas.getContext('2d');
@@ -882,13 +889,17 @@
 
     const gain = h / (opts.mvTop - opts.mvBot);      // Pixel pro mV
     const mid = opts.mvTop * gain;                    // Nulllinie
-    const pxPerSec = w / opts.seconds;
-    const mmPx = gain / 10;
+    const mmPx = gain / 10;                           // 10 mm entsprechen 1 mV
+    // Ist eine Papiergeschwindigkeit vorgegeben, ergibt sich das Zeitfenster
+    // aus der Geometrie — nur so stimmen die Kästchen auch waagerecht.
+    // Ohne Vorgabe zählt `seconds`, dann ist das Feld ein reines Schaubild.
+    const pxPerSec = opts.speed ? mmPx * opts.speed : w / opts.seconds;
+    const visSpan = w / pxPerSec;
 
     // Etwas vor dem ersten Schlag beginnen, damit dessen P-Welle nicht
     // am linken Rand abgeschnitten wird.
     const t0 = pAt - 0.10;
-    const nBeats = Math.ceil(opts.seconds / rr);
+    const nBeats = Math.ceil(visSpan / rr);
 
     const val = function (t) {
       let v = 0;
@@ -957,6 +968,33 @@
                             r2: { c: 0.096, w: 0.021, a: 1.05 }, t: { c: 0.285, a: -0.26 }, stEnd: 0.225 } },
       { id: 'QR',  tpl: { q: { c: 0.016, w: 0.016, a: -0.62 }, r: { c: 0.048, w: 0.014, a: 1.10 },
                           s: { a: 0 }, t: { a: 0.26 } } }
+    ],
+
+    // Drei Ableitungen, in denen ein negatives T zum Normalbefund gehört.
+    t_normal: [
+      { id: 'aVR', pAmp: -0.12,
+        tpl: { q: { c: 0.045, w: 0.028, a: -0.95 }, r: { a: 0 }, s: { a: 0 },
+               t: { c: 0.245, w: 0.058, a: -0.30 } } },
+      { id: 'V1', pAmp: 0.05,
+        tpl: { q: { a: 0 }, r: { a: 0.20 }, s: { a: -1.00 },
+               t: { c: 0.245, w: 0.055, a: -0.22 } } },
+      { id: 'III', pAmp: 0.09,
+        tpl: { q: { a: 0 }, r: { a: 0.55 }, s: { a: -0.28 },
+               t: { c: 0.245, w: 0.055, a: -0.20 } } }
+    ],
+
+    // Wellens Typ B: tief negative, symmetrische T-Wellen in V2/V3 bei
+    // *erhaltener* R-Zacke und ohne Q — Warnzeichen für eine kritische
+    // Verengung des RIVA, oft im beschwerdefreien Intervall.
+    wellens: [
+      { id: 'V1', tpl: { q: { a: 0 }, r: { a: 0.22 }, s: { a: -0.85 },
+                         t: { c: 0.248, w: 0.055, a: -0.20 } } },
+      { id: 'V2', tpl: { q: { a: 0 }, r: { a: 0.55 }, s: { a: -0.70 },
+                         t: { c: 0.252, w: 0.062, a: -0.78 } } },
+      { id: 'V3', tpl: { q: { a: 0 }, r: { a: 0.90 }, s: { a: -0.45 },
+                         t: { c: 0.252, w: 0.062, a: -0.82 } } },
+      { id: 'V4', tpl: { q: { a: -0.04 }, r: { a: 1.25 }, s: { a: -0.30 },
+                         t: { c: 0.250, w: 0.060, a: -0.40 } } }
     ],
 
     // Brugada Typ 1: nur rechtspräkordial zu sehen, ab V3 verschwindet es.

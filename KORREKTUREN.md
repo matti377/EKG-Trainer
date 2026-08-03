@@ -137,7 +137,7 @@ Skript, das an Auszubildende verteilt wird, habe ich sie **nicht übernommen** �
 Abbildungen aus einem Lehrbuch sind urheberrechtlich geschützt, unabhängig
 davon, ob die Quelle genannt wird.
 
-Stattdessen sind **alle 16 Abbildungen im PDF neu berechnet**: Jede Zacke ist
+Stattdessen sind **alle 18 Abbildungen im PDF neu berechnet**: Jede Zacke ist
 eine Gauß-Funktion mit Lage, Breite und Amplitude in Sekunden und Millivolt.
 Das hat zwei Nebeneffekte, die dem Skript zugutekommen:
 
@@ -228,3 +228,21 @@ mit kleinem Rest-R und negativem T, ohne ST-Hebung.
 Die Q-Kriterien standen vorher nur als Randnotiz in der Lektion „R-Aufbau &
 R-Verlust". Diese Stelle ist bewusst stehengeblieben: Wiederholung über zwei
 Lektionen hinweg festigt, und beide Themen hängen ohnehin zusammen.
+
+**Negative T-Wellen** — Lektion 6.6 auf der Website (13 Schritte) und ein
+eigener Abschnitt in 1.9 im Skript. T-Negativierung war vorher über mehrere
+Lektionen verstreut, ohne dass irgendwo stand, wann sie überhaupt auffällig
+ist. Neu darin:
+
+- die Ableitungen, in denen ein negatives T **normal** ist (aVR immer, V1
+  häufig, III lagebedingt) und die Konkordanz-Regel zum QRS-Komplex
+- die Formkriterien: **symmetrisch** spricht für Ischämie, **asymmetrisch**
+  eher für eine sekundäre Ursache
+- das **Wellens-Muster** als eigene Lehrfolie — tief negative symmetrische T
+  in V2/V3 bei erhaltenen R-Zacken, hochgradige RIVA-Stenose, typischerweise
+  im beschwerdefreien Intervall
+- die Differenzialdiagnosen von Lungenembolie über Schenkelblock bis zum
+  juvenilen T-Muster
+
+Neu in der Befund-Bibliothek: **T-Negativierung**. Zwei neue Ableitungssätze
+(`t_normal`, `wellens`) liefern die Abbildungen.

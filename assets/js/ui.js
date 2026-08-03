@@ -147,7 +147,8 @@
       const set = spec.leads ? spec.leads
                 : (spec.axis !== undefined ? EKG.axisLeads(spec.axis, spec.ids)
                 : (EKG.LEAD_SETS[spec.set] || EKG.LEAD_SETS.normal));
-      const grid = h('div', { class: 'leadgrid' + (set.length === 3 ? ' three' : '') });
+      const grid = h('div', { class: 'leadgrid' +
+        (set.length === 3 ? ' three' : (set.length === 4 ? ' four' : '')) });
       const cans = [];
       set.forEach(function (L) {
         const cv = h('canvas');
@@ -157,7 +158,8 @@
       const paint = function () {
         for (const c of cans) {
           EKG.drawStrip(c.cv, {
-            tpl: c.tpl, label: c.id, seconds: spec.seconds || 1.7,
+            tpl: c.tpl, label: c.id,
+            seconds: spec.seconds || 1.7, speed: spec.speed || null,
             pAmp: c.pAmp === undefined ? 0.14 : c.pAmp,
             mvTop: spec.mvTop || 1.9, mvBot: spec.mvBot || -1.75
           });
