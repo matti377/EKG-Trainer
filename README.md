@@ -18,8 +18,24 @@ Dafür liegt `server.py` bei — reine Standardbibliothek, nichts zu installiere
 python3 server.py
 ```
 
-Der Server nennt zwei Adressen. Die zweite (`http://192.168.…`) geben alle
-Mitspielenden im selben WLAN in ihrem Browser ein. Dann:
+### Auf dem öffentlichen Kursserver
+
+Läuft die Seite bereits auf einem Server, ist nichts weiter zu tun — alle
+öffnen dieselbe Adresse:
+
+```
+http://5.180.164.110:8000/
+```
+
+Wer die Dateien stattdessen direkt aus dem Ordner öffnet, kann trotzdem
+mitspielen: Die Challenge greift dann automatisch auf denselben Kursserver zu.
+Die Adresse steht in `assets/js/app.js` unter `CHALLENGE_SERVER` — beim Umzug
+ist das die einzige Zeile, die sich ändert.
+
+### Im eigenen Netz, ohne Internet
+
+Der Server nennt beim Start zwei Adressen. Die zweite (`http://192.168.…`)
+geben alle Mitspielenden im selben WLAN in ihrem Browser ein. Dann:
 
 1. Eine Person geht auf **Trainer → Challenge** und eröffnet eine Lobby.
 2. Der vierstellige Code erscheint groß auf dem Bildschirm.
@@ -95,7 +111,7 @@ Standardbibliothek aus. `reportlab` braucht nur, wer das PDF baut.
 | `deploy.sh` | Ausrollen auf dem Ubuntu-Server (siehe oben) |
 | `KORREKTUREN.md` | Was gegenüber der Vorlage `ECG ++.docx` geändert wurde |
 
-Die Skripte hängen an `<script>`-Tags mit `?v=23`. Nach einer Änderung diese
+Die Skripte hängen an `<script>`-Tags mit `?v=24`. Nach einer Änderung diese
 Zahl erhöhen, damit der Browser nicht die alte Datei aus dem Cache nimmt.
 
 ## Das PDF neu bauen

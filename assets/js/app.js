@@ -743,20 +743,66 @@
     state: null, lastKey: '', deadline: 0, timer: null, poll: null, scope: null
   };
 
-  function apiBase() {
-    return location.protocol === 'file:' ? null : './';
+  // Öffentlicher Kursserver. Er wird genutzt, wenn die Seite nicht selbst von
+  // einem Server mit Challenge-Teil ausgeliefert wird — etwa wenn jemand die
+  // Dateien direkt aus dem Ordner öffnet. So genügt überall dieselbe Adresse.
+  // Umziehen? Nur diese eine Zeile ändern (mit Schrägstrich am Ende).
+  const CHALLENGE_SERVER = 'http://5.180.164.110:8000/';
+
+  let apiBase = null;        // ermittelt beim ersten Öffnen, danach gemerkt
+  let apiProblem = null;     // Grund, falls gar nichts erreichbar ist
+
+  function pingBase(base) {
+    return fetch(base + 'api/ping', { cache: 'no-store' }).then(function (r) {
+      return r.ok ? base : Promise.reject(new Error('ping'));
+    });
+  }
+
+  // Erst den Server fragen, der diese Seite ausliefert; erst wenn der keinen
+  // Challenge-Teil hat, den öffentlichen Kursserver.
+  function resolveApi() {
+    if (apiBase) return Promise.resolve(apiBase);
+
+    const served = location.protocol === 'http:' || location.protocol === 'https:';
+    const candidates = [];
+    if (served) candidates.push('./');
+    if (CHALLENGE_SERVER && location.origin + '/' !== CHALLENGE_SERVER) {
+      candidates.push(CHALLENGE_SERVER);
+    }
+
+    // Eine https-Seite darf keinen http-Server ansprechen — das blockiert
+    // der Browser, bevor die Anfrage überhaupt rausgeht.
+    if (location.protocol === 'https:' && CHALLENGE_SERVER.indexOf('http://') === 0) {
+      apiProblem = 'mixed';
+    }
+
+    return candidates.reduce(function (chain, base) {
+      return chain.catch(function () { return pingBase(base); });
+    }, Promise.reject(new Error('start'))).then(function (base) {
+      apiBase = base;
+      apiProblem = null;
+      return base;
+    });
+  }
+
+  // Adresse, die der Host den Mitspielenden nennt.
+  function joinUrl() {
+    if (!apiBase || apiBase === './') {
+      return location.origin + location.pathname.replace(/[^/]*$/, '');
+    }
+    return apiBase;
   }
 
   function api(path, body) {
-    const base = apiBase();
-    if (!base) return Promise.reject('Der Server läuft nicht.');
     const opt = body
       ? { method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body) }
       : {};
-    return fetch(base + 'api/' + path, opt).then(function (r) {
-      return r.json().then(function (j) {
-        return r.ok ? j : Promise.reject(j.error || ('Fehler ' + r.status));
+    return resolveApi().then(function (base) {
+      return fetch(base + 'api/' + path, opt).then(function (r) {
+        return r.json().then(function (j) {
+          return r.ok ? j : Promise.reject(j.error || ('Fehler ' + r.status));
+        });
       });
     });
   }
@@ -792,30 +838,52 @@
     const stage = h('div', {});
     root.appendChild(stage);
 
-    if (!apiBase()) { paintNoServer(stage); return; }
+    stage.appendChild(h('div', { class: 'card', style: 'text-align:center' }, [
+      h('p', { class: 'chal-p', text: 'Verbinde …' })
+    ]));
 
     // Erreichbarkeit prüfen, bevor irgendetwas angeboten wird.
-    api('ping').then(function () {
+    resolveApi().then(function () {
       if (chal.code) startPolling(stage); else paintIntro(stage);
     }).catch(function () { paintNoServer(stage); });
   }
 
   function paintNoServer(stage) {
     stage.innerHTML = '';
+
+    // Sonderfall: https-Seite und http-Server — das blockiert der Browser.
+    if (apiProblem === 'mixed') {
+      stage.appendChild(h('div', { class: 'card' }, [
+        h('h3', { style: 'font-size:18px;margin-bottom:8px', text: 'Der Browser blockiert die Verbindung' }),
+        h('p', { class: 'chal-p',
+          html: 'Diese Seite läuft über <b>https</b>, der Challenge-Server aber über ' +
+                '<b>http</b>. Aus Sicherheitsgründen lässt der Browser das nicht zu.' }),
+        h('p', { class: 'chal-p', style: 'margin-top:10px',
+          html: 'Ruf die Seite stattdessen direkt über den Kursserver auf:' }),
+        h('pre', { class: 'codeline', text: CHALLENGE_SERVER })
+      ]));
+      return;
+    }
+
     stage.appendChild(h('div', { class: 'card' }, [
-      h('h3', { style: 'font-size:18px;margin-bottom:8px', text: 'Dafür muss der Server laufen' }),
-      h('p', { style: 'font-size:14.5px;line-height:1.6;color:var(--muted);font-weight:600',
+      h('h3', { style: 'font-size:18px;margin-bottom:8px', text: 'Der Challenge-Server ist nicht erreichbar' }),
+      h('p', { class: 'chal-p',
         html: 'Bei der Challenge spielen mehrere Geräte zusammen — dafür braucht es eine ' +
-              'Stelle, die sie verbindet. Öffne ein Terminal im Projektordner und starte:' }),
-      h('pre', { class: 'codeline', text: 'python3 server.py' }),
-      h('p', { style: 'font-size:14.5px;line-height:1.6;color:var(--muted);font-weight:600',
-        html: 'Der Server nennt dir dann zwei Adressen. Die zweite (<b>http://192.168…</b>) ' +
-              'geben alle Mitspielenden im selben WLAN in ihrem Browser ein. ' +
-              'Danach ist die Challenge hier verfügbar.' }),
-      h('div', { class: 'pill-note', style: 'margin-top:14px' }, [
+              'Stelle, die sie verbindet. Erreicht wurde weder diese Seite selbst noch:' }),
+      h('pre', { class: 'codeline', text: CHALLENGE_SERVER }),
+      h('p', { class: 'chal-p',
+        html: 'Prüfe die Internetverbindung. Läuft der Kursserver gerade nicht, hilft auf ' +
+              'dem Server <span style="font-family:ui-monospace,monospace">./deploy.sh --status</span>.' }),
+      h('div', { style: 'margin-top:16px' }, [
+        h('button', { class: 'btn', text: 'Nochmal versuchen', onclick: function () {
+          apiBase = null; apiProblem = null; viewChallenge();
+        } })
+      ]),
+      h('div', { class: 'pill-note', style: 'margin-top:16px' }, [
         h('span', { class: 'bi', text: '💡' }),
-        h('span', { html: 'Alle anderen Bereiche — Lernpfad, Trainer, Labor — laufen ' +
-                          'weiterhin ohne Server.' })
+        h('span', { html: 'Für ein eigenes Netz ohne Internet: <span style="font-family:ui-monospace,monospace">python3 server.py</span> ' +
+                          'im Projektordner starten und die Seite über dessen Adresse öffnen. ' +
+                          'Alle anderen Bereiche laufen ohnehin ohne Server.' })
       ])
     ]));
   }
@@ -989,8 +1057,9 @@
     stage.appendChild(h('div', { class: 'card chal-lobby' }, [
       h('p', { class: 'chal-p', text: 'Mit diesem Code treten alle bei:' }),
       h('div', { class: 'chal-code', text: s.code }),
-      h('p', { class: 'chal-p', style: 'text-align:center',
-        html: 'Alle öffnen dieselbe Adresse im Browser und gehen auf <b>Challenge</b>.' })
+      h('p', { class: 'chal-p', style: 'text-align:center;margin-bottom:8px',
+        html: 'Alle öffnen diese Adresse im Browser und gehen auf <b>Trainer → Challenge</b>:' }),
+      h('div', { class: 'chal-url', text: joinUrl() })
     ]));
 
     stage.appendChild(h('div', { class: 'card', style: 'margin-top:14px' }, [
