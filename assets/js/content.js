@@ -1909,6 +1909,131 @@
       }
     ]}
     ]
+  },
+
+  /* --------------------------------------- Einheit 8: Medikamente */
+  {
+    id: 'u8', title: 'Medikamente', icon: '💉',
+    sub: 'Wirkstoff, Dosis, Gabe und sichtbare EKG-Wirkung',
+    color: '#ff6b35', dark: '#d94a16', light: '#fff0e9',
+    lessons: [
+
+    { id: 'l8_1', title: 'Medikamente sicher geben', icon: '🧾', steps: [
+      { t: 'teach',
+        h: 'Nicht nur „was?" — sondern auch wie viel und wie?',
+        lead: 'Im EKG-Notfall reicht der Name eines Wirkstoffs nicht. Eine sichere Anordnung nennt immer den <b>aktiven Wirkstoff</b>, die Dosis, den Applikationsweg, die Geschwindigkeit und den Zeitpunkt der erneuten Beurteilung.',
+        bullets: [
+          { i: '🧪', x: '<b>Aktiver Wirkstoff:</b> In diesem Kurs stehen ausschließlich Wirkstoffnamen — zum Beispiel <b>Adenosin</b>, keine Handelsnamen.' },
+          { i: '⚖️', x: '<b>Dosis mit Einheit:</b> „6" allein ist unvollständig. Erst <b>6 mg</b> ist eindeutig.' },
+          { i: '💉', x: '<b>Applikationsweg und Tempo:</b> Bei Adenosin gehören der sehr schnelle intravenöse Bolus und die unmittelbar folgende Spülung zur Wirkung dazu.' },
+          { i: '📈', x: '<b>Vorher und nachher beobachten:</b> Rhythmusstreifen beziehungsweise 12-Kanal-EKG mitlaufen lassen, Kreislauf prüfen und die Reaktion dokumentieren.' },
+          { i: '🔁', x: '<b>Nach jeder Gabe neu beurteilen:</b> Nicht automatisch die nächste Dosis geben. Zuerst Rhythmus, Symptome und Kreislauf kontrollieren.' }
+        ],
+        key: { h: 'Die vollständige Medikamentengabe', p: '<b>Wirkstoff + Dosis + Einheit + Weg + Geschwindigkeit + Kontrolle.</b> Diese sechs Angaben verhindern Verwechslungen und machen die Wirkung am Monitor nachvollziehbar.' }
+      },
+      { t: 'multi',
+        q: 'Welche Angaben gehören zu einer vollständigen Medikamentengabe? (mehrere richtig)',
+        opts: [
+          'Aktiver Wirkstoff und genaue Dosis mit Einheit',
+          'Applikationsweg und Geschwindigkeit',
+          'Ein Handelsname genügt',
+          'Zeitpunkt und Ergebnis der erneuten Beurteilung'
+        ], a: [0, 1, 3],
+        why: 'Ein Handelsname ist weder nötig noch eindeutig. Wirkstoff, Dosis mit Einheit, Weg, Tempo und erneute Beurteilung bilden zusammen eine sichere Gabe.'
+      },
+      { t: 'order',
+        q: 'Bringe die Schritte einer überwachten Gabe in die richtige Reihenfolge.',
+        items: ['Indikation und Kreislauf prüfen', 'Wirkstoff und Dosis festlegen', 'EKG-Aufzeichnung starten', 'Medikament geben', 'Rhythmus und Kreislauf neu beurteilen'],
+        why: 'Erst Indikation und Kreislauf, dann die vollständige Anordnung und laufende Aufzeichnung. Nach der Gabe wird die tatsächliche Wirkung sofort neu beurteilt.'
+      },
+      { t: 'mc',
+        q: 'Welche Anordnung ist am eindeutigsten?',
+        opts: [
+          '„Gib das SVT-Medikament."',
+          '„Adenosin 6."',
+          '„Adenosin 6 mg als sehr schneller intravenöser Bolus, sofort spülen, EKG läuft."',
+          '„Eine Ampulle schnell geben."'
+        ], a: 2,
+        why: 'Nur diese Form nennt Wirkstoff, Dosis, Einheit, Applikationsweg, Geschwindigkeit und Überwachung eindeutig.'
+      },
+      { t: 'tf',
+        q: 'Nach einer Medikamentengabe wird erst die nächste Dosis vorbereitet und danach der Rhythmus kontrolliert.',
+        a: false,
+        why: 'Nach jeder Gabe wird zuerst neu beurteilt. Die sichtbare Reaktion entscheidet, ob überhaupt und wie weiterbehandelt wird.'
+      }
+    ]},
+
+    { id: 'l8_2', title: 'Adenosin bei Reentry-SVT', icon: '🔄', steps: [
+      { t: 'teach',
+        h: 'Adenosin unterbricht den Kreis am AV-Knoten',
+        lead: 'Eine regelmäßige Schmalkomplextachykardie kann durch eine kreisende Erregung über oder nahe dem AV-Knoten entstehen. Bei einer kreislaufstabilen erwachsenen Person wird nach erfolglosen Vagusmanövern <b>Adenosin</b> eingesetzt.',
+        media: { k: 'scope', rhythm: 'avnrt', h: 'md', label: 'Regelmäßige Reentry-SVT, etwa 180/min' },
+        bullets: [
+          { i: '🔄', x: '<b>AVNRT/AVRT:</b> Die Erregung läuft im Kreis. Adenosin blockiert die AV-Überleitung extrem kurz und kann den Kreis dadurch beenden.' },
+          { i: '6️⃣', x: '<b>Erste Erwachsenendosis:</b> <b>6 mg</b> als sehr schneller intravenöser Bolus, unmittelbar spülen. Bleibt die Tachykardie bestehen, folgt nach erneuter Beurteilung <b>12 mg</b>; danach können <b>18 mg</b> erwogen werden.' },
+          { i: '📹', x: '<b>EKG mitschreiben:</b> Die diagnostische Information liegt oft nur in wenigen Sekunden direkt nach der Gabe.' },
+          { i: '🚨', x: '<b>Grenzen:</b> Bei hämodynamischer Instabilität hat die synchronisierte Kardioversion Vorrang. Adenosin ist keine Behandlung einer Sinustachykardie und nicht für eine unregelmäßige breitkomplexige Tachykardie gedacht.' },
+          { i: '📚', x: '<b>Lehrstand:</b> Dosierung nach ERC-Leitlinien 2025; in der Praxis gelten zusätzlich lokale SOPs, Kontraindikationen und ärztliche Verantwortung.' }
+        ],
+        key: { h: 'Warum so schnell?', p: 'Adenosin wirkt nur wenige Sekunden. Ein langsamer Bolus kann schon abgebaut sein, bevor genügend Wirkstoff am Herzen ankommt.' }
+      },
+      { t: 'medication',
+        q: 'Die regelmäßige Schmalkomplextachykardie bleibt nach Vagusmanöver bestehen. Dosiere Adenosin selbst und gib es.',
+        sub: 'Kreislaufstabiler Erwachsener, intravenöser Zugang liegt, EKG-Aufzeichnung läuft. Gib die <b>erste</b> Dosis in mg ein.',
+        ingredient: 'Adenosin', unit: 'mg', a: 6, tol: 0,
+        effectAt: 6, before: 'avnrt', after: 'adenosin_unmask',
+        beforeLabel: 'Reentry-SVT · 180/min', afterLabel: 'Adenosin-Wirkung · idealisiert',
+        why: 'Die erste Erwachsenendosis beträgt 6 mg als sehr schneller intravenöser Bolus mit unmittelbarer Spülung. Im idealisierten Streifen blockiert Adenosin kurz den AV-Knoten: P-Wellen laufen weiter, bevor die zugrunde liegende Sinustachykardie wieder vollständig übergeleitet wird.'
+      },
+      { t: 'teach',
+        h: 'Keine „Flatline": Vorhofaktivität kann sichtbar bleiben',
+        lead: 'Adenosin macht nicht einfach eine Nulllinie. Während der sehr kurzen AV-Blockierung kann der Sinusknoten weiter feuern. Dann siehst du <b>P-Wellen ohne nachfolgenden QRS</b>. Anschließend kann eine zugrunde liegende Sinustachykardie erscheinen.',
+        media: { k: 'scope', rhythm: 'adenosin_unmask', h: 'md', theme: 'paper', label: 'SVT → P-Wellen → Sinustachykardie' },
+        bullets: [
+          { i: '1️⃣', x: '<b>Zuerst:</b> regelmäßige, schmale Reentrytachykardie; P-Wellen sind im schnellen Rhythmus nicht sicher abgrenzbar.' },
+          { i: '2️⃣', x: '<b>Direkt nach Adenosin:</b> transiente AV-Blockierung. Isolierte P-Wellen zeigen: Der Sinusknoten ist weiterhin aktiv.' },
+          { i: '3️⃣', x: '<b>Danach:</b> Die Reentry-SVT ist beendet, aber der Sinusknoten kann wegen Schmerz, Stress oder einer anderen Ursache weiter schnell sein — nun als erkennbare Sinustachykardie mit P vor jedem QRS.' },
+          { i: '🔎', x: '<b>Diagnostischer Effekt:</b> Wenn die Tachykardie nur kurz langsamer wird und wiederkehrt, kann die AV-Blockierung verborgene Vorhofaktivität wie Flatterwellen oder eine atriale Tachykardie demaskieren.' }
+        ],
+        key: { h: 'Monitor richtig lesen', p: '<b>P-Wellen ohne QRS sind keine Asystolie.</b> Sie zeigen elektrische Vorhofaktivität bei vorübergehend blockierter Überleitung. Trotzdem immer den Patienten und den Puls beurteilen.' }
+      },
+      { t: 'mc',
+        q: 'Direkt nach Adenosin siehst du mehrere P-Wellen ohne QRS-Komplex. Was bedeutet das am ehesten?',
+        opts: [
+          'Sichere Asystolie des gesamten Herzens',
+          'Vorübergehender AV-Block bei weiterlaufender Vorhofaktivität',
+          'Kammerflimmern',
+          'Das EKG-Gerät ist ausgeschaltet'
+        ], a: 1,
+        why: 'Die P-Wellen beweisen, dass elektrische Vorhofaktivität vorhanden ist. Adenosin blockiert die AV-Überleitung nur sehr kurz; daraus kann eine Pause ohne QRS entstehen, aber keine elektrische Nulllinie des gesamten Herzens.'
+      },
+      { t: 'mc',
+        q: 'Nach Ende der Reentry-SVT zeigt sich ein regelmäßiger Rhythmus mit 130/min und einer P-Welle vor jedem schmalen QRS. Was siehst du?',
+        opts: [
+          'Weiterhin dieselbe AVNRT',
+          'Eine demaskierte Sinustachykardie',
+          'Einen AV-Block III°',
+          'Vorhofflimmern'
+        ], a: 1,
+        why: 'P vor jedem schmalen QRS bei regelmäßiger Frequenz spricht für Sinustachykardie. Adenosin hat die Reentry-SVT beendet, nicht aber die Ursache der schnellen Sinusfrequenz.'
+      },
+      { t: 'tf',
+        q: 'Adenosin soll die zugrunde liegende Sinustachykardie auf eine normale Frequenz bremsen.',
+        a: false,
+        why: 'Nein. Adenosin unterbricht eine AV-knotenabhängige Reentrytachykardie. Eine Sinustachykardie ist meist eine Reaktion auf eine Ursache wie Schmerz, Fieber oder Volumenmangel — diese Ursache wird behandelt.'
+      },
+      { t: 'multi',
+        q: 'Welche Beobachtungen nach Adenosin sind diagnostisch wichtig? (mehrere richtig)',
+        opts: [
+          'Endet die Reentry-SVT?',
+          'Werden P- oder Flatterwellen sichtbar?',
+          'Wie sind Puls und Kreislauf?',
+          'Nur ob kurz eine gerade Linie zu sehen ist'
+        ], a: [0, 1, 2],
+        why: 'Entscheidend sind Rhythmusmechanismus und Patient: Terminierung, demaskierte Vorhofaktivität sowie Puls und Kreislauf. Eine vermeintlich gerade Linie allein darf nie isoliert beurteilt werden.'
+      }
+    ]}
+    ]
   }
   ];
 

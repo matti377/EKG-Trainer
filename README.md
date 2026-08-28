@@ -105,7 +105,7 @@ Standardbibliothek aus. `reportlab` braucht nur, wer das PDF baut.
 | `assets/js/content.js` | Sämtliche Lektionen, Aufgaben und Bibliothekstexte |
 | `assets/js/ui.js` | Aufgabentypen, Medien-Bausteine, Töne |
 | `assets/js/app.js` | Zustand, Navigation und die einzelnen Bildschirme |
-| `EKG-Skript.pdf` | Begleitskript zum Verteilen (24 Seiten, A4) |
+| `EKG-Skript.pdf` | Begleitskript zum Verteilen (26 Seiten, A4) |
 | `build_pdf.py`, `ekgdraw.py` | Erzeugen das PDF; Schriften in `skript-fonts/` |
 | `server.py` | Nur für die Challenge: liefert die Seite aus und verwaltet die Lobbys |
 | `deploy.sh` | Ausrollen auf dem Ubuntu-Server (siehe oben) |
@@ -127,8 +127,8 @@ Kurvenform, muss sie an beiden Stellen angepasst werden.
 
 ## Die Bereiche
 
-- **Lernpfad** — 28 Lektionen in 7 Einheiten, von den Grundlagen bis zu
-  Elektrolytstörungen. Jede Lektion mischt Lehrfolien und Übungen.
+- **Lernpfad** — Lektionen in 8 Einheiten, von den Grundlagen bis zur
+  interaktiven Medikamentengabe. Jede Lektion mischt Lehrfolien und Übungen.
 - **Befunde** — Nachschlagewerk mit 35 laufenden Rhythmusstreifen, nach
   Kategorie filterbar.
 - **Labor** — Frequenz, PQ-Zeit, QRS-Breite, ST-Strecke sowie P- und T-Welle
@@ -164,7 +164,8 @@ mein_rhythmus: sinusLike({
 
 `mc` (Einfachauswahl) · `rhythm` (Streifen erkennen) · `tf` (richtig/falsch) ·
 `multi` (Mehrfachauswahl) · `order` (Reihenfolge) · `match` (Zuordnen) ·
-`num` (Zahleneingabe mit Toleranz) · `label` (auf die Kurve tippen) ·
+`num` (Zahleneingabe mit Toleranz) · `medication` (Dosis eingeben, geben und
+EKG-Wirkung sehen) · `label` (auf die Kurve tippen) ·
 `teach` (Lehrfolie, keine Wertung)
 
 ## Hinweis

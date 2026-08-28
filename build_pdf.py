@@ -347,7 +347,7 @@ def cover_flowables():
     out.append(Paragraph(
         'Dieses Skript begleitet den interaktiven EKG-Kurs. Es folgt demselben '
         'Aufbau wie die Website: erst die Bausteine der Kurve, dann Rhythmus '
-        'und Blockbilder, zuletzt Ischämie und Sonderfälle.', S['lead']))
+        'und Blockbilder, danach Ischämie, Sonderfälle und Medikamente.', S['lead']))
     out.append(Spacer(1, 6))
     out.append(box('key', 'So arbeitest du damit',
                    'Lies ein Kapitel, sieh dir die Abbildungen genau an — und übe '
@@ -367,7 +367,7 @@ def build_toc():
     toc = TableOfContents()
     toc.levelStyles = [S['toc1'], S['toc2']]
     return [Paragraph('Inhalt', S['h1']),
-            Paragraph('Vier Kapitel, ein roter Faden.', S['h1sub']),
+            Paragraph('Fünf Kapitel, ein roter Faden.', S['h1sub']),
             toc, PageBreak()]
 
 
@@ -1231,15 +1231,152 @@ def kapitel3():
 
 
 # =====================================================================
-#  KAPITEL 4 — NACHSCHLAGEN
+#  KAPITEL 4 - MEDIKAMENTE
 # =====================================================================
 
 def kapitel4():
     o = [PageBreak()]
-    o += chapter(4, 'Auf einen Blick', 'Zum Nachschlagen und Wiederholen',
+    o += chapter(4, 'Medikamente', 'Wirkstoff, Dosis, Gabe und EKG-Wirkung',
+                 HEART)
+
+    o.append(lead(
+        'Im EKG-Notfall reicht der Name eines Wirkstoffs nicht. Eine sichere '
+        'Anordnung nennt den <b>aktiven Wirkstoff</b>, die Dosis mit Einheit, '
+        'den Applikationsweg, die Geschwindigkeit und den Zeitpunkt der '
+        'erneuten Beurteilung. Dieses Kapitel verwendet ausschließlich '
+        'Wirkstoffnamen, keine Handelsnamen.'))
+
+    o.append(sec('4.1 Medikamente sicher geben'))
+    o.append(bullets([
+        ('Wirkstoff -', 'zum Beispiel <b>Adenosin</b>; keine mehrdeutigen '
+                        'Handelsnamen oder Umschreibungen.'),
+        ('Dosis und Einheit -', '„6" allein ist unvollständig. Erst <b>6 mg</b> '
+                                'ist eindeutig.'),
+        ('Applikationsweg und Tempo -', 'bei Adenosin gehören der sehr schnelle '
+                                        'intravenöse Bolus und die unmittelbar '
+                                        'folgende Spülung zur wirksamen Gabe.'),
+        ('Aufzeichnung -', 'Rhythmusstreifen beziehungsweise 12-Kanal-EKG '
+                           'während der Gabe mitschreiben.'),
+        ('Neubeurteilung -', 'nach jeder Gabe zuerst Rhythmus, Puls, Symptome '
+                             'und Kreislauf kontrollieren; nicht automatisch '
+                             'die nächste Dosis geben.'),
+    ], colour=HEART_DK))
+    o.append(Spacer(1, 8))
+    o.append(box('key', 'Die vollständige Anordnung',
+                 '<b>Wirkstoff + Dosis + Einheit + Weg + Geschwindigkeit + '
+                 'Kontrolle.</b> Diese sechs Angaben machen eine Medikamentengabe '
+                 'eindeutig und ihre Wirkung am Monitor nachvollziehbar.'))
+
+    o.append(sec('4.2 Adenosin bei regelmäßiger Reentry-SVT'))
+    o.append(p(
+        'Eine regelmäßige Schmalkomplextachykardie kann durch eine kreisende '
+        'Erregung über oder nahe dem AV-Knoten entstehen. Bei einer '
+        'kreislaufstabilen erwachsenen Person kann <b>Adenosin</b> nach '
+        'erfolglosen Vagusmanövern die AV-Überleitung extrem kurz blockieren '
+        'und eine AV-knotenabhängige Reentrytachykardie beenden.'))
+    o.append(table(
+        ['Situation', 'Dosis', 'Gabe'],
+        [['Erste Gabe', '6 mg', 'sehr schneller intravenöser Bolus, sofort spülen'],
+         ['SVT besteht weiter', '12 mg', 'nach Neubeurteilung erneut sehr schnell'],
+         ['Weiterhin erfolglos', '18 mg erwägen', 'Verträglichkeit und Nebenwirkungen beachten']],
+        widths=[132, 92, CW - 224]))
+    o.append(Spacer(1, 10))
+    o.append(box('warn', 'Vor der Gabe prüfen',
+                 'Diese Dosierung gilt für kreislaufstabile Erwachsene mit '
+                 'regelmäßiger Tachykardie. Bei hämodynamischer Instabilität '
+                 'hat die synchronisierte Kardioversion Vorrang. Adenosin ist '
+                 'keine Behandlung einer Sinustachykardie und nicht für eine '
+                 'unregelmäßige breitkomplexige Tachykardie gedacht. Lokale '
+                 'SOPs und Kontraindikationen bleiben verbindlich.'))
+    o.append(Spacer(1, 12))
+    o.append(box('key', 'Warum die Gabe sehr schnell sein muss',
+                 'Adenosin wirkt nur wenige Sekunden. Bei einer langsamen Gabe '
+                 'kann ein großer Teil bereits abgebaut sein, bevor genügend '
+                 'Wirkstoff am Herzen ankommt. Deshalb: schneller Bolus, sofort '
+                 'spülen und das EKG währenddessen aufzeichnen.'))
+
+    o.append(sec('4.3 Was nach Adenosin im EKG sichtbar wird'))
+    o.append(p(
+        'Adenosin erzeugt nicht einfach eine elektrische Nulllinie. Während '
+        'der sehr kurzen AV-Blockierung kann der Sinusknoten weiter feuern. '
+        'Dann erscheinen <b>P-Wellen ohne nachfolgenden QRS-Komplex</b>. Nach '
+        'Beendigung der Reentry-SVT kann eine zuvor verdeckte '
+        '<b>Sinustachykardie</b> mit P-Welle vor jedem schmalen QRS sichtbar werden.'))
+
+    phase_w = (CW - 12) / 3.0
+    zero = tpl({'q': {'a': 0}, 'r': {'a': 0}, 's': {'a': 0},
+                'r2': {'a': 0}, 'd': {'a': 0}, 't': {'a': 0},
+                'u': {'a': 0}, 'st': 0, 'spike': 0})
+    phases = Table([[
+        Strip(phase_w, 92, tpl({'t': {'c': 0.185, 'w': 0.040, 'a': 0.18}}),
+              p_amp=0, rate=180, seconds=1.55,
+              label='1  Reentry-SVT: 180/min'),
+        Strip(phase_w, 92, zero, p_amp=0.14, rate=130, seconds=1.55,
+              label='2  AV-Block: nur P-Wellen'),
+        Strip(phase_w, 92, tpl({}), p_amp=0.14, rate=130, seconds=1.55,
+              label='3  Sinustachykardie: 130/min'),
+    ]], colWidths=[phase_w, phase_w, phase_w])
+    phases.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (-1, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    o.append(KeepTogether([
+        phases,
+        caption('Adenosin-Sequenz, idealisiert: Reentry-SVT, kurzzeitig '
+                'isolierte P-Wellen und anschließend demaskierte Sinustachykardie.')
+    ]))
+    o.append(bullets([
+        ('Phase 1 -', 'Die regelmäßige schmale Reentry-SVT läuft mit etwa 180/min. '
+                      'P-Wellen sind nicht sicher abgrenzbar.'),
+        ('Phase 2 -', 'Adenosin blockiert den AV-Knoten vorübergehend. Die '
+                      'Sinus-P-Wellen laufen weiter, werden aber kurz nicht auf '
+                      'die Kammern übergeleitet.'),
+        ('Phase 3 -', 'Der Reentry-Kreis ist beendet. Wegen Schmerz, Stress, Fieber '
+                      'oder einer anderen Ursache kann der Sinusknoten weiter '
+                      'schnell feuern - jetzt als erkennbare Sinustachykardie.'),
+    ], colour=VIOLET_DK))
+    o.append(Spacer(1, 8))
+    o.append(box('bad', 'Keine Flatline',
+                 '<b>P-Wellen ohne QRS sind keine Asystolie.</b> Sie zeigen '
+                 'elektrische Vorhofaktivität bei vorübergehend blockierter '
+                 'AV-Überleitung. Trotzdem immer den Patienten und den Puls '
+                 'beurteilen, nicht nur den Monitor.'))
+
+    o.append(sec('4.4 Selbsttest'))
+    o.append(table(
+        ['Beobachtung', 'Deutung'],
+        [['Regelmäßige schmale SVT nach erfolglosem Vagusmanöver',
+          'Bei stabilem Erwachsenen: erste Adenosin-Dosis 6 mg'],
+         ['P-Wellen ohne QRS direkt nach der Gabe',
+          'Transiente AV-Blockierung bei weiterlaufender Vorhofaktivität'],
+         ['Danach P vor jedem schmalen QRS bei 130/min',
+          'Demaskierte Sinustachykardie; Ursache der Sinusfrequenz behandeln'],
+         ['Tachykardie wird nur kurz langsamer, Vorhofwellen werden sichtbar',
+          'An atriale Tachykardie oder Vorhofflattern denken']],
+        widths=[205, CW - 205]))
+    o.append(Spacer(1, 12))
+    o.append(Paragraph(
+        '<font name="Nunito-Black">Leitlinienquelle:</font> European '
+        'Resuscitation Council Guidelines 2025, Adult Advanced Life Support, '
+        'Kapitel „Management of tachyarrhythmia". Dosierung: 6 mg, danach '
+        '12 mg; 18 mg kann anschließend erwogen werden.', S['cap']))
+    return o
+
+
+# =====================================================================
+#  KAPITEL 5 - NACHSCHLAGEN
+# =====================================================================
+
+def kapitel5():
+    o = [PageBreak()]
+    o += chapter(5, 'Auf einen Blick', 'Zum Nachschlagen und Wiederholen',
                  VIOLET)
 
-    o.append(sec('4.1 Normwerte'))
+    o.append(sec('5.1 Normwerte'))
     o.append(table(
         ['Größe', 'Normwert', 'Auffällig, wenn'],
         [['P-Welle', 'bis 0,10 s, unter 0,25 mV', 'breiter, höher oder doppelgipflig'],
@@ -1253,7 +1390,7 @@ def kapitel4():
         widths=[104, 150, CW - 254]))
 
     o.append(Spacer(1, 16))
-    o.append(sec('4.2 Papiergeschwindigkeit'))
+    o.append(sec('5.2 Papiergeschwindigkeit'))
     o.append(table(
         ['', '1 mm (kleines Kästchen)', '5 mm (großes Kästchen)', 'Frequenzformel'],
         [['25 mm/s', '0,04 s', '0,20 s', '300 ÷ große Kästchen'],
@@ -1266,7 +1403,7 @@ def kapitel4():
                  'Formel nimmt, verrechnet sich um den Faktor 2. Senkrecht gilt '
                  'unabhängig davon immer: <b>10 mm = 1 mV</b>.'))
 
-    o.append(sec('4.3 Der systematische Befund in sieben Schritten'))
+    o.append(sec('5.3 Der systematische Befund in sieben Schritten'))
     o.append(p('Der häufigste Befundungsfehler ist nicht fehlendes Wissen, sondern '
                'fehlende Systematik: Man sieht die auffällige ST-Hebung und übersieht '
                'darüber den AV-Block. Arbeite deshalb immer dieselbe Liste ab.'))
@@ -1287,7 +1424,7 @@ def kapitel4():
                  'Gegenteils eine ventrikuläre Tachykardie</b>.'))
 
     o.append(Spacer(1, 18))
-    o.append(sec('4.4 Die wichtigsten Merksätze'))
+    o.append(sec('5.4 Die wichtigsten Merksätze'))
     o.append(bullets([
         ('SA gegen AV —', 'SA-Block: Problem <b>vor</b> der P-Welle, die ganze Aktion '
                           'fehlt. AV-Block: Problem <b>nach</b> der P-Welle, die P-Welle '
@@ -1358,6 +1495,7 @@ def build(path):
     story += kapitel2b()
     story += kapitel3()
     story += kapitel4()
+    story += kapitel5()
     story = glue_captions(story)
 
     # Erste Seite ohne Kopf-/Fußzeile, danach mit.

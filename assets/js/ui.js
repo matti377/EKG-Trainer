@@ -221,7 +221,7 @@
     const kicker = { mc: 'Wähle die richtige Antwort', tf: 'Richtig oder falsch?',
                      multi: 'Wähle alle zutreffenden Antworten', order: 'Bringe in die richtige Reihenfolge',
                      match: 'Ordne einander zu', num: 'Rechne nach', label: 'Zeig auf die Kurve',
-                     rhythm: 'Erkenne den Befund' }[step.t] || '';
+                     rhythm: 'Erkenne den Befund', medication: 'Dosieren, geben, Wirkung beobachten' }[step.t] || '';
 
     host.appendChild(h('div', { class: 'q-kicker', text: kicker }));
     host.appendChild(h('h2', { class: 'q-title', html: step.q }));
@@ -438,6 +438,107 @@
               html: '<span class="ic">✅</span> ' + fmt(step.a) + ' ' + (step.unit || '') }));
           }
           return ok;
+        };
+        break;
+      }
+
+      /* ---- Medikamentengabe mit direkter EKG-Reaktion ---- */
+      case 'medication': {
+        const scopeWrap = h('div', { class: 'scope h-md medication-scope' });
+        const cv = h('canvas');
+        const scopeTag = h('span', { class: 'tag', text: step.beforeLabel || 'Vor Gabe' });
+        scopeWrap.appendChild(cv);
+        scopeWrap.appendChild(scopeTag);
+        body.appendChild(scopeWrap);
+
+        const inp = h('input', {
+          type: 'text', inputmode: 'decimal', placeholder: '?',
+          'aria-label': 'Dosis ' + (step.ingredient || 'Medikament') + ' in ' + (step.unit || 'mg')
+        });
+        const give = h('button', {
+          class: 'btn violet medication-give', type: 'button',
+          text: (step.ingredient || 'Medikament') + ' geben'
+        });
+        const dose = h('div', { class: 'medication-dose' }, [
+          h('label', { text: 'Deine Dosis' }),
+          h('div', { class: 'medication-dose-row' }, [
+            h('div', { class: 'numrow medication-num' }, [
+              inp, h('span', { class: 'unit', text: step.unit || 'mg' })
+            ]),
+            give
+          ])
+        ]);
+        const result = h('div', {
+          class: 'medication-result', role: 'status', 'aria-live': 'polite'
+        });
+        body.appendChild(dose);
+        body.appendChild(result);
+
+        let scope = null, administered = null;
+        requestAnimationFrame(function () {
+          scope = track(new EKG.Scope(cv, {
+            rhythm: step.before || 'avnrt', theme: 'monitor', speed: 25,
+            mvRange: 3.2, duration: 10
+          }));
+        });
+
+        function value() {
+          const raw = inp.value.trim();
+          if (!/^\d+(?:[.,]\d+)?$/.test(raw)) return NaN;
+          return parseFloat(raw.replace(',', '.'));
+        }
+
+        function resetObservation() {
+          administered = null;
+          result.className = 'medication-result';
+          result.innerHTML = '';
+          scopeTag.textContent = step.beforeLabel || 'Vor Gabe';
+          if (scope) scope.setRhythm(step.before || 'avnrt');
+          setReady(false);
+        }
+
+        inp.addEventListener('input', resetObservation);
+        give.addEventListener('click', function () {
+          const v = value();
+          if (!isFinite(v) || v <= 0) {
+            result.className = 'medication-result bad';
+            result.textContent = 'Bitte zuerst eine positive Dosis eingeben.';
+            setReady(false);
+            return;
+          }
+          administered = v;
+          const effect = v >= (step.effectAt || step.a);
+          const correctDose = Math.abs(v - step.a) <= (step.tol || 0);
+          if (scope) scope.setRhythm(effect ? step.after : step.before);
+          scopeTag.textContent = effect
+            ? (step.afterLabel || 'Nach Gabe')
+            : (step.beforeLabel || 'Keine Rhythmusänderung');
+          result.className = 'medication-result ' + (effect && correctDose ? 'good' : 'bad');
+          result.innerHTML = effect
+            ? (correctDose
+              ? '<b>AV-Überleitung kurz blockiert:</b> Achte auf die P-Wellen ohne QRS und danach auf die Sinustachykardie.'
+              : '<b>Wirkung sichtbar, aber die erste Dosis ist nicht korrekt:</b> Eine Rhythmusreaktion macht eine zu hohe Dosis nicht sicher.')
+            : '<b>Keine zuverlässige Unterbrechung:</b> Die Reentrytachykardie läuft weiter.';
+          Sound.tap();
+          setReady(true);
+        });
+
+        api.focus = function () { try { inp.focus(); } catch (e) { /* egal */ } };
+        api.check = function () {
+          const ok = administered !== null && Math.abs(administered - step.a) <= (step.tol || 0);
+          inp.disabled = true;
+          give.disabled = true;
+          dose.classList.add(ok ? 'right' : 'wrong');
+          if (!ok) {
+            result.className = 'medication-result bad';
+            result.innerHTML += '<br><b>Richtige erste Dosis: ' + fmt(step.a) + ' ' + (step.unit || 'mg') + '.</b>';
+          }
+          return ok;
+        };
+        api.summary = function () {
+          return administered === null ? null
+            : 'Du hast ' + fmt(administered) + ' ' + (step.unit || 'mg') + ' ' +
+              (step.ingredient || 'Medikament') + ' gegeben.';
         };
         break;
       }

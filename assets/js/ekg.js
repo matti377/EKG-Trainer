@@ -189,6 +189,35 @@
 
     avnrt: noPLike({ rate: 180, vTpl: { t: { c: 0.185, w: 0.040, a: 0.18 } } }),
 
+    // Lehrsequenz nach Adenosin: Zunächst läuft die regelmäßige AV-Knoten-
+    // Reentrytachykardie. Der kurze AV-Block lässt danach nur die weiter
+    // laufenden Sinus-P-Wellen sichtbar werden; anschließend zeigt sich die
+    // zugrunde liegende Sinustachykardie wieder mit übergeleiteten QRS.
+    // Die Sequenz ist bewusst idealisiert und wird nur im Medikamentenfall
+    // verwendet — sie soll ausdrücklich keine Asystolie darstellen.
+    adenosin_unmask: function (dur, rand) {
+      const p = [], v = [];
+      const tpl = vTemplate({});
+      const fastTpl = vTemplate({ t: { c: 0.185, w: 0.040, a: 0.18 } });
+
+      let t = 0.22;
+      while (t < 2.20 && t < dur) {
+        v.push({ t: t, tpl: fastTpl });
+        t += 60 / 180;
+      }
+
+      // Sinusknoten etwa 130/min: während des transienten AV-Blocks sind
+      // mehrere P-Wellen ohne nachfolgenden QRS zu sehen.
+      const pp = 60 / 130;
+      t = 2.30;
+      while (t < dur) {
+        p.push({ t: t, tpl: P_DEFAULT });
+        if (t >= 3.42) v.push({ t: t + 0.095, tpl: tpl });
+        t += pp;
+      }
+      return { p: p, v: v };
+    },
+
     // SA-Block II° Typ 1 (Wenckebach): Die Überleitung vom Sinusknoten ins
     // Vorhofmyokard wird träger. Weil der Zuwachs der Verzögerung abnimmt,
     // werden die PP-Abstände vor der Pause paradoxerweise *kürzer*.
