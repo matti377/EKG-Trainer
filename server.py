@@ -37,6 +37,7 @@ MAX_PLAYERS = 60
 MAX_QUESTIONS = 40
 LOBBY_TTL = 4 * 3600          # verwaiste Lobbys nach vier Stunden vergessen
 GRACE = 0.4                   # Nachlauf, damit knappe Antworten noch zählen
+AWAY = 5.0                    # wer so lange nicht nachfragt, wird nicht mehr abgewartet
 
 lobbies = {}
 lock = threading.Lock()
@@ -50,7 +51,7 @@ class Lobby:
     def __init__(self, seconds):
         self.code = None
         self.token = rand(20)
-        self.players = {}          # pid -> {'name', 'joined'}
+        self.players = {}          # pid -> {'name', 'joined', 'seen'}
         self.order = []            # Beitrittsreihenfolge
         self.questions = []
         self.answers = {}          # index -> pid -> {'i'}
@@ -69,7 +70,7 @@ class Lobby:
 
     def add_player(self, name):
         pid = rand(12)
-        self.players[pid] = {'name': name[:24], 'joined': time.time()}
+        self.players[pid] = {'name': name[:24], 'joined': time.time(), 'seen': time.time()}
         self.order.append(pid)
         self.bump()
         return pid
@@ -79,7 +80,11 @@ class Lobby:
         Zeit abgelaufen ist. Punkte und Zwischenstand gibt es nicht."""
         while self.phase == 'frage':
             done = self.answers.get(self.index, {})
-            everyone = self.players and all(p in done for p in self.players)
+            # Wer die Seite neu geladen oder geschlossen hat, bliebe sonst als
+            # Geist in der Lobby — und auf dessen Antwort würde ewig gewartet.
+            now = time.time()
+            active = [p for p in self.players if now - self.players[p]['seen'] < AWAY]
+            everyone = active and all(p in done for p in active)
             if not everyone and (time.time() - self.q_start) < self.seconds + GRACE:
                 return
             if self.index + 1 >= len(self.questions):
@@ -105,6 +110,8 @@ class Lobby:
         return rows
 
     def snapshot(self, pid=None):
+        if pid in self.players:
+            self.players[pid]['seen'] = time.time()
         self.tick()
         out = {
             'code': self.code,
@@ -273,6 +280,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 pid = data.get('player')
                 if pid not in lob.players:
                     return self.fail('Unbekannter Spieler', 403)
+                lob.players[pid]['seen'] = time.time()
                 lob.tick()
                 # Die Frage kann inzwischen weitergesprungen sein — dann darf
                 # die Antwort nicht beim nächsten EKG landen.
