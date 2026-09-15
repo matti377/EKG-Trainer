@@ -740,8 +740,7 @@
   const chal = {
     code: null, player: null, token: null, name: '',
     count: 10, seconds: 20, group: 'alle',
-    state: null, lastKey: '', deadline: 0, timer: null, poll: null, scope: null,
-    onUpdate: null
+    state: null, lastKey: '', deadline: 0, timer: null, poll: null, scope: null
   };
 
   // Öffentlicher Kursserver. Er wird genutzt, wenn die Seite nicht selbst von
@@ -1000,8 +999,6 @@
               chal.deadline = Date.now() + (s.remaining || s.seconds) * 1000;
             }
             paintGame(stage);
-          } else if (chal.onUpdate) {
-            chal.onUpdate(s);
           }
         })
         .catch(function (e) {
@@ -1028,7 +1025,6 @@
       chal.scope = null;
     }
     if (chal.timer) { clearInterval(chal.timer); chal.timer = null; }
-    chal.onUpdate = null;
     stage.innerHTML = '';
 
     if (s.phase === 'lobby') return paintLobby(stage, s);
@@ -1105,14 +1101,6 @@
 
     const cv = h('canvas');
     const answered = s.myAnswer !== undefined && s.myAnswer !== null;
-    const wait = h('p', { class: 'chal-wait' });
-
-    // Fremde Antworten frischen nur diese Zeile auf, nicht die ganze Frage.
-    function showWait(st) {
-      wait.style.display = tiles.classList.contains('locked') ? '' : 'none';
-      wait.textContent = '✅ Antwort ist raus — ' + st.answered + ' von ' +
-                         st.players.length + ' haben geantwortet.';
-    }
 
     const tiles = h('div', { class: 'chal-tiles' + (answered ? ' locked' : '') });
     q.options.forEach(function (label, i) {
@@ -1128,9 +1116,7 @@
         if (tiles.classList.contains('locked')) return;
         tiles.classList.add('locked');
         b.classList.add('picked');
-        Sound.tap();
-        wait.style.display = '';
-        wait.textContent = '✅ Antwort ist raus — warte auf die anderen …';
+        S.tap();
         // `q` verhindert, dass eine knappe Antwort beim nächsten EKG landet.
         api('answer', { code: chal.code, player: chal.player, q: s.index, index: i })
           .catch(function (e) {
@@ -1139,15 +1125,12 @@
             if (msg.indexOf('Schon') < 0 && msg.indexOf('Zu spät') < 0) {
               tiles.classList.remove('locked');
               b.classList.remove('picked');
-              wait.style.display = 'none';
             }
             toast(msg);
           });
       });
       tiles.appendChild(b);
     });
-    showWait(s);
-    chal.onUpdate = showWait;
 
     stage.appendChild(h('div', { class: 'card' }, [
       h('div', { class: 'chal-top' }, [
@@ -1156,7 +1139,6 @@
       ]),
       h('div', { class: 'pbar chal-bar' }, [bar]),
       h('div', { class: 'scope h-lg paper', style: 'margin-top:14px' }, [cv]),
-      wait,
       tiles
     ]));
 
