@@ -708,41 +708,20 @@ main { padding: 22px 0 calc(var(--nav-h) + 34px); }
 .tile-c { --tc: #ffa41b; --td: #d97f00; }
 .tile-d { --tc: #ff4d6d; --td: #d92e50; }
 .chal-tiles.locked .chal-tile { cursor: default; }
-.chal-tiles.locked .chal-tile:not(.picked):not(.right) { filter: grayscale(.55); opacity: .5; }
+.chal-tiles.locked .chal-tile:not(.picked) { filter: grayscale(.55); opacity: .5; }
 .chal-tile.picked { box-shadow: 0 0 0 4px rgba(20,36,63,.28), 0 4px 0 var(--td); }
-.chal-tile.dim { filter: grayscale(.7); opacity: .42; }
-.chal-tile.right { filter: none; opacity: 1; box-shadow: 0 0 0 4px var(--ok), 0 4px 0 var(--td); }
-.chal-tile.wrong { box-shadow: 0 0 0 4px var(--bad), 0 4px 0 var(--td); opacity: .9; filter: none; }
 
-.chal-verdict { display: flex; align-items: center; gap: 13px; padding: 15px 16px;
-                border-radius: var(--r-md); border: 2px solid; }
-.chal-verdict strong { font-size: 17px; display: block; }
-.chal-verdict p { font-size: 13.5px; font-weight: 700; color: var(--muted); }
-.chal-verdict .cv-icon { font-size: 26px; }
-.chal-verdict.good { background: var(--ok-lt); border-color: #b6ebc4; }
-.chal-verdict.good strong { color: var(--ok-dk); }
-.chal-verdict.bad { background: var(--bad-lt); border-color: #ffc3c3; }
-.chal-verdict.bad strong { color: var(--bad-dk); }
-.chal-verdict.miss { background: var(--line-soft); border-color: var(--line); }
-
+/* Auflösung am Ende */
 .chal-board { display: grid; gap: 6px; }
 .cb-row { display: flex; align-items: center; gap: 11px; padding: 10px 13px;
           border-radius: 12px; background: var(--line-soft); font-weight: 800; font-size: 14.5px; }
-.cb-row.me { background: var(--brand-lt); box-shadow: inset 0 0 0 2px var(--brand); }
 .cb-rank { width: 24px; color: var(--muted); font-weight: 900; }
-.cb-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cb-pts { font-variant-numeric: tabular-nums; color: var(--violet-dk); font-weight: 900; }
-
-.chal-podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px;
-               margin-top: 20px; }
-.cp-col { flex: 1; max-width: 130px; border-radius: 14px 14px 0 0; padding: 12px 8px;
-          display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.cp-1 { background: #fff2cc; min-height: 128px; }
-.cp-2 { background: #eceff4; min-height: 104px; }
-.cp-3 { background: #f8e6d8; min-height: 88px; }
-.cp-medal { font-size: 26px; }
-.cp-name { font-size: 13px; font-weight: 900; text-align: center; overflow-wrap: anywhere; }
-.cp-pts { font-size: 12px; font-weight: 800; color: var(--muted); }
+.cb-name { flex: 1; min-width: 0; white-space: nowrap; }
+.cb-name > span { display: block; overflow: hidden; text-overflow: ellipsis; }
+.cb-sub { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.cb-mark { font-size: 18px; font-weight: 900; }
+.cb-row.good .cb-mark { color: var(--ok-dk); }
+.cb-row.bad .cb-mark { color: var(--bad-dk); }
 
 /* ----------------------------------------------------------- Labor ------ */
 

@@ -26,6 +26,9 @@ from urllib.parse import urlparse, parse_qs
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PORT = int(os.environ.get('PORT', '8000'))
+# Hinter einem Reverse-Proxy (nginx) HOST=127.0.0.1 setzen — dann ist der
+# Port nicht mehr direkt von außen erreichbar.
+HOST = os.environ.get('HOST', '0.0.0.0')
 
 # I, O, 0 und 1 fehlen — die werden beim Abtippen zu oft verwechselt.
 CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -33,6 +36,7 @@ CODE_LEN = 4
 MAX_PLAYERS = 60
 MAX_QUESTIONS = 40
 LOBBY_TTL = 4 * 3600          # verwaiste Lobbys nach vier Stunden vergessen
+GRACE = 0.4                   # Nachlauf, damit knappe Antworten noch zählen
 
 lobbies = {}
 lock = threading.Lock()
@@ -46,11 +50,11 @@ class Lobby:
     def __init__(self, seconds):
         self.code = None
         self.token = rand(20)
-        self.players = {}          # pid -> {'name', 'score', 'joined'}
+        self.players = {}          # pid -> {'name', 'joined'}
         self.order = []            # Beitrittsreihenfolge
         self.questions = []
-        self.answers = {}          # index -> pid -> {'i', 'ms', 'pts'}
-        self.phase = 'lobby'       # lobby | frage | aufloesung | ende
+        self.answers = {}          # index -> pid -> {'i'}
+        self.phase = 'lobby'       # lobby | frage | ende
         self.index = -1
         self.q_start = 0.0
         self.seconds = seconds
@@ -65,35 +69,39 @@ class Lobby:
 
     def add_player(self, name):
         pid = rand(12)
-        self.players[pid] = {'name': name[:24], 'score': 0, 'joined': time.time()}
+        self.players[pid] = {'name': name[:24], 'joined': time.time()}
         self.order.append(pid)
         self.bump()
         return pid
 
-    def award(self, ok, ms):
-        """Kahoot-Prinzip: richtig zählt, schnell zählt zusätzlich."""
-        if not ok:
-            return 0
-        limit = self.seconds * 1000.0
-        frac = max(0.0, min(1.0, 1.0 - (ms / limit)))
-        return int(round(500 + 500 * frac))
-
     def tick(self):
-        """Phasenwechsel, die nur von der Zeit abhängen."""
-        if self.phase != 'frage':
-            return
-        done = self.answers.get(self.index, {})
-        everyone = self.players and all(p in done for p in self.players)
-        if everyone or (time.time() - self.q_start) >= self.seconds + 0.4:
-            self.phase = 'aufloesung'
+        """Weiter zum nächsten EKG, sobald alle geantwortet haben oder die
+        Zeit abgelaufen ist. Punkte und Zwischenstand gibt es nicht."""
+        while self.phase == 'frage':
+            done = self.answers.get(self.index, {})
+            everyone = self.players and all(p in done for p in self.players)
+            if not everyone and (time.time() - self.q_start) < self.seconds + GRACE:
+                return
+            if self.index + 1 >= len(self.questions):
+                self.phase = 'ende'
+            else:
+                self.index += 1
+                self.q_start = time.time()
             self.bump()
 
-    def standings(self):
-        rows = [{'id': p, 'name': self.players[p]['name'], 'score': self.players[p]['score']}
-                for p in self.players]
-        rows.sort(key=lambda r: (-r['score'], r['name'].lower()))
-        for i, r in enumerate(rows):
-            r['rank'] = i + 1
+    def review(self, pid):
+        """Auflösung am Ende: pro EKG die eigene Antwort und wie die Gruppe lag."""
+        rows = []
+        for n, q in enumerate(self.questions):
+            given = self.answers.get(n, {})
+            mine = given.get(pid)
+            rows.append({
+                'name': q['name'],
+                'mine': q['options'][mine['i']] if mine else None,
+                'ok': bool(mine) and mine['i'] == q['correct'],
+                'right': sum(1 for a in given.values() if a['i'] == q['correct']),
+                'answered': len(given),
+            })
         return rows
 
     def snapshot(self, pid=None):
@@ -109,7 +117,7 @@ class Lobby:
                         if p in self.players],
             'answered': len(self.answers.get(self.index, {})),
         }
-        if self.phase in ('frage', 'aufloesung') and 0 <= self.index < len(self.questions):
+        if self.phase == 'frage' and 0 <= self.index < len(self.questions):
             q = self.questions[self.index]
             out['question'] = {'rhythm': q['rhythm'], 'options': q['options'],
                                'leadSet': q.get('leadSet'),
@@ -118,19 +126,10 @@ class Lobby:
             mine = self.answers.get(self.index, {}).get(pid)
             if mine:
                 out['myAnswer'] = mine['i']
-            if self.phase == 'aufloesung':
-                out['question']['correct'] = q['correct']
-                out['question']['name'] = q['name']
-                out['question']['desc'] = q.get('desc', '')
-                out['standings'] = self.standings()
-                if mine:
-                    out['myPoints'] = mine['pts']
-                    out['myCorrect'] = mine['i'] == q['correct']
         if self.phase == 'ende':
-            out['standings'] = self.standings()
+            out['review'] = self.review(pid)
         if pid and pid in self.players:
-            out['me'] = {'id': pid, 'name': self.players[pid]['name'],
-                         'score': self.players[pid]['score']}
+            out['me'] = {'id': pid, 'name': self.players[pid]['name']}
         return out
 
 
@@ -254,7 +253,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self.send_json({'ok': True})
 
             # Ab hier nur der Host
-            if path in ('/api/start', '/api/next', '/api/close'):
+            if path in ('/api/start', '/api/close'):
                 if data.get('token') != lob.token:
                     return self.fail('Nur der Host darf das', 403)
 
@@ -264,21 +263,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     return self.fail('Keine Fragen erhalten')
                 lob.questions = qs[:MAX_QUESTIONS]
                 lob.answers = {}
-                for p in lob.players:
-                    lob.players[p]['score'] = 0
                 lob.index = 0
                 lob.phase = 'frage'
                 lob.q_start = time.time()
-                lob.bump()
-                return self.send_json({'ok': True})
-
-            if path == '/api/next':
-                if lob.index + 1 >= len(lob.questions):
-                    lob.phase = 'ende'
-                else:
-                    lob.index += 1
-                    lob.phase = 'frage'
-                    lob.q_start = time.time()
                 lob.bump()
                 return self.send_json({'ok': True})
 
@@ -287,19 +274,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 if pid not in lob.players:
                     return self.fail('Unbekannter Spieler', 403)
                 lob.tick()
-                if lob.phase != 'frage':
+                # Die Frage kann inzwischen weitergesprungen sein — dann darf
+                # die Antwort nicht beim nächsten EKG landen.
+                if lob.phase != 'frage' or data.get('q') != lob.index:
                     return self.fail('Zu spät', 409)
                 slot = lob.answers.setdefault(lob.index, {})
                 if pid in slot:
                     return self.fail('Schon geantwortet', 409)
-                i = int(data.get('index', -1))
-                ms = max(0.0, (time.time() - lob.q_start) * 1000.0)
-                ok = i == lob.questions[lob.index]['correct']
-                pts = lob.award(ok, ms)
-                slot[pid] = {'i': i, 'ms': ms, 'pts': pts}
-                lob.players[pid]['score'] += pts
+                try:
+                    i = int(data.get('index', -1))
+                except (TypeError, ValueError):
+                    i = -1
+                if not 0 <= i < len(lob.questions[lob.index]['options']):
+                    return self.fail('Ungültige Antwort')
+                slot[pid] = {'i': i}
                 lob.bump()
-                return self.send_json({'ok': True, 'points': pts, 'correct': ok})
+                lob.tick()          # waren das alle, geht es sofort weiter
+                return self.send_json({'ok': True})
 
             if path == '/api/close':
                 lobbies.pop(code, None)
@@ -337,11 +328,12 @@ if __name__ == '__main__':
     print('  EKG lernen — Server läuft')
     print('  ' + '-' * 42)
     print('  Auf diesem Gerät:   http://localhost:%d/' % PORT)
-    print('  Für alle im WLAN:   http://%s:%d/' % (ip, PORT))
+    if HOST not in ('127.0.0.1', 'localhost'):
+        print('  Für alle im WLAN:   http://%s:%d/' % (ip, PORT))
     print('')
     print('  Zum Beenden: Strg+C')
     print('')
     try:
-        Server(('0.0.0.0', PORT), Handler).serve_forever()
+        Server((HOST, PORT), Handler).serve_forever()
     except KeyboardInterrupt:
         print('\n  Server beendet.\n')

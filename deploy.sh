@@ -13,6 +13,7 @@
 # `deploy.env` neben diesem Skript (wird nicht mitversioniert):
 #
 #   PORT=8000
+#   HOST=127.0.0.1      # nur hinter nginx; ohne Proxy weglassen (0.0.0.0)
 #   SERVICE=ekg-lernen
 #   RUN_USER=ekg
 #
@@ -26,6 +27,7 @@ cd "$HERE"
 [[ -f deploy.env ]] && { set -a; . ./deploy.env; set +a; }
 
 PORT="${PORT:-8000}"
+HOST="${HOST:-0.0.0.0}"
 SERVICE="${SERVICE:-ekg-lernen}"
 RUN_USER="${RUN_USER:-$(id -un)}"
 UNIT_DIR="${UNIT_DIR:-/etc/systemd/system}"
@@ -190,6 +192,7 @@ Type=simple
 User=${RUN_USER}
 WorkingDirectory=${HERE}
 Environment=PORT=${PORT}
+Environment=HOST=${HOST}
 Environment=PYTHONUNBUFFERED=1
 ExecStart=$(command -v python3) ${HERE}/server.py
 Restart=always
@@ -294,7 +297,11 @@ fi
 
 IP="$(lan_ip)"
 printf '\n%s==>%s %sFertig%s\n' "$GRN" "$N" "$B" "$N"
-info "Im Netz:      http://${IP}:${PORT}/"
+if [[ "$HOST" == "127.0.0.1" ]]; then
+  info "Nur lokal gebunden — von außen über den Reverse-Proxy (nginx)."
+else
+  info "Im Netz:      http://${IP}:${PORT}/"
+fi
 info "Auf dem Host: http://localhost:${PORT}/"
 info "Stand:        $(git log -1 --format='%h %s' 2>/dev/null || echo '—')"
 printf '\n'

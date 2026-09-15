@@ -740,14 +740,17 @@
   const chal = {
     code: null, player: null, token: null, name: '',
     count: 10, seconds: 20, group: 'alle',
-    state: null, lastKey: '', deadline: 0, timer: null, poll: null, scope: null
+    state: null, lastKey: '', deadline: 0, timer: null, poll: null, scope: null,
+    onUpdate: null
   };
 
   // Öffentlicher Kursserver. Er wird genutzt, wenn die Seite nicht selbst von
   // einem Server mit Challenge-Teil ausgeliefert wird — etwa wenn jemand die
   // Dateien direkt aus dem Ordner öffnet. So genügt überall dieselbe Adresse.
-  // Umziehen? Nur diese eine Zeile ändern (mit Schrägstrich am Ende).
-  const CHALLENGE_SERVER = 'http://5.180.164.110:8000/';
+  // Wer die Seite über QUIZ_HOST aufruft, landet direkt in der Challenge.
+  // Umziehen? Nur diese eine Zeile ändern.
+  const QUIZ_HOST = 'ekg.resqly.lu';
+  const CHALLENGE_SERVER = 'https://' + QUIZ_HOST + '/';
 
   let apiBase = null;        // ermittelt beim ersten Öffnen, danach gemerkt
   let apiProblem = null;     // Grund, falls gar nichts erreichbar ist
@@ -987,13 +990,18 @@
       api('state?code=' + chal.code + '&player=' + (chal.player || ''))
         .then(function (s) {
           chal.state = s;
-          const key = s.phase + '|' + s.rev;
+          // In der Lobby jede Änderung neu zeichnen (wer ist dabei); während
+          // einer Frage nur beim Wechsel zum nächsten EKG — sonst finge die
+          // Kurve bei jeder fremden Antwort von vorn an.
+          const key = s.phase === 'lobby' ? 'lobby|' + s.rev : s.phase + '|' + s.index;
           if (key !== chal.lastKey) {
             chal.lastKey = key;
             if (s.phase === 'frage') {
               chal.deadline = Date.now() + (s.remaining || s.seconds) * 1000;
             }
             paintGame(stage);
+          } else if (chal.onUpdate) {
+            chal.onUpdate(s);
           }
         })
         .catch(function (e) {
@@ -1020,11 +1028,11 @@
       chal.scope = null;
     }
     if (chal.timer) { clearInterval(chal.timer); chal.timer = null; }
+    chal.onUpdate = null;
     stage.innerHTML = '';
 
     if (s.phase === 'lobby') return paintLobby(stage, s);
     if (s.phase === 'frage') return paintQuestion(stage, s);
-    if (s.phase === 'aufloesung') return paintReveal(stage, s);
     if (s.phase === 'ende') return paintEnd(stage, s);
   }
 
@@ -1054,12 +1062,17 @@
         .catch(function (e) { startBtn.disabled = false; toast(String(e)); });
     });
 
+    // Unter QUIZ_HOST öffnet sich die Challenge von selbst.
+    const url = joinUrl();
+    const direct = url.indexOf('//' + QUIZ_HOST + '/') >= 0;
+
     stage.appendChild(h('div', { class: 'card chal-lobby' }, [
       h('p', { class: 'chal-p', text: 'Mit diesem Code treten alle bei:' }),
       h('div', { class: 'chal-code', text: s.code }),
       h('p', { class: 'chal-p', style: 'text-align:center;margin-bottom:8px',
-        html: 'Alle öffnen diese Adresse im Browser und gehen auf <b>Trainer → Challenge</b>:' }),
-      h('div', { class: 'chal-url', text: joinUrl() })
+        html: direct ? 'Alle öffnen diese Adresse im Browser:'
+                     : 'Alle öffnen diese Adresse im Browser und gehen auf <b>Trainer → Challenge</b>:' }),
+      h('div', { class: 'chal-url', text: url })
     ]));
 
     stage.appendChild(h('div', { class: 'card', style: 'margin-top:14px' }, [
@@ -1092,6 +1105,14 @@
 
     const cv = h('canvas');
     const answered = s.myAnswer !== undefined && s.myAnswer !== null;
+    const wait = h('p', { class: 'chal-wait' });
+
+    // Fremde Antworten frischen nur diese Zeile auf, nicht die ganze Frage.
+    function showWait(st) {
+      wait.style.display = tiles.classList.contains('locked') ? '' : 'none';
+      wait.textContent = '✅ Antwort ist raus — ' + st.answered + ' von ' +
+                         st.players.length + ' haben geantwortet.';
+    }
 
     const tiles = h('div', { class: 'chal-tiles' + (answered ? ' locked' : '') });
     q.options.forEach(function (label, i) {
@@ -1108,11 +1129,25 @@
         tiles.classList.add('locked');
         b.classList.add('picked');
         Sound.tap();
-        api('answer', { code: chal.code, player: chal.player, index: i })
-          .catch(function (e) { toast(String(e)); });
+        wait.style.display = '';
+        wait.textContent = '✅ Antwort ist raus — warte auf die anderen …';
+        // `q` verhindert, dass eine knappe Antwort beim nächsten EKG landet.
+        api('answer', { code: chal.code, player: chal.player, q: s.index, index: i })
+          .catch(function (e) {
+            const msg = String(e);
+            // Kam die Antwort gar nicht an, darf nochmal getippt werden.
+            if (msg.indexOf('Schon') < 0 && msg.indexOf('Zu spät') < 0) {
+              tiles.classList.remove('locked');
+              b.classList.remove('picked');
+              wait.style.display = 'none';
+            }
+            toast(msg);
+          });
       });
       tiles.appendChild(b);
     });
+    showWait(s);
+    chal.onUpdate = showWait;
 
     stage.appendChild(h('div', { class: 'card' }, [
       h('div', { class: 'chal-top' }, [
@@ -1121,10 +1156,7 @@
       ]),
       h('div', { class: 'pbar chal-bar' }, [bar]),
       h('div', { class: 'scope h-lg paper', style: 'margin-top:14px' }, [cv]),
-      answered
-        ? h('p', { class: 'chal-wait', text: '✅ Antwort ist raus — ' + s.answered +
-                   ' von ' + s.players.length + ' haben geantwortet.' })
-        : null,
+      wait,
       tiles
     ]));
 
@@ -1143,101 +1175,34 @@
     }, 100);
   }
 
-  function paintReveal(stage, s) {
-    const q = s.question;
-    const mine = s.myAnswer;
-    const ok = s.myCorrect;
-
-    const tiles = h('div', { class: 'chal-tiles locked' });
-    q.options.forEach(function (label, i) {
-      const t = TILES[i % 4];
-      tiles.appendChild(h('button', {
-        class: 'chal-tile ' + t.c + (i === q.correct ? ' right' : ' dim') +
-               (mine === i && i !== q.correct ? ' wrong' : ''),
-        type: 'button', disabled: 'disabled'
-      }, [
-        h('span', { class: 'ct-sym', text: i === q.correct ? '✓' : t.s }),
-        h('span', { class: 'ct-label', text: label })
-      ]));
-    });
-
-    let head;
-    if (mine === undefined || mine === null) {
-      head = h('div', { class: 'chal-verdict miss' }, [
-        h('span', { class: 'cv-icon', text: '⏱️' }),
-        h('div', {}, [h('strong', { text: 'Zu langsam' }),
-                      h('p', { text: 'Diesmal keine Punkte.' })])
-      ]);
-    } else if (ok) {
-      head = h('div', { class: 'chal-verdict good' }, [
-        h('span', { class: 'cv-icon', text: '🎯' }),
-        h('div', {}, [h('strong', { text: 'Richtig!' }),
-                      h('p', { text: '+' + s.myPoints + ' Punkte' })])
-      ]);
-    } else {
-      head = h('div', { class: 'chal-verdict bad' }, [
-        h('span', { class: 'cv-icon', text: '💡' }),
-        h('div', {}, [h('strong', { text: 'Daneben' }),
-                      h('p', { text: 'Keine Punkte für diese Runde.' })])
-      ]);
-    }
-
-    const rows = (s.standings || []).slice(0, 8);
-    const nextBtn = chal.token
-      ? h('button', { class: 'btn wide', text: s.index + 1 >= s.total ? 'Auswertung zeigen' : 'Nächstes EKG' })
-      : h('p', { class: 'chal-p', style: 'text-align:center', text: 'Der Host geht gleich weiter …' });
-    if (chal.token) {
-      nextBtn.addEventListener('click', function () {
-        nextBtn.disabled = true;
-        api('next', { code: chal.code, token: chal.token })
-          .catch(function (e) { nextBtn.disabled = false; toast(String(e)); });
-      });
-    }
-
-    stage.appendChild(h('div', { class: 'card' }, [
-      head,
-      h('h3', { style: 'font-size:19px;margin:14px 0 5px', text: q.name }),
-      h('p', { class: 'chal-p', text: q.desc }),
-      tiles,
-      h('div', { class: 'sec-head', style: 'margin:22px 0 10px' }, [
-        h('h2', { style: 'font-size:16px', text: 'Zwischenstand' })
-      ]),
-      h('div', { class: 'chal-board' }, rows.map(function (r) {
-        return h('div', { class: 'cb-row' + (r.id === chal.player ? ' me' : '') }, [
-          h('span', { class: 'cb-rank', text: String(r.rank) }),
-          h('span', { class: 'cb-name', text: r.name }),
-          h('span', { class: 'cb-pts', text: r.score })
-        ]);
-      })),
-      h('div', { style: 'margin-top:18px' }, [nextBtn])
-    ]));
-  }
-
+  // Keine Punkte, keine Rangliste — am Ende nur die Auflösung aller EKGs.
   function paintEnd(stage, s) {
-    const rows = s.standings || [];
-    const me = rows.find(function (r) { return r.id === chal.player; });
-    const podium = rows.slice(0, 3);
+    const rows = s.review || [];
+    const right = rows.filter(function (r) { return r.ok; }).length;
     S.win();
 
-    stage.appendChild(h('div', { class: 'card', style: 'text-align:center' }, [
-      h('div', { style: 'font-size:52px' , text: '🏆' }),
-      h('h2', { style: 'font-size:24px;margin:6px 0 4px', text: rows.length ? rows[0].name + ' gewinnt!' : 'Challenge beendet' }),
-      me ? h('p', { class: 'chal-p', text: 'Du bist auf Platz ' + me.rank + ' mit ' + me.score + ' Punkten.' }) : null,
-      h('div', { class: 'chal-podium' }, podium.map(function (r, i) {
-        return h('div', { class: 'cp-col cp-' + (i + 1) }, [
-          h('span', { class: 'cp-medal', text: ['🥇', '🥈', '🥉'][i] }),
-          h('span', { class: 'cp-name', text: r.name }),
-          h('span', { class: 'cp-pts', text: r.score })
+    stage.appendChild(h('div', { class: 'card' }, [
+      h('div', { style: 'text-align:center' }, [
+        h('div', { style: 'font-size:52px', text: '🏁' }),
+        h('h2', { style: 'font-size:24px;margin:6px 0 4px', text: 'Challenge beendet' }),
+        h('p', { class: 'chal-p', text: 'Du hast ' + right + ' von ' + rows.length +
+                                        ' EKGs richtig erkannt.' })
+      ]),
+      h('div', { class: 'sec-head', style: 'margin:22px 0 10px' }, [
+        h('h2', { style: 'font-size:16px', text: 'Auflösung' })
+      ]),
+      h('div', { class: 'chal-board' }, rows.map(function (r, i) {
+        const sub = (r.ok ? '' : (r.mine ? 'Deine Antwort: ' + r.mine : 'Keine Antwort') + ' · ') +
+                    'Gruppe: ' + r.right + ' von ' + r.answered + ' richtig';
+        return h('div', { class: 'cb-row ' + (r.ok ? 'good' : 'bad') }, [
+          h('span', { class: 'cb-rank', text: String(i + 1) }),
+          h('span', { class: 'cb-name' }, [
+            h('span', { text: r.name }),
+            h('span', { class: 'cb-sub', text: sub })
+          ]),
+          h('span', { class: 'cb-mark', text: r.ok ? '✓' : '✗' })
         ]);
-      })),
-      h('div', { class: 'chal-board', style: 'margin-top:20px;text-align:left' },
-        rows.map(function (r) {
-          return h('div', { class: 'cb-row' + (r.id === chal.player ? ' me' : '') }, [
-            h('span', { class: 'cb-rank', text: String(r.rank) }),
-            h('span', { class: 'cb-name', text: r.name }),
-            h('span', { class: 'cb-pts', text: r.score })
-          ]);
-        }))
+      }))
     ]));
     stage.appendChild(h('div', { style: 'margin-top:14px' }, [leaveBtn(stage)]));
   }
@@ -1674,7 +1639,8 @@
   /* ---------------------------------------------------------------- Router */
 
   function route() {
-    const hash = location.hash.replace(/^#\/?/, '') || 'pfad';
+    const start = location.hostname === QUIZ_HOST ? 'challenge' : 'pfad';
+    const hash = location.hash.replace(/^#\/?/, '') || start;
     const parts = hash.split('/');
     renderTop();
     if (parts[0] === 'lektion' && parts[1]) viewLesson(parts[1]);

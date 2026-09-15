@@ -24,8 +24,11 @@ Läuft die Seite bereits auf einem Server, ist nichts weiter zu tun — alle
 öffnen dieselbe Adresse:
 
 ```
-http://5.180.164.110:8000/
+https://ekg.resqly.lu/
 ```
+
+Unter dieser Adresse öffnet sich direkt die Challenge (`QUIZ_HOST` in
+`assets/js/app.js`); alle anderen Bereiche sind über die Navigation erreichbar.
 
 Wer die Dateien stattdessen direkt aus dem Ordner öffnet, kann trotzdem
 mitspielen: Die Challenge greift dann automatisch auf denselben Kursserver zu.
@@ -43,8 +46,10 @@ geben alle Mitspielenden im selben WLAN in ihrem Browser ein. Dann:
 4. Der Host legt Umfang (5–30 EKGs), Zeit pro Frage und Themengebiet fest
    und startet.
 
-Gewertet wird wie bei Kahoot: richtig zählt, schnell zählt zusätzlich —
-1000 Punkte bei sofortiger Antwort, 500 kurz vor Ablauf, 0 bei falsch.
+Punkte und Rangliste gibt es nicht. Sobald alle geantwortet haben, geht es
+sofort zum nächsten EKG; wer bis zum Ablauf der Zeit nicht antwortet, verpasst
+die Frage. Am Ende sieht jede Person die Auflösung aller EKGs — mit der eigenen
+Antwort und wie viele aus der Gruppe richtig lagen.
 
 Die Lobbys liegen nur im Arbeitsspeicher; ein Neustart des Servers löscht sie.
 Das ist Absicht — es gibt nichts zu pflegen und nichts, was liegen bleibt.
@@ -81,6 +86,26 @@ PORT=8000
 SERVICE=ekg-lernen
 RUN_USER=ekg
 ```
+
+### Hinter nginx (ekg.resqly.lu)
+
+In `deploy.env` `HOST=127.0.0.1` setzen, damit `server.py` nur noch über den
+Proxy erreichbar ist, und `./deploy.sh` erneut ausführen. Dann in nginx:
+
+```nginx
+server {
+    server_name ekg.resqly.lu;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+HTTPS danach mit `sudo certbot --nginx -d ekg.resqly.lu`.
 
 Zwei Dinge, die das Skript bewusst tut:
 
@@ -138,7 +163,7 @@ Kurvenform, muss sie an beiden Stellen angepasst werden.
     Vorschlagsliste wählen. Kurzformen wie `VHF`, `VT` oder `RSB` funktionieren;
     nach Gruppen filterbar. Bei mehrdeutiger Eingabe (etwa „Mobitz") verlangt
     das Feld bewusst eine Auswahl, statt zu raten.
-  - *Challenge:* Mehrspieler im Kahoot-Stil — siehe oben. Braucht `server.py`.
+  - *Challenge:* Mehrspieler-Quiz ohne Punkte — siehe oben. Braucht `server.py`.
 - **Ableitungen** — Cabrera-Kreis der Frontalebene, Brustwandableitungen und
   die Zuordnung Infarktlokalisation → Gefäß.
 
