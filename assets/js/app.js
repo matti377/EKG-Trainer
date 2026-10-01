@@ -1621,8 +1621,7 @@
   /* ---------------------------------------------------------------- Router */
 
   function route() {
-    const start = location.hostname === QUIZ_HOST ? 'challenge' : 'pfad';
-    const hash = location.hash.replace(/^#\/?/, '') || start;
+    const hash = location.hash.replace(/^#\/?/, '') || 'pfad';
     const parts = hash.split('/');
     renderTop();
     if (parts[0] === 'lektion' && parts[1]) viewLesson(parts[1]);
