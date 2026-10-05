@@ -9,7 +9,16 @@ kurze Lektionen, ein Lernpfad mit Freischaltung, Herzen, XP und Streak.
 Abhängigkeiten — reines HTML, CSS und JavaScript. Der Fortschritt liegt im
 `localStorage` des Browsers.
 
-## Challenge im Kurs (mehrere Geräte)
+## Challenge im Kurs (App und Browser, mehrere Geräte)
+
+Die Flutter-App in `../flutter_app` verwendet dieselben Lobbys wie die Website.
+Der Host kann die App oder den Browser verwenden; alle anderen treten mit
+demselben vierstelligen Code bei. Alle Geräte müssen denselben
+**Challenge-Server** verwenden (öffentlich: `https://ekg.resqly.lu/`).
+Die Adresse lässt sich im Challenge-Einstieg auf beiden Plattformen einstellen.
+Im Browser bleibt die Auswahl ohne Eingabe automatisch: erst der Server dieser
+Seite, danach der öffentliche Kursserver. App-Neustarts und das Neuladen
+derselben Browser-Registerkarte stellen die eigene Sitzung wieder her.
 
 Nur für diesen einen Modus braucht es eine Stelle, die die Geräte verbindet.
 Dafür liegt `server.py` bei — reine Standardbibliothek, nichts zu installieren:
@@ -45,6 +54,12 @@ geben alle Mitspielenden im selben WLAN in ihrem Browser ein. Dann:
 3. Alle anderen tippen Namen und Code ein und treten bei.
 4. Der Host legt Umfang (5–30 EKGs), Zeit pro Frage und Themengebiet fest
    und startet.
+
+App-Spieler tragen die zweite Adresse unter **Trainer → Challenge →
+Challenge-Server** ein. Der Lobbycode und die URL werden in der Lobby angezeigt.
+Bei HTTPS muss auch der Challenge-Server HTTPS verwenden. Im eigenen WLAN
+die HTTP-Seite direkt vom lokalen Server öffnen. iOS/macOS benötigen die
+Freigabe für das lokale Netzwerk.
 
 Gespielt wird wie bei Kahoot: Für jede richtige Antwort gibt es bis zu 1000
 Punkte — die Hälfte ist sicher, die andere Hälfte schmilzt mit der verbrauchten
@@ -136,14 +151,28 @@ Standardbibliothek aus. `reportlab` braucht nur, wer das PDF baut.
 | `assets/js/content.js` | Sämtliche Lektionen, Aufgaben und Bibliothekstexte |
 | `assets/js/ui.js` | Aufgabentypen, Medien-Bausteine, Töne |
 | `assets/js/app.js` | Zustand, Navigation und die einzelnen Bildschirme |
+| `assets/js/challenge.js` | REST-Verbindung, Zeitlimit und Serverprüfung für die gemeinsame App/Web-Challenge |
 | `EKG-Skript.pdf` | Begleitskript zum Verteilen (26 Seiten, A4) |
 | `build_pdf.py`, `ekgdraw.py` | Erzeugen das PDF; Schriften in `skript-fonts/` |
 | `server.py` | Nur für die Challenge: liefert die Seite aus und verwaltet die Lobbys |
 | `deploy.sh` | Ausrollen auf dem Ubuntu-Server (siehe oben) |
 | `KORREKTUREN.md` | Was gegenüber der Vorlage `ECG ++.docx` geändert wurde |
 
-Die Skripte hängen an `<script>`-Tags mit `?v=24`. Nach einer Änderung diese
+Die Skripte hängen an `<script>`-Tags mit Versionsnummern. Nach einer Änderung diese
 Zahl erhöhen, damit der Browser nicht die alte Datei aus dem Cache nimmt.
+
+### Multiplayer prüfen
+
+```bash
+python3 -m unittest discover -s tests -v
+cd ../flutter_app
+flutter analyze
+flutter test
+```
+
+Der Integrationstest benötigt zusätzlich Node.js. Er startet einen lokalen
+Python-Server und spielt echte App/Web-Lobbys bis zum Endstand durch — einmal
+mit der App und einmal mit dem Browser-Protokoll als Host.
 
 ## Das PDF neu bauen
 

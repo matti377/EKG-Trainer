@@ -734,14 +734,14 @@
 
   /* ------------------------------------------------------------ Challenge */
 
-  // Mehrspieler braucht eine Vermittlungsstelle — deshalb läuft dieser Modus
-  // nur, wenn `server.py` die Seite ausliefert. Alles andere funktioniert
-  // weiterhin auch direkt aus dem Ordner.
+  // App und Browser verwenden denselben Challenge-Server. Alle übrigen
+  // Bereiche funktionieren weiterhin offline direkt aus dem Ordner.
   const chal = {
     code: null, player: null, token: null, name: '',
     count: 10, seconds: 20, group: 'alle',
     state: null, lastKey: '', deadline: 0, timer: null, poll: null, scope: null,
-    revealEnd: 0, sounded: -1
+    revealEnd: 0, sounded: -1, generation: 0, busy: false, selected: null,
+    connection: null, forgetButton: null, problem: false
   };
 
   // Öffentlicher Kursserver. Er wird genutzt, wenn die Seite nicht selbst von
@@ -753,65 +753,57 @@
   const CHALLENGE_SERVER = 'https://' + QUIZ_HOST + '/';
 
   let apiBase = null;        // ermittelt beim ersten Öffnen, danach gemerkt
-  let apiProblem = null;     // Grund, falls gar nichts erreichbar ist
+  let serverOverride = '';
+  try {
+    serverOverride = localStorage.getItem('ekg-challenge-server') || '';
+    const saved = JSON.parse(sessionStorage.getItem('ekg-challenge-session') || 'null');
+    if (saved && saved.code && saved.player && saved.server) {
+      apiBase = global.ChallengeProtocol.serverUrl(saved.server);
+      ['code', 'player', 'token', 'name', 'count', 'seconds', 'group'].forEach(function (key) {
+        if (saved[key] !== undefined) chal[key] = saved[key];
+      });
+    }
+  } catch (_) { /* Browser storage can be disabled. */ }
 
-  function pingBase(base) {
-    return fetch(base + 'api/ping', { cache: 'no-store' }).then(function (r) {
-      return r.ok ? base : Promise.reject(new Error('ping'));
-    });
+  function saveChallenge() {
+    try {
+      if (!chal.code) { sessionStorage.removeItem('ekg-challenge-session'); return; }
+      sessionStorage.setItem('ekg-challenge-session', JSON.stringify({
+        code: chal.code, player: chal.player, token: chal.token, name: chal.name,
+        count: chal.count, seconds: chal.seconds, group: chal.group, server: apiBase
+      }));
+    } catch (_) { /* Playing remains possible without storage. */ }
   }
 
-  // Erst den Server fragen, der diese Seite ausliefert; erst wenn der keinen
-  // Challenge-Teil hat, den öffentlichen Kursserver.
+  // A selected or restored server stays pinned to this session.
   function resolveApi() {
     if (apiBase) return Promise.resolve(apiBase);
-
-    const served = location.protocol === 'http:' || location.protocol === 'https:';
     const candidates = [];
-    if (served) candidates.push('./');
-    if (CHALLENGE_SERVER && location.origin + '/' !== CHALLENGE_SERVER) {
-      candidates.push(CHALLENGE_SERVER);
+    if (serverOverride) candidates.push(serverOverride);
+    else {
+      if (location.protocol === 'http:' || location.protocol === 'https:') {
+        candidates.push(new URL('./', location.href).href);
+      }
+      if (candidates.indexOf(CHALLENGE_SERVER) < 0) candidates.push(CHALLENGE_SERVER);
     }
-
-    // Eine https-Seite darf keinen http-Server ansprechen — das blockiert
-    // der Browser, bevor die Anfrage überhaupt rausgeht.
-    if (location.protocol === 'https:' && CHALLENGE_SERVER.indexOf('http://') === 0) {
-      apiProblem = 'mixed';
-    }
-
-    return candidates.reduce(function (chain, base) {
-      return chain.catch(function () { return pingBase(base); });
-    }, Promise.reject(new Error('start'))).then(function (base) {
+    return global.ChallengeProtocol.resolve(candidates).then(function (base) {
       apiBase = base;
-      apiProblem = null;
       return base;
     });
   }
 
-  // Adresse, die der Host den Mitspielenden nennt.
-  function joinUrl() {
-    if (!apiBase || apiBase === './') {
-      return location.origin + location.pathname.replace(/[^/]*$/, '');
-    }
-    return apiBase;
-  }
+  function joinUrl() { return apiBase || CHALLENGE_SERVER; }
 
   function api(path, body) {
-    const opt = body
-      ? { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body) }
-      : {};
     return resolveApi().then(function (base) {
-      return fetch(base + 'api/' + path, opt).then(function (r) {
-        return r.json().then(function (j) {
-          return r.ok ? j : Promise.reject(j.error || ('Fehler ' + r.status));
-        });
-      });
+      return global.ChallengeProtocol.request(base, path, body);
     });
   }
 
   // Wird beim Verlassen des Bildschirms über UI.track aufgerufen.
   function chalStop() {
+    chal.generation++;
+    chal.lastKey = '';
     if (chal.poll) { clearInterval(chal.poll); chal.poll = null; }
     if (chal.timer) { clearInterval(chal.timer); chal.timer = null; }
     if (chal.scope) {
@@ -840,55 +832,21 @@
 
     const stage = h('div', {});
     root.appendChild(stage);
-
-    stage.appendChild(h('div', { class: 'card', style: 'text-align:center' }, [
-      h('p', { class: 'chal-p', text: 'Verbinde …' })
-    ]));
-
-    // Erreichbarkeit prüfen, bevor irgendetwas angeboten wird.
-    resolveApi().then(function () {
-      if (chal.code) startPolling(stage); else paintIntro(stage);
-    }).catch(function () { paintNoServer(stage); });
-  }
-
-  function paintNoServer(stage) {
-    stage.innerHTML = '';
-
-    // Sonderfall: https-Seite und http-Server — das blockiert der Browser.
-    if (apiProblem === 'mixed') {
-      stage.appendChild(h('div', { class: 'card' }, [
-        h('h3', { style: 'font-size:18px;margin-bottom:8px', text: 'Der Browser blockiert die Verbindung' }),
-        h('p', { class: 'chal-p',
-          html: 'Diese Seite läuft über <b>https</b>, der Challenge-Server aber über ' +
-                '<b>http</b>. Aus Sicherheitsgründen lässt der Browser das nicht zu.' }),
-        h('p', { class: 'chal-p', style: 'margin-top:10px',
-          html: 'Ruf die Seite stattdessen direkt über den Kursserver auf:' }),
-        h('pre', { class: 'codeline', text: CHALLENGE_SERVER })
-      ]));
-      return;
-    }
-
-    stage.appendChild(h('div', { class: 'card' }, [
-      h('h3', { style: 'font-size:18px;margin-bottom:8px', text: 'Der Challenge-Server ist nicht erreichbar' }),
-      h('p', { class: 'chal-p',
-        html: 'Bei der Challenge spielen mehrere Geräte zusammen — dafür braucht es eine ' +
-              'Stelle, die sie verbindet. Erreicht wurde weder diese Seite selbst noch:' }),
-      h('pre', { class: 'codeline', text: CHALLENGE_SERVER }),
-      h('p', { class: 'chal-p',
-        html: 'Prüfe die Internetverbindung. Läuft der Kursserver gerade nicht, hilft auf ' +
-              'dem Server <span style="font-family:ui-monospace,monospace">./deploy.sh --status</span>.' }),
-      h('div', { style: 'margin-top:16px' }, [
-        h('button', { class: 'btn', text: 'Nochmal versuchen', onclick: function () {
-          apiBase = null; apiProblem = null; viewChallenge();
-        } })
-      ]),
-      h('div', { class: 'pill-note', style: 'margin-top:16px' }, [
-        h('span', { class: 'bi', text: '💡' }),
-        h('span', { html: 'Für ein eigenes Netz ohne Internet: <span style="font-family:ui-monospace,monospace">python3 server.py</span> ' +
-                          'im Projektordner starten und die Seite über dessen Adresse öffnen. ' +
-                          'Alle anderen Bereiche laufen ohnehin ohne Server.' })
-      ])
-    ]));
+    chal.connection = h('p', { class: 'chal-p', role: 'status', 'aria-live': 'polite' });
+    root.appendChild(chal.connection);
+    const forgetBtn = h('button', { class: 'btn-ghost', text: 'Lobby auf diesem Gerät verlassen', style: 'display:none' });
+    root.appendChild(forgetBtn);
+    forgetBtn.addEventListener('click', function () {
+      if (chal.busy) return;
+      chalStop(); chal.code = chal.player = chal.token = chal.state = chal.selected = null;
+      saveChallenge(); paintIntro(stage);
+      chal.connection.textContent = ''; forgetBtn.style.display = 'none';
+    });
+    chal.forgetButton = forgetBtn;
+    if (chal.code) {
+      stage.appendChild(h('div', { class: 'card', text: 'Lobby wird verbunden …' }));
+      startPolling(stage);
+    } else paintIntro(stage);
   }
 
   /* ---- Einstieg: erstellen oder beitreten ---- */
@@ -898,25 +856,54 @@
     const err = h('div', { class: 'tr-hint' });
 
     const nameInp = h('input', { class: 'combo-input', type: 'text', maxlength: '24',
-      placeholder: 'Dein Name', value: chal.name });
+      placeholder: 'Dein Name', 'aria-label': 'Dein Name', value: chal.name });
+    const serverInp = h('input', { class: 'combo-input', type: 'url',
+      placeholder: 'Automatisch: Server dieser Seite oder ' + CHALLENGE_SERVER,
+      'aria-label': 'Challenge-Server', value: serverOverride });
+    function selectServer() {
+      const value = serverInp.value.trim();
+      serverOverride = value ? global.ChallengeProtocol.serverUrl(value) : '';
+      apiBase = null;
+      try {
+        if (serverOverride) localStorage.setItem('ekg-challenge-server', serverOverride);
+        else localStorage.removeItem('ekg-challenge-server');
+      } catch (_) { /* Optional browser storage. */ }
+    }
+    function submit(host) {
+      if (chal.busy) return;
+      const name = nameInp.value.trim();
+      if (!name) { err.textContent = 'Bitte zuerst einen Namen eintragen.'; return; }
+      if (!host && codeInp.value.length !== 4) { err.textContent = 'Der Code hat vier Zeichen.'; return; }
+      try { selectServer(); } catch (e) { err.textContent = String(e.message || e); return; }
+      chal.name = name;
+      chal.count = parseInt(cntSel.value, 10);
+      chal.seconds = parseInt(secSel.value, 10);
+      chal.group = grpSel.value;
+      state.mmPerSec = parseInt(spdSel.value, 10);
+      save();
+      chal.busy = true;
+      joinBtn.disabled = makeBtn.disabled = true;
+      err.textContent = 'Verbinde …';
+      const code = codeInp.value;
+      api(host ? 'lobby' : 'join', host ? { name: name, seconds: chal.seconds } : { code: code, name: name })
+        .then(function (r) {
+          chal.code = host ? r.code : code; chal.player = r.player; chal.token = host ? r.token : null;
+          chal.selected = null; chal.state = null;
+          saveChallenge();
+          if (stage.isConnected) startPolling(stage);
+        }).catch(function (e) {
+          err.textContent = e.message || 'Verbindung fehlgeschlagen. Prüfe das Netzwerk und die Serveradresse.';
+        }).finally(function () { chal.busy = false; joinBtn.disabled = makeBtn.disabled = false; });
+    }
 
     // --- beitreten ---
     const codeInp = h('input', { class: 'combo-input codebox', type: 'text', maxlength: '4',
-      placeholder: 'CODE', autocapitalize: 'characters', autocomplete: 'off' });
+      placeholder: 'CODE', 'aria-label': 'Lobbycode', autocapitalize: 'characters', autocomplete: 'off' });
     codeInp.addEventListener('input', function () {
       codeInp.value = codeInp.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     });
     const joinBtn = h('button', { class: 'btn wide violet', text: 'Beitreten' });
-    joinBtn.addEventListener('click', function () {
-      const name = nameInp.value.trim();
-      if (!name) { err.textContent = 'Bitte zuerst einen Namen eintragen.'; return; }
-      if (codeInp.value.length < 4) { err.textContent = 'Der Code hat vier Zeichen.'; return; }
-      chal.name = name;
-      api('join', { code: codeInp.value, name: name }).then(function (r) {
-        chal.code = codeInp.value; chal.player = r.player; chal.token = null;
-        startPolling(stage);
-      }).catch(function (e) { err.textContent = String(e); });
-    });
+    joinBtn.addEventListener('click', function () { submit(false); });
 
     // --- erstellen ---
     const cntSel = h('select', { class: 'combo-input' });
@@ -941,24 +928,17 @@
     });
 
     const makeBtn = h('button', { class: 'btn wide', text: 'Lobby eröffnen' });
-    makeBtn.addEventListener('click', function () {
-      const name = nameInp.value.trim();
-      if (!name) { err.textContent = 'Bitte zuerst einen Namen eintragen.'; return; }
-      chal.name = name;
-      chal.count = parseInt(cntSel.value, 10);
-      chal.seconds = parseInt(secSel.value, 10);
-      chal.group = grpSel.value;
-      state.mmPerSec = parseInt(spdSel.value, 10);
-      save();
-      api('lobby', { name: name, seconds: chal.seconds }).then(function (r) {
-        chal.code = r.code; chal.token = r.token; chal.player = r.player;
-        startPolling(stage);
-      }).catch(function (e) { err.textContent = String(e); });
-    });
+    makeBtn.addEventListener('click', function () { submit(true); });
 
     stage.appendChild(h('div', { class: 'card' }, [
       h('label', { class: 'tr-label', text: 'Wie heißt du?' }),
-      nameInp, err
+      nameInp, err,
+      h('p', { class: 'chal-p', style: 'margin-top:12px',
+        text: 'App und Browser spielen zusammen. Alle verwenden denselben Server und Lobbycode.' }),
+      h('details', { style: 'margin-top:12px' }, [
+        h('summary', { class: 'tr-label', text: 'Challenge-Server einstellen' }), serverInp,
+        h('p', { class: 'chal-p', text: 'Für lokale Lobbys auf allen Geräten dieselbe Serveradresse eintragen. Ohne Eingabe wird der Server automatisch gewählt.' })
+      ])
     ]));
 
     stage.appendChild(h('div', { class: 'chal-cols' }, [
@@ -987,33 +967,53 @@
   function startPolling(stage) {
     chalStop();
     chal.sounded = -1;
+    const generation = chal.generation;
+    let pending = false;
     const tick = function () {
-      api('state?code=' + chal.code + '&player=' + (chal.player || ''))
+      if (pending || generation !== chal.generation || !stage.isConnected) return;
+      pending = true;
+      api('state?code=' + encodeURIComponent(chal.code) + '&player=' + encodeURIComponent(chal.player || ''))
         .then(function (s) {
+          if (generation !== chal.generation || !stage.isConnected) return;
+          if (!s.me) {
+            const error = new Error('Du bist nicht mehr in dieser Lobby.'); error.status = 403; throw error;
+          }
+          const moved = !chal.state || s.index !== chal.state.index || s.phase !== chal.state.phase;
+          if (!chal.state || s.index !== chal.state.index || s.phase !== 'frage') chal.selected = null;
+          if (s.myAnswer !== undefined) chal.selected = s.myAnswer;
+          chal.problem = false;
+          if (chal.connection) chal.connection.textContent = '';
+          if (chal.forgetButton) chal.forgetButton.style.display = 'none';
           chal.state = s;
+          if (s.phase === 'frage') chal.deadline = Date.now() + (s.remaining ?? s.seconds) * 1000;
+          if (s.phase === 'reveal') chal.revealEnd = Date.now() + (s.revealIn || 0) * 1000;
           // In der Lobby jede Änderung neu zeichnen (wer ist dabei); während
           // einer Frage nur beim Wechsel zum nächsten EKG — sonst finge die
           // Kurve bei jeder fremden Antwort von vorn an.
-          const key = s.phase === 'lobby' ? 'lobby|' + s.rev : s.phase + '|' + s.index;
+          const key = s.phase === 'lobby' ? 'lobby|' + s.rev : s.phase + '|' + s.index + '|' + (s.myAnswer ?? chal.selected ?? '');
           if (key !== chal.lastKey) {
             chal.lastKey = key;
-            if (s.phase === 'frage') {
-              chal.deadline = Date.now() + (s.remaining || s.seconds) * 1000;
-            }
-            if (s.phase === 'reveal') {
-              chal.revealEnd = Date.now() + (s.revealIn || 0) * 1000;
-            }
             paintGame(stage);
+            if (moved) global.scrollTo(0, 0);
           }
         })
         .catch(function (e) {
-          if (String(e).indexOf('nicht gefunden') >= 0) {
+          if (generation !== chal.generation || !stage.isConnected) return;
+          if (e.status === 404 || e.status === 403) {
             chalStop();
             chal.code = null; chal.player = null; chal.token = null; chal.lastKey = '';
+            chal.state = null; chal.selected = null;
+            if (chal.connection) chal.connection.textContent = '';
+            if (chal.forgetButton) chal.forgetButton.style.display = 'none';
+            saveChallenge();
             paintIntro(stage);
-            toast('Die Lobby wurde geschlossen.');
+            toast(e.message || 'Die Lobby wurde geschlossen.');
+          } else {
+            chal.problem = true;
+            if (chal.connection) chal.connection.textContent = 'Verbindung unterbrochen — verbinde erneut …';
+            if (chal.forgetButton) chal.forgetButton.style.display = '';
           }
-        });
+        }).finally(function () { pending = false; });
     };
     tick();
     chal.poll = setInterval(tick, 700);
@@ -1045,10 +1045,19 @@
         chalStop();
         chal.code = null; chal.player = null; chal.token = null;
         chal.lastKey = ''; chal.state = null;
+        chal.selected = null;
+        saveChallenge();
+        if (chal.connection) chal.connection.textContent = '';
+        if (chal.forgetButton) chal.forgetButton.style.display = 'none';
         paintIntro(stage);
       };
-      if (chal.token) api('close', { code: chal.code, token: chal.token }).then(done, done);
-      else api('leave', { code: chal.code, player: chal.player }).then(done, done);
+      if (chal.busy) return;
+      chal.busy = true; b.disabled = true;
+      const body = chal.token ? { code: chal.code, token: chal.token } : { code: chal.code, player: chal.player };
+      api(chal.token ? 'close' : 'leave', body).then(done).catch(function (e) {
+        if (e.status === 404 || e.status === 403) done();
+        else toast('Verlassen fehlgeschlagen. Bitte erneut versuchen.');
+      }).finally(function () { chal.busy = false; b.disabled = false; });
     });
     return b;
   }
@@ -1065,17 +1074,15 @@
         .catch(function (e) { startBtn.disabled = false; toast(String(e)); });
     });
 
-    // Unter QUIZ_HOST öffnet sich die Challenge von selbst.
     const url = joinUrl();
-    const direct = url.indexOf('//' + QUIZ_HOST + '/') >= 0;
 
     stage.appendChild(h('div', { class: 'card chal-lobby' }, [
       h('p', { class: 'chal-p', text: 'Mit diesem Code treten alle bei:' }),
       h('div', { class: 'chal-code', text: s.code }),
       h('p', { class: 'chal-p', style: 'text-align:center;margin-bottom:8px',
-        html: direct ? 'Alle öffnen diese Adresse im Browser:'
-                     : 'Alle öffnen diese Adresse im Browser und gehen auf <b>Trainer → Challenge</b>:' }),
-      h('div', { class: 'chal-url', text: url })
+        text: 'Im Browser diese Adresse öffnen. In der App: Trainer → Challenge, denselben Server einstellen und den Code eingeben.' }),
+      h('div', { class: 'chal-url', text: url + '#/challenge' }),
+      h('p', { class: 'chal-p', style: 'text-align:center;margin-top:8px', text: 'Challenge-Server: ' + apiBase })
     ]));
 
     stage.appendChild(h('div', { class: 'card', style: 'margin-top:14px' }, [
@@ -1113,30 +1120,37 @@
     const clock = h('span', { class: 'chal-clock' });
 
     const cv = h('canvas');
-    const answered = s.myAnswer !== undefined && s.myAnswer !== null;
+    const answer = s.myAnswer ?? chal.selected;
+    const answered = answer !== undefined && answer !== null;
 
     const tiles = h('div', { class: 'chal-tiles' + (answered ? ' locked' : '') });
     q.options.forEach(function (label, i) {
       const t = TILES[i % 4];
       const b = h('button', {
-        class: 'chal-tile ' + t.c + (answered && s.myAnswer === i ? ' picked' : ''),
+        class: 'chal-tile ' + t.c + (answered && answer === i ? ' picked' : ''),
+        disabled: answered ? 'disabled' : null,
         type: 'button'
       }, [
         h('span', { class: 'ct-sym', text: t.s }),
         h('span', { class: 'ct-label', text: label })
       ]);
       b.addEventListener('click', function () {
-        if (tiles.classList.contains('locked')) return;
+        if (tiles.classList.contains('locked') || chal.problem || Date.now() >= chal.deadline) return;
+        chal.selected = i;
         tiles.classList.add('locked');
+        tiles.querySelectorAll('button').forEach(function (button) { button.disabled = true; });
         b.classList.add('picked');
         S.tap();
         // `q` verhindert, dass eine knappe Antwort beim nächsten EKG landet.
         api('answer', { code: chal.code, player: chal.player, q: s.index, index: i })
           .catch(function (e) {
+            if (!chal.state || chal.state.index !== s.index || chal.state.phase !== 'frage' || !stage.isConnected) return;
             const msg = String(e);
             // Kam die Antwort gar nicht an, darf nochmal getippt werden.
-            if (msg.indexOf('Schon') < 0 && msg.indexOf('Zu spät') < 0) {
+            if (e.status !== 409 && msg.indexOf('Schon') < 0 && msg.indexOf('Zu spät') < 0) {
+              chal.selected = null;
               tiles.classList.remove('locked');
+              tiles.querySelectorAll('button').forEach(function (button) { button.disabled = false; });
               b.classList.remove('picked');
             }
             toast(msg);
@@ -1155,6 +1169,7 @@
       h('div', { class: 'scope h-lg paper', style: 'margin-top:14px' }, [cv]),
       tiles
     ]));
+    stage.appendChild(h('div', { style: 'margin-top:14px' }, [leaveBtn(stage)]));
 
     requestAnimationFrame(function () {
       chal.scope = new EKG.Scope(cv, { rhythm: q.rhythm, speed: q.speed || 25,
@@ -1167,7 +1182,11 @@
       const left = Math.max(0, chal.deadline - Date.now());
       bar.style.width = (left / total * 100) + '%';
       clock.textContent = Math.ceil(left / 1000) + ' s';
-      if (left <= 0) { clearInterval(chal.timer); chal.timer = null; }
+      if (left <= 0) {
+        tiles.classList.add('locked');
+        tiles.querySelectorAll('button').forEach(function (button) { button.disabled = true; });
+        clearInterval(chal.timer); chal.timer = null;
+      }
     }, 100);
   }
 

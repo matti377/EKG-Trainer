@@ -21,6 +21,7 @@ import http.server
 import json
 import os
 import random
+import secrets
 import socket
 import string
 import threading
@@ -54,7 +55,33 @@ lock = threading.Lock()
 
 
 def rand(n, pool=string.ascii_letters + string.digits):
-    return ''.join(random.choice(pool) for _ in range(n))
+    return ''.join(secrets.choice(pool) for _ in range(n))
+
+
+def clean_questions(value):
+    """Validate the shared web/app payload before it enters a live lobby."""
+    if not isinstance(value, list) or not 1 <= len(value) <= MAX_QUESTIONS:
+        raise ValueError('Bitte 1–40 gültige Fragen senden')
+    out = []
+    for q in value:
+        if not isinstance(q, dict):
+            raise ValueError('Ungültige Frage')
+        options = q.get('options')
+        correct = q.get('correct')
+        if (not isinstance(options, list) or not 2 <= len(options) <= 4
+                or any(not isinstance(o, str) or not o.strip() or len(o) > 200 for o in options)
+                or len(set(options)) != len(options)
+                or type(correct) is not int or not 0 <= correct < len(options)
+                or not isinstance(q.get('rhythm'), str) or not q['rhythm'] or len(q['rhythm']) > 80
+                or q.get('name') != options[correct]
+                or q.get('speed', 25) not in (25, 50)
+                or (q.get('desc') is not None and
+                    (not isinstance(q['desc'], str) or len(q['desc']) > 5000))
+                or (q.get('leadSet') is not None and
+                    (not isinstance(q['leadSet'], str) or len(q['leadSet']) > 80))):
+            raise ValueError('Ungültige Frage')
+        out.append({k: q[k] for k in ('rhythm', 'options', 'correct', 'name', 'speed', 'desc', 'leadSet') if k in q})
+    return out
 
 
 class Lobby:
@@ -197,6 +224,7 @@ class Lobby:
         return counts
 
     def snapshot(self, pid=None):
+        self.touched = time.time()
         if pid in self.players:
             self.players[pid]['seen'] = time.time()
         self.tick()
@@ -280,9 +308,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def read_json(self):
         try:
             n = int(self.headers.get('Content-Length', '0'))
-            return json.loads(self.rfile.read(n) or b'{}')
-        except Exception:
-            return {}
+            if not 0 < n <= 256 * 1024:
+                raise ValueError()
+            data = json.loads(self.rfile.read(n))
+            if not isinstance(data, dict):
+                raise ValueError()
+            return data
+        except (ValueError, TypeError):
+            raise ValueError('Ungültige Anfrage')
 
     def do_OPTIONS(self):
         self.send_response(204)
@@ -308,15 +341,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def api_get(self, path, q):
         if path == '/api/ping':
-            return self.send_json({'ok': True, 'lobbies': len(lobbies)})
+            return self.send_json({'ok': True, 'lobbies': len(lobbies), 'protocol': 1})
 
         if path == '/api/state':
             code = (q.get('code', [''])[0] or '').upper()
             pid = q.get('player', [''])[0]
             with lock:
+                sweep()
                 lob = lobbies.get(code)
                 if not lob:
                     return self.fail('Lobby nicht gefunden', 404)
+                if pid and pid not in lob.players:
+                    return self.fail('Du bist nicht mehr in dieser Lobby', 403)
                 return self.send_json(lob.snapshot(pid))
 
         return self.fail('Unbekannter Endpunkt', 404)
@@ -325,14 +361,24 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         path = urlparse(self.path).path
         if not path.startswith('/api/'):
             return self.fail('Unbekannter Endpunkt', 404)
-        data = self.read_json()
+        try:
+            data = self.read_json()
+        except ValueError as e:
+            return self.fail(str(e))
+
+        for field in ('name', 'code', 'player', 'token'):
+            if field in data and not isinstance(data[field], str):
+                return self.fail('Ungültige Anfrage')
 
         with lock:
             sweep()
 
             if path == '/api/lobby':
-                name = (data.get('name') or '').strip() or 'Host'
-                secs = max(5, min(120, int(data.get('seconds') or 20)))
+                name = (data.get('name') or '').strip()[:24] or 'Host'
+                try:
+                    secs = max(5, min(120, int(data.get('seconds') or 20)))
+                except (TypeError, ValueError, OverflowError):
+                    return self.fail('Ungültige Zeit pro Frage')
                 lob = Lobby(secs)
                 lob.code = self.new_code()
                 lobbies[lob.code] = lob
@@ -340,7 +386,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self.send_json({'code': lob.code, 'token': lob.token,
                                        'player': pid})
 
-            code = (data.get('code') or '').upper()
+            code = (data.get('code') or '').strip().upper()
             lob = lobbies.get(code)
             if not lob:
                 return self.fail('Lobby nicht gefunden', 404)
@@ -350,7 +396,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     return self.fail('Die Challenge läuft bereits', 409)
                 if len(lob.players) >= MAX_PLAYERS:
                     return self.fail('Lobby ist voll', 409)
-                name = (data.get('name') or '').strip()
+                name = (data.get('name') or '').strip()[:24]
                 if not name:
                     return self.fail('Bitte einen Namen angeben')
                 taken = {lob.players[p]['name'].lower() for p in lob.players}
@@ -362,7 +408,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 pid = data.get('player')
                 if pid in lob.players:
                     lob.players.pop(pid, None)
+                    lob.order.remove(pid)
+                    for given in lob.answers.values():
+                        given.pop(pid, None)
                     lob.bump()
+                    lob.tick()
                 return self.send_json({'ok': True})
 
             # Ab hier nur der Host
@@ -371,10 +421,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     return self.fail('Nur der Host darf das', 403)
 
             if path == '/api/start':
-                qs = data.get('questions') or []
-                if not qs:
-                    return self.fail('Keine Fragen erhalten')
-                lob.questions = qs[:MAX_QUESTIONS]
+                if lob.phase != 'lobby':
+                    return self.fail('Die Challenge läuft bereits', 409)
+                try:
+                    qs = clean_questions(data.get('questions'))
+                except ValueError as e:
+                    return self.fail(str(e))
+                lob.questions = qs
                 lob.answers = {}
                 lob.index = 0
                 lob.phase = 'frage'
@@ -390,16 +443,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 lob.tick()
                 # Die Frage kann inzwischen weitergesprungen sein — dann darf
                 # die Antwort nicht beim nächsten EKG landen.
-                if lob.phase != 'frage' or data.get('q') != lob.index:
+                if lob.phase != 'frage' or type(data.get('q')) is not int or data['q'] != lob.index:
                     return self.fail('Zu spät', 409)
                 slot = lob.answers.setdefault(lob.index, {})
                 if pid in slot:
                     return self.fail('Schon geantwortet', 409)
-                try:
-                    i = int(data.get('index', -1))
-                except (TypeError, ValueError):
-                    i = -1
-                if not 0 <= i < len(lob.questions[lob.index]['options']):
+                i = data.get('index')
+                if type(i) is not int or not 0 <= i < len(lob.questions[lob.index]['options']):
                     return self.fail('Ungültige Antwort')
                 slot[pid] = {'i': i, 't': max(0.0, time.time() - lob.q_start)}
                 lob.bump()
