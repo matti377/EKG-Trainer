@@ -46,10 +46,16 @@ geben alle Mitspielenden im selben WLAN in ihrem Browser ein. Dann:
 4. Der Host legt Umfang (5–30 EKGs), Zeit pro Frage und Themengebiet fest
    und startet.
 
-Punkte und Rangliste gibt es nicht. Sobald alle geantwortet haben, geht es
-sofort zum nächsten EKG; wer bis zum Ablauf der Zeit nicht antwortet, verpasst
-die Frage. Am Ende sieht jede Person die Auflösung aller EKGs — mit der eigenen
-Antwort und wie viele aus der Gruppe richtig lagen.
+Gespielt wird wie bei Kahoot: Für jede richtige Antwort gibt es bis zu 1000
+Punkte — die Hälfte ist sicher, die andere Hälfte schmilzt mit der verbrauchten
+Zeit weg. Jeder weitere Treffer in Folge bringt 100 Punkte Zuschlag, höchstens
+500. Eine falsche oder fehlende Antwort reißt die Serie ab, die Punkte bleiben.
+
+Sobald alle geantwortet haben oder die Zeit abgelaufen ist, kommt die Auflösung:
+richtige Antwort, eigene Punkte, Zuspruch zur Serie („Serie von 3 — voll im
+Flow!"), die Verteilung der Gruppe und der Zwischenstand. Nach sieben Sekunden
+geht es von selbst weiter. Am Ende stehen Podium, Endstand und die Auflösung
+aller EKGs.
 
 Die Lobbys liegen nur im Arbeitsspeicher; ein Neustart des Servers löscht sie.
 Das ist Absicht — es gibt nichts zu pflegen und nichts, was liegen bleibt.
@@ -163,7 +169,8 @@ Kurvenform, muss sie an beiden Stellen angepasst werden.
     Vorschlagsliste wählen. Kurzformen wie `VHF`, `VT` oder `RSB` funktionieren;
     nach Gruppen filterbar. Bei mehrdeutiger Eingabe (etwa „Mobitz") verlangt
     das Feld bewusst eine Auswahl, statt zu raten.
-  - *Challenge:* Mehrspieler-Quiz ohne Punkte — siehe oben. Braucht `server.py`.
+  - *Challenge:* Mehrspieler-Quiz mit Punkten, Serien und Podium — siehe oben.
+    Braucht `server.py`.
 - **Ableitungen** — Cabrera-Kreis der Frontalebene, Brustwandableitungen und
   die Zuordnung Infarktlokalisation → Gefäß.
 

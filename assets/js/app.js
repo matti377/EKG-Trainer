@@ -740,7 +740,8 @@
   const chal = {
     code: null, player: null, token: null, name: '',
     count: 10, seconds: 20, group: 'alle',
-    state: null, lastKey: '', deadline: 0, timer: null, poll: null, scope: null
+    state: null, lastKey: '', deadline: 0, timer: null, poll: null, scope: null,
+    revealEnd: 0, sounded: -1
   };
 
   // Öffentlicher Kursserver. Er wird genutzt, wenn die Seite nicht selbst von
@@ -833,7 +834,7 @@
 
     root.appendChild(h('div', { class: 'sec-head' }, [
       h('h2', { text: 'Challenge' }),
-      h('span', { text: 'Gemeinsam gegen die Uhr' })
+      h('span', { text: 'Punkte sammeln — schnell und richtig' })
     ]));
     root.appendChild(modeSwitch('challenge'));
 
@@ -985,6 +986,7 @@
 
   function startPolling(stage) {
     chalStop();
+    chal.sounded = -1;
     const tick = function () {
       api('state?code=' + chal.code + '&player=' + (chal.player || ''))
         .then(function (s) {
@@ -997,6 +999,9 @@
             chal.lastKey = key;
             if (s.phase === 'frage') {
               chal.deadline = Date.now() + (s.remaining || s.seconds) * 1000;
+            }
+            if (s.phase === 'reveal') {
+              chal.revealEnd = Date.now() + (s.revealIn || 0) * 1000;
             }
             paintGame(stage);
           }
@@ -1029,6 +1034,7 @@
 
     if (s.phase === 'lobby') return paintLobby(stage, s);
     if (s.phase === 'frage') return paintQuestion(stage, s);
+    if (s.phase === 'reveal') return paintReveal(stage, s);
     if (s.phase === 'ende') return paintEnd(stage, s);
   }
 
@@ -1053,6 +1059,7 @@
     const startBtn = h('button', { class: 'btn wide', text: 'Challenge starten' });
     startBtn.addEventListener('click', function () {
       startBtn.disabled = true;
+      chal.sounded = -1;
       const qs = buildQuestions(chal.count, chal.group);
       api('start', { code: chal.code, token: chal.token, questions: qs })
         .catch(function (e) { startBtn.disabled = false; toast(String(e)); });
@@ -1080,6 +1087,12 @@
         return h('span', { class: 'chal-chip' + (p.id === chal.player ? ' me' : ''),
           text: p.name });
       })),
+      h('div', { class: 'pill-note', style: 'margin-top:16px' }, [
+        h('span', { class: 'bi', text: '🏆' }),
+        h('span', { html: 'Für jede richtige Antwort gibt es bis zu <b>1000 Punkte</b> — ' +
+                          'je schneller, desto mehr. Jeder weitere Treffer in Folge bringt ' +
+                          '<b>+100</b> extra (bis +500). Am Ende steht das Podium.' })
+      ]),
       isHost
         ? h('div', { style: 'margin-top:18px' }, [
             h('p', { class: 'chal-p', text: chal.count + ' EKGs · ' + s.seconds +
@@ -1135,6 +1148,7 @@
     stage.appendChild(h('div', { class: 'card' }, [
       h('div', { class: 'chal-top' }, [
         h('span', { class: 'chal-count', text: 'EKG ' + (s.index + 1) + ' / ' + s.total }),
+        scoreStrip(s),
         clock
       ]),
       h('div', { class: 'pbar chal-bar' }, [bar]),
@@ -1157,20 +1171,235 @@
     }, 100);
   }
 
-  // Keine Punkte, keine Rangliste — am Ende nur die Auflösung aller EKGs.
+  /* ---- Punkte, Serien und Zuspruch ---- */
+
+  // Punktestand und laufende Serie — steht über jeder Frage und in der Auflösung.
+  function scoreStrip(s) {
+    const me = s.me || {};
+    const box = h('div', { class: 'chal-meta' }, [
+      h('span', { class: 'chal-pts', text: fmtPts(me.score || 0) + ' Pkt' })
+    ]);
+    if (me.streak >= 2) {
+      box.appendChild(h('span', { class: 'chal-flame', text: '🔥 ' + me.streak }));
+    }
+    return box;
+  }
+
+  function fmtPts(n) {
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  // Der Zuspruch nach einer richtigen Antwort. Je länger die Serie, desto
+  // größer das Lob — genau das hält im Kurs die Spannung.
+  function hypeRight(r) {
+    const n = r.streak || 1;
+    if (n >= 10) return { icon: '👑', title: 'Serie von ' + n + ' — legendär!' };
+    if (n >= 7)  return { icon: '⚡', title: 'Serie von ' + n + ' — unaufhaltsam!' };
+    if (n >= 5)  return { icon: '🚀', title: n + ' in Folge — nicht zu bremsen!' };
+    if (n >= 3)  return { icon: '🔥', title: 'Serie von ' + n + ' — voll im Flow!' };
+    if (n === 2) return { icon: '🔥', title: 'Zwei in Folge — weiter so!' };
+    return { icon: '✅', title: 'Richtig!' };
+  }
+
+  function hypeWrong(r) {
+    if (!r.answer) return { icon: '⏱️', title: 'Keine Antwort — nächstes Mal schneller!' };
+    if (r.lost >= 3) return { icon: '💔', title: 'Serie von ' + r.lost + ' gerissen — bau sie neu auf!' };
+    if (r.lost >= 1) return { icon: '😬', title: 'Daneben — die Serie ist weg, die Punkte bleiben.' };
+    return { icon: '❌', title: 'Daneben — das nächste EKG gehört dir.' };
+  }
+
+  // Ein Satz zum eigenen Platz. Niemand soll sich abgehängt fühlen.
+  function rankLine(me, total) {
+    if (!me) return '';
+    if (total <= 1) return 'Du spielst allein — gegen die Uhr.';
+    if (me.rank === 1) return '🥇 Platz 1 — du führst das Feld an!';
+    if (me.rank === 2) return '🥈 Platz 2 — ganz dicht dran!';
+    if (me.rank === 3) return '🥉 Platz 3 — das Podium ist deins!';
+    if (me.rank <= Math.ceil(total / 2)) return 'Platz ' + me.rank + ' von ' + total + ' — im vorderen Feld!';
+    return 'Platz ' + me.rank + ' von ' + total + ' — aufholen geht noch!';
+  }
+
+  /* ---- Auflösung zwischen zwei EKGs ---- */
+
+  function paintReveal(stage, s) {
+    const q = s.question || { options: [] };
+    const r = s.result || { ok: false, gain: 0, streak: 0, lost: 0, answer: null };
+    const board = s.board || [];
+    const me = board.filter(function (b) { return b.id === chal.player; })[0];
+    const hype = r.ok ? hypeRight(r) : hypeWrong(r);
+
+    // Ton und fliegende Punkte genau einmal pro EKG.
+    if (chal.sounded !== s.index) {
+      chal.sounded = s.index;
+      if (r.ok) { S.right(); flyXp('+' + fmtPts(r.gain)); } else { S.wrong(); }
+    }
+
+    const next = h('span', { class: 'rv-next' });
+
+    // Kopf: Lob, Punkte und woher sie kommen.
+    const head = h('div', { class: 'rv-head ' + (r.ok ? 'good' : 'bad') }, [
+      h('div', { class: 'rv-icon', text: hype.icon }),
+      h('div', { class: 'rv-headtxt' }, [
+        h('strong', { text: hype.title }),
+        h('span', { class: 'rv-sub', text: r.ok
+          ? ('+' + fmtPts(r.base) + ' für Tempo und Treffer' +
+             (r.bonus ? ' · +' + fmtPts(r.bonus) + ' Serien-Bonus' : '') +
+             (r.secs !== null && r.secs !== undefined ? ' · ' + UI.fmt(Math.round(r.secs * 10) / 10) + ' s' : ''))
+          : 'Richtig war: ' + q.name })
+      ]),
+      r.ok ? h('div', { class: 'rv-gain', text: '+' + fmtPts(r.gain) })
+           : h('div', { class: 'rv-gain zero', text: '+0' })
+    ]);
+
+    // Schnelle Antworten eigens loben — das treibt das Tempo an.
+    const chips = h('div', { class: 'rv-chips' });
+    if (r.ok && r.secs !== null && r.secs !== undefined && s.seconds) {
+      if (r.secs <= s.seconds * 0.2) chips.appendChild(h('span', { class: 'rv-chip hot', text: '⚡ Blitzschnell' }));
+      else if (r.secs <= s.seconds * 0.4) chips.appendChild(h('span', { class: 'rv-chip', text: '💨 Schnell erkannt' }));
+    }
+    if (r.ok && r.bonus) chips.appendChild(h('span', { class: 'rv-chip', text: '🔥 Serie ×' + r.streak }));
+    if (me) chips.appendChild(h('span', { class: 'rv-chip', text: rankLine(me, board.length) }));
+
+    // Wie die Gruppe gewählt hat — mit Balken je Kachel.
+    const counts = s.counts || [];
+    const most = Math.max.apply(null, [1].concat(counts));
+    const rows = h('div', { class: 'rv-rows' });
+    q.options.forEach(function (label, i) {
+      const t = TILES[i % 4];
+      const ok = i === q.correct;
+      const mineHere = s.myAnswer === i;
+      rows.appendChild(h('div', {
+        class: 'rv-row' + (ok ? ' correct' : '') + (mineHere ? ' mine' : '')
+      }, [
+        h('span', { class: 'rv-sym ' + t.c, text: t.s }),
+        h('span', { class: 'rv-label' }, [
+          h('span', { text: label }),
+          mineHere ? h('span', { class: 'rv-tag', text: 'deine Antwort' }) : null
+        ]),
+        h('span', { class: 'rv-bar' }, [
+          h('i', { style: 'width:' + Math.round((counts[i] || 0) / most * 100) + '%' })
+        ]),
+        h('span', { class: 'rv-n', text: String(counts[i] || 0) }),
+        h('span', { class: 'rv-mark', text: ok ? '✓' : '' })
+      ]));
+    });
+
+    const cv = h('canvas');
+
+    stage.appendChild(h('div', { class: 'card' }, [
+      h('div', { class: 'chal-top' }, [
+        h('span', { class: 'chal-count', text: 'EKG ' + (s.index + 1) + ' / ' + s.total }),
+        scoreStrip(s),
+        next
+      ]),
+      head,
+      chips,
+      h('div', { class: 'scope h-md paper', style: 'margin-top:14px' }, [cv]),
+      q.desc ? h('p', { class: 'chal-p', style: 'margin-top:10px', text: q.desc }) : null,
+      rows
+    ]));
+
+    requestAnimationFrame(function () {
+      chal.scope = new EKG.Scope(cv, { rhythm: q.rhythm, speed: q.speed || 25,
+                                       mvRange: 3.4, theme: 'paper' });
+    });
+
+    // Zwischenstand: die besten fünf, und bei Bedarf die eigene Zeile dazu.
+    if (board.length > 1) {
+      stage.appendChild(h('div', { class: 'card', style: 'margin-top:14px' }, [
+        h('div', { class: 'sec-head', style: 'margin:0 0 12px' }, [
+          h('h2', { style: 'font-size:16px', text: 'Zwischenstand' }),
+          h('span', { text: board.length + ' Mitspielende' })
+        ]),
+        boardList(board, 5)
+      ]));
+    }
+
+    chal.timer = setInterval(function () {
+      const left = Math.max(0, chal.revealEnd - Date.now());
+      next.textContent = s.index + 1 >= s.total
+        ? 'Ergebnis in ' + Math.ceil(left / 1000) + ' s'
+        : 'Nächstes EKG in ' + Math.ceil(left / 1000) + ' s';
+      if (left <= 0) { clearInterval(chal.timer); chal.timer = null; }
+    }, 200);
+  }
+
+  // Ranglisten-Zeilen. `top` begrenzt die Liste; die eigene Zeile ist immer dabei.
+  function boardList(board, top) {
+    const show = board.slice(0, top || board.length);
+    const mineIn = show.some(function (b) { return b.id === chal.player; });
+    const mine = board.filter(function (b) { return b.id === chal.player; })[0];
+    const list = h('div', { class: 'lb' });
+
+    show.concat(!mineIn && mine ? [mine] : []).forEach(function (b, n) {
+      const gap = !mineIn && mine && n === show.length;
+      if (gap) list.appendChild(h('div', { class: 'lb-gap', text: '⋯' }));
+      list.appendChild(h('div', { class: 'lb-row' + (b.id === chal.player ? ' me' : '') +
+                                        (b.rank <= 3 ? ' top' + b.rank : '') }, [
+        h('span', { class: 'lb-rank', text: b.rank <= 3 ? ['🥇', '🥈', '🥉'][b.rank - 1] : String(b.rank) }),
+        h('span', { class: 'lb-name', text: b.name }),
+        b.streak >= 2 ? h('span', { class: 'lb-streak', text: '🔥' + b.streak }) : null,
+        b.gain ? h('span', { class: 'lb-gain', text: '+' + fmtPts(b.gain) }) : null,
+        h('span', { class: 'lb-score', text: fmtPts(b.score) })
+      ]));
+    });
+    return list;
+  }
+
+  /* ---- Schluss: Podium, Rangliste und Auflösung ---- */
+
   function paintEnd(stage, s) {
     const rows = s.review || [];
+    const board = s.board || [];
+    const me = board.filter(function (b) { return b.id === chal.player; })[0];
     const right = rows.filter(function (r) { return r.ok; }).length;
-    S.win();
+    const alone = board.length <= 1;
+
+    if (!me || me.rank <= 3 || alone) S.win(); else S.fail();
+
+    // Podium: Zweiter links, Erster in der Mitte, Dritter rechts.
+    const top = board.slice(0, 3);
+    const order = [top[1], top[0], top[2]].filter(Boolean);
+    const podium = h('div', { class: 'podium' }, order.map(function (b) {
+      return h('div', { class: 'pod p' + b.rank + (b.id === chal.player ? ' me' : '') }, [
+        h('div', { class: 'pod-medal', text: ['🥇', '🥈', '🥉'][b.rank - 1] }),
+        h('div', { class: 'pod-name', text: b.name }),
+        h('div', { class: 'pod-score', text: fmtPts(b.score) }),
+        h('div', { class: 'pod-step' }, [
+          h('span', { class: 'pod-rank', text: String(b.rank) })
+        ])
+      ]);
+    }));
+
+    const headline = alone
+      ? 'Challenge beendet'
+      : (me && me.rank === 1 ? 'Du hast gewonnen! 🎉'
+        : (me && me.rank <= 3 ? 'Aufs Podium geschafft!' : 'Challenge beendet'));
 
     stage.appendChild(h('div', { class: 'card' }, [
       h('div', { style: 'text-align:center' }, [
-        h('div', { style: 'font-size:52px', text: '🏁' }),
-        h('h2', { style: 'font-size:24px;margin:6px 0 4px', text: 'Challenge beendet' }),
-        h('p', { class: 'chal-p', text: 'Du hast ' + right + ' von ' + rows.length +
-                                        ' EKGs richtig erkannt.' })
+        h('div', { style: 'font-size:52px', text: alone ? '🏁' : '🏆' }),
+        h('h2', { style: 'font-size:24px;margin:6px 0 4px', text: headline }),
+        h('p', { class: 'chal-p', text: right + ' von ' + rows.length + ' EKGs richtig' +
+                 (me ? ' · ' + fmtPts(me.score) + ' Punkte' : '') +
+                 (me && me.best >= 2 ? ' · längste Serie: ' + me.best : '') })
       ]),
-      h('div', { class: 'sec-head', style: 'margin:22px 0 10px' }, [
+      alone ? null : podium,
+      !alone && me ? h('p', { class: 'chal-p', style: 'text-align:center',
+                              text: rankLine(me, board.length) }) : null
+    ]));
+
+    if (!alone) {
+      stage.appendChild(h('div', { class: 'card', style: 'margin-top:14px' }, [
+        h('div', { class: 'sec-head', style: 'margin:0 0 12px' }, [
+          h('h2', { style: 'font-size:16px', text: 'Endstand' })
+        ]),
+        boardList(board, 0)
+      ]));
+    }
+
+    stage.appendChild(h('div', { class: 'card', style: 'margin-top:14px' }, [
+      h('div', { class: 'sec-head', style: 'margin:0 0 10px' }, [
         h('h2', { style: 'font-size:16px', text: 'Auflösung' })
       ]),
       h('div', { class: 'chal-board' }, rows.map(function (r, i) {
@@ -1182,10 +1411,12 @@
             h('span', { text: r.name }),
             h('span', { class: 'cb-sub', text: sub })
           ]),
+          r.gain ? h('span', { class: 'cb-pts', text: '+' + fmtPts(r.gain) }) : null,
           h('span', { class: 'cb-mark', text: r.ok ? '✓' : '✗' })
         ]);
       }))
     ]));
+
     stage.appendChild(h('div', { style: 'margin-top:14px' }, [leaveBtn(stage)]));
   }
 

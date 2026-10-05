@@ -9,6 +9,9 @@ Nur Standardbibliothek — nichts zu installieren. Der Server hält die Lobbys
 im Arbeitsspeicher; ein Neustart löscht sie. Das ist Absicht: Es gibt nichts
 zu pflegen und keine Daten, die liegen bleiben.
 
+Gespielt wird wie bei Kahoot: Punkte für jede richtige Antwort, mehr Punkte
+für schnelle Antworten, Zuschlag für Serien — und am Ende ein Podium.
+
 Die Fragen selbst denkt sich der Server nicht aus. Sie kommen beim Start vom
 Gerät des Hosts (das kennt die Befund-Bibliothek bereits) und werden hier nur
 verteilt — so kann der Inhalt der Website nicht auseinanderlaufen.
@@ -38,6 +41,13 @@ MAX_QUESTIONS = 40
 LOBBY_TTL = 4 * 3600          # verwaiste Lobbys nach vier Stunden vergessen
 GRACE = 0.4                   # Nachlauf, damit knappe Antworten noch zählen
 AWAY = 5.0                    # wer so lange nicht nachfragt, wird nicht mehr abgewartet
+REVEAL = 7.0                  # Auflösung und Zwischenstand zwischen zwei EKGs
+
+# Punkte wie bei Kahoot: Die Hälfte ist für die richtige Antwort sicher, die
+# andere Hälfte schmilzt mit der verbrauchten Zeit weg. Serien geben Zuschlag.
+BASE_POINTS = 1000
+STREAK_STEP = 100             # je weiterem Treffer in Folge
+STREAK_CAP = 5                # … höchstens fünfmal, sonst laufen Serien davon
 
 lobbies = {}
 lock = threading.Lock()
@@ -55,9 +65,10 @@ class Lobby:
         self.order = []            # Beitrittsreihenfolge
         self.questions = []
         self.answers = {}          # index -> pid -> {'i'}
-        self.phase = 'lobby'       # lobby | frage | ende
+        self.phase = 'lobby'       # lobby | frage | reveal | ende
         self.index = -1
         self.q_start = 0.0
+        self.reveal_start = 0.0
         self.seconds = seconds
         self.rev = 1               # Änderungszähler fürs Pollen
         self.touched = time.time()
@@ -70,32 +81,98 @@ class Lobby:
 
     def add_player(self, name):
         pid = rand(12)
-        self.players[pid] = {'name': name[:24], 'joined': time.time(), 'seen': time.time()}
+        now = time.time()
+        self.players[pid] = {
+            'name': name[:24], 'joined': now, 'seen': now,
+            'score': 0, 'streak': 0, 'best': 0, 'correct': 0,
+            'last': None,          # Ergebnis des letzten EKGs
+            'log': [],             # Punkte je EKG, für den Rückblick am Ende
+        }
         self.order.append(pid)
         self.bump()
         return pid
 
     def tick(self):
-        """Weiter zum nächsten EKG, sobald alle geantwortet haben oder die
-        Zeit abgelaufen ist. Punkte und Zwischenstand gibt es nicht."""
-        while self.phase == 'frage':
-            done = self.answers.get(self.index, {})
-            # Wer die Seite neu geladen oder geschlossen hat, bliebe sonst als
-            # Geist in der Lobby — und auf dessen Antwort würde ewig gewartet.
+        """Der Ablauf pro EKG: Frage — Auflösung mit Zwischenstand — nächste
+        Frage. Beides läuft von selbst weiter, der Host muss nichts klicken."""
+        while True:
             now = time.time()
-            active = [p for p in self.players if now - self.players[p]['seen'] < AWAY]
-            everyone = active and all(p in done for p in active)
-            if not everyone and (time.time() - self.q_start) < self.seconds + GRACE:
-                return
-            if self.index + 1 >= len(self.questions):
-                self.phase = 'ende'
+
+            if self.phase == 'frage':
+                done = self.answers.get(self.index, {})
+                # Wer die Seite neu geladen oder geschlossen hat, bliebe sonst
+                # als Geist in der Lobby — und auf dessen Antwort würde ewig
+                # gewartet.
+                active = [p for p in self.players if now - self.players[p]['seen'] < AWAY]
+                everyone = active and all(p in done for p in active)
+                if not everyone and (now - self.q_start) < self.seconds + GRACE:
+                    return
+                self.score_round()
+                self.phase = 'reveal'
+                self.reveal_start = now
+                self.bump()
+                continue
+
+            if self.phase == 'reveal':
+                if now - self.reveal_start < REVEAL:
+                    return
+                if self.index + 1 >= len(self.questions):
+                    self.phase = 'ende'
+                else:
+                    self.index += 1
+                    self.q_start = now
+                    self.phase = 'frage'
+                self.bump()
+                continue
+
+            return
+
+    def score_round(self):
+        """Punkte für das gerade gelaufene EKG verteilen. Wird genau einmal
+        aufgerufen — beim Übergang von `frage` nach `reveal`."""
+        q = self.questions[self.index]
+        given = self.answers.get(self.index, {})
+        for pid, pl in self.players.items():
+            a = given.get(pid)
+            if a and a['i'] == q['correct']:
+                pl['streak'] += 1
+                pl['correct'] += 1
+                pl['best'] = max(pl['best'], pl['streak'])
+                # Je früher die Antwort, desto mehr — die halbe Punktzahl ist
+                # aber auch in der letzten Sekunde noch sicher.
+                frac = min(1.0, max(0.0, a['t'] / self.seconds)) if self.seconds else 0.0
+                base = int(round(BASE_POINTS * (1.0 - frac / 2.0)))
+                bonus = min(pl['streak'] - 1, STREAK_CAP) * STREAK_STEP
+                pl['score'] += base + bonus
+                pl['last'] = {'ok': True, 'base': base, 'bonus': bonus,
+                              'gain': base + bonus, 'streak': pl['streak'],
+                              'lost': 0, 'secs': round(a['t'], 2),
+                              'answer': q['options'][a['i']]}
             else:
-                self.index += 1
-                self.q_start = time.time()
-            self.bump()
+                pl['last'] = {'ok': False, 'base': 0, 'bonus': 0, 'gain': 0,
+                              'streak': 0, 'lost': pl['streak'], 'secs': None,
+                              'answer': q['options'][a['i']] if a else None}
+                pl['streak'] = 0
+            pl['log'].append(pl['last']['gain'])
+
+    def board(self):
+        """Rangliste, bester zuerst. Gleichstand teilt sich den Platz."""
+        rows = sorted(self.players.items(),
+                      key=lambda kv: (-kv[1]['score'], kv[1]['joined']))
+        out = []
+        rank, prev = 0, None
+        for n, (pid, pl) in enumerate(rows):
+            if pl['score'] != prev:
+                rank, prev = n + 1, pl['score']
+            out.append({'id': pid, 'name': pl['name'], 'rank': rank,
+                        'score': pl['score'], 'streak': pl['streak'],
+                        'best': pl['best'], 'correct': pl['correct'],
+                        'gain': (pl['last'] or {}).get('gain', 0)})
+        return out
 
     def review(self, pid):
         """Auflösung am Ende: pro EKG die eigene Antwort und wie die Gruppe lag."""
+        log = (self.players.get(pid) or {}).get('log') or []
         rows = []
         for n, q in enumerate(self.questions):
             given = self.answers.get(n, {})
@@ -106,8 +183,18 @@ class Lobby:
                 'ok': bool(mine) and mine['i'] == q['correct'],
                 'right': sum(1 for a in given.values() if a['i'] == q['correct']),
                 'answered': len(given),
+                'gain': log[n] if n < len(log) else 0,
             })
         return rows
+
+    def tally(self):
+        """Wie oft wurde welche Kachel gewählt — für die Balken bei der Auflösung."""
+        q = self.questions[self.index]
+        counts = [0] * len(q['options'])
+        for a in self.answers.get(self.index, {}).values():
+            if 0 <= a['i'] < len(counts):
+                counts[a['i']] += 1
+        return counts
 
     def snapshot(self, pid=None):
         if pid in self.players:
@@ -133,10 +220,29 @@ class Lobby:
             mine = self.answers.get(self.index, {}).get(pid)
             if mine:
                 out['myAnswer'] = mine['i']
+        if self.phase == 'reveal' and 0 <= self.index < len(self.questions):
+            q = self.questions[self.index]
+            out['question'] = {'rhythm': q['rhythm'], 'options': q['options'],
+                               'leadSet': q.get('leadSet'),
+                               'speed': q.get('speed', 25),
+                               'correct': q['correct'], 'name': q['name'],
+                               'desc': q.get('desc')}
+            out['counts'] = self.tally()
+            out['revealIn'] = max(0.0, REVEAL - (time.time() - self.reveal_start))
+            out['board'] = self.board()
+            mine = self.answers.get(self.index, {}).get(pid)
+            if mine:
+                out['myAnswer'] = mine['i']
+            if pid in self.players:
+                out['result'] = self.players[pid]['last']
         if self.phase == 'ende':
             out['review'] = self.review(pid)
+            out['board'] = self.board()
         if pid and pid in self.players:
-            out['me'] = {'id': pid, 'name': self.players[pid]['name']}
+            pl = self.players[pid]
+            out['me'] = {'id': pid, 'name': pl['name'], 'score': pl['score'],
+                         'streak': pl['streak'], 'best': pl['best'],
+                         'correct': pl['correct']}
         return out
 
 
@@ -295,7 +401,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     i = -1
                 if not 0 <= i < len(lob.questions[lob.index]['options']):
                     return self.fail('Ungültige Antwort')
-                slot[pid] = {'i': i}
+                slot[pid] = {'i': i, 't': max(0.0, time.time() - lob.q_start)}
                 lob.bump()
                 lob.tick()          # waren das alle, geht es sofort weiter
                 return self.send_json({'ok': True})
