@@ -772,3 +772,36 @@
     transition: none;
   }
 }
+
+.sono-dev-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.55);
+}
+.sono-dev-modal {
+  max-width: 420px;
+  padding: 24px;
+  border-radius: 12px;
+  background: #fff;
+  color: #1b2a2c;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+.sono-dev-modal h2 {
+  margin: 0 0 8px;
+}
+.sono-dev-modal button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #1f7a7a;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}

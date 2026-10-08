@@ -1330,4 +1330,35 @@
   persist();
   window.addEventListener("hashchange", route);
   route();
+  function devNotice() {
+    const close = () => overlay.remove();
+    const ok = h("button", { type: "button", text: "Verstanden" });
+    const overlay = h(
+      "div",
+      { class: "sono-dev-overlay", role: "dialog", "aria-modal": "true" },
+      [
+        h("div", { class: "sono-dev-modal" }, [
+          text("h2", "Seite in Entwicklung"),
+          text(
+            "p",
+            "Dieser Sono-Bereich befindet sich noch in der Entwicklung. Inhalte sind unvollständig und noch nicht medizinisch geprüft.",
+          ),
+          ok,
+        ]),
+      ],
+    );
+    ok.addEventListener("click", close);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) close();
+    });
+    document.addEventListener("keydown", function esc(e) {
+      if (e.key === "Escape") {
+        close();
+        document.removeEventListener("keydown", esc);
+      }
+    });
+    document.body.append(overlay);
+    ok.focus();
+  }
+  devNotice();
 })();
