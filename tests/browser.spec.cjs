@@ -76,30 +76,37 @@ test("lessons, progress, quiz grading and reload", async ({ page }) => {
     ),
   ).toBe(true);
 });
-test("atlas search, metadata and unavailable footage", async ({ page }) => {
+test("atlas images, licensed videos and attribution", async ({ page }) => {
   await page.goto("/?app=sono#/atlas");
-  await expect(page.locator(".sono-atlas-card")).toHaveCount(5);
+  await expect(page.locator(".sono-atlas-card")).toHaveCount(13);
   await page.getByRole("searchbox").fill("Pneumothorax");
-  await expect(page.locator(".sono-atlas-card")).toHaveCount(1);
-  await page.locator(".sono-atlas-card").click();
+  await expect(page.locator(".sono-atlas-card")).toHaveCount(2);
+  await page
+    .locator(".sono-atlas-card")
+    .filter({ hasText: "Originalclip" })
+    .click();
+  await expect(page.locator("video")).toBeVisible();
   await expect(
-    page.getByText("Klinischer Clip ausstehend", { exact: true }),
+    page.getByRole("link", { name: "CC BY 2.0", exact: true }),
   ).toBeVisible();
+  await page.locator("video").evaluate((v) => v.play());
+  await expect
+    .poll(() => page.locator("video").evaluate((v) => v.currentTime))
+    .toBeGreaterThan(0);
   await page.getByRole("button", { name: "Beschriftungen ausblenden" }).click();
   await expect(
-    page.getByRole("heading", { name: "Geplante Einordnung" }),
+    page.getByRole("heading", { name: "Einordnung", exact: true }),
   ).not.toBeVisible();
   await expect(
     page.getByText("Befundgrenzen bleiben sichtbar", { exact: true }),
   ).toBeVisible();
-  await expect(page.locator("video,img")).toHaveCount(0);
 });
 test("simulator controls, freeze, orientation and case switch", async ({
   page,
 }) => {
   await page.goto("/?app=sono#/simulator");
   await expect(
-    page.getByText("Demonstrationsmodus · anatomische Orientierung", {
+    page.getByText("Interaktives Lehrdiagramm · keine Ultraschallaufnahme", {
       exact: true,
     }),
   ).toBeVisible();
@@ -212,4 +219,61 @@ test("existing direct file preview remains usable for EKG and SONO", async ({
   await expect(page.locator("h1")).toContainText("EKG verstehen");
   await page.goto(url + "?app=sono#/home");
   await expect(page).toHaveTitle(/SONO by Resqly/);
+});
+
+test("animated diagram, M-mode, freeze and real reference mode", async ({
+  page,
+}) => {
+  await page.goto("/?app=sono#/simulator");
+  const stage = page.locator(".sono-diagram-stage");
+  await expect(stage.locator("svg")).toBeVisible();
+  await expect.poll(() => stage.getAttribute("data-phase")).not.toBe("0.00");
+  await page.getByLabel("Bildmodus", { exact: true }).selectOption("M");
+  await expect(stage).toContainText("wechselndes Zeitmuster");
+  await page.getByRole("button", { name: "❚❚ Anzeige einfrieren" }).click();
+  const phase = await stage.getAttribute("data-phase");
+  await page.waitForTimeout(120);
+  expect(await stage.getAttribute("data-phase")).toBe(phase);
+  await page.getByRole("button", { name: "▶ Anzeige fortsetzen" }).click();
+  await page
+    .getByLabel("Darstellung", { exact: true })
+    .selectOption("recording");
+  await expect(page.locator(".sono-recording video")).toBeVisible();
+  await expect(page.getByLabel("Rotation (°)", { exact: true })).toBeDisabled();
+  await page.locator("video").evaluate((v) => v.play());
+  await expect
+    .poll(() => page.locator("video").evaluate((v) => v.currentTime))
+    .toBeGreaterThan(0);
+  await page.getByRole("button", { name: "❚❚ Anzeige einfrieren" }).click();
+  expect(await page.locator("video").evaluate((v) => v.paused)).toBe(true);
+  await page.goto("/?app=sono#/simulator/case-trauma");
+  await expect(page.locator(".sono-diagram-stage")).toContainText(
+    "Hepatorenaler Rezess",
+  );
+});
+
+test("every bundled image decodes and every clinical clip plays", async ({
+  page,
+}) => {
+  const content = require("../assets/js/sono/content.js");
+  await page.goto("/?app=sono#/atlas");
+  await expect(page.locator(".sono-atlas-card")).toHaveCount(13);
+  for (const img of await page.locator(".sono-atlas-card img").all()) {
+    await img.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => img.evaluate((i) => i.naturalWidth))
+      .toBeGreaterThan(0);
+  }
+  for (const media of content.media.filter(
+    (m) => m.status === "available" && m.kind === "clinical-recording",
+  )) {
+    await page.goto("/?app=sono#/atlas/" + media.id);
+    const video = page.locator("video");
+    await expect(video).toHaveAttribute("src", media.url);
+    await video.evaluate((v) => v.play());
+    await expect
+      .poll(() => video.evaluate((v) => v.currentTime))
+      .toBeGreaterThan(0);
+    expect(await video.evaluate((v) => v.videoWidth)).toBeGreaterThan(0);
+  }
 });

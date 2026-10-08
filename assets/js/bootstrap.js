@@ -56,7 +56,13 @@
     );
   const files =
     app === "sono"
-      ? ["ui.js", "sono/content.js", "sono/core.js", "sono/app.js"]
+      ? [
+          "ui.js",
+          "sono/content.js",
+          "sono/core.js",
+          "sono/illustrations.js",
+          "sono/app.js",
+        ]
       : [
           "ekg.js?v=25",
           "heart.js?v=25",

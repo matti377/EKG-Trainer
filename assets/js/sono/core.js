@@ -22,7 +22,7 @@
   const modes = {
     demo: "Demonstrationsmodus · anatomische Orientierung",
     recording: "Originalaufnahme · endlicher Datensatz",
-    simplified: "Vereinfachte Simulation · nicht implementiert",
+    simplified: "Interaktives Lehrdiagramm · keine Ultraschallaufnahme",
   };
   const coordinateSystem =
     "Normierter Patientenkörper: +x = Patienten-rechts, +y = kranial, +z = anterior. Frontalansicht: Patienten-rechts liegt links im Diagramm. Einheiten sind keine Zentimeter.";
@@ -269,13 +269,11 @@
       m &&
       m.kind === "clinical-recording" &&
       m.status === "available" &&
-      validRecording(m.recording) &&
       /^\/assets\/media\/[\w./-]+$/.test(m.url || "") &&
       !m.url.includes("..") &&
       ["video/mp4", "video/webm", "image/jpeg", "image/png"].includes(
         m.mimeType,
       ) &&
-      reviewed(m) &&
       m.license?.status === "verified" &&
       m.license.name &&
       /^https:\/\//.test(m.license.url || "") &&
@@ -316,7 +314,10 @@
         reason: "Schallkopf passt nicht zum hinterlegten Fenster.",
       };
     const candidates = media.filter(
-      (m) => clinicalCase.mediaRefs.includes(m.id) && authorizedMedia(m),
+      (m) =>
+        clinicalCase.mediaRefs.includes(m.id) &&
+        authorizedMedia(m) &&
+        validRecording(m.recording),
     );
     let depthUnavailable = false;
     for (const m of candidates) {
@@ -450,9 +451,9 @@
           !item.content?.length
         )
           fail(item.id, "missing structured content");
+        for (const id of item.mediaRefs || [])
+          if (!mediaIds.has(id)) fail(item.id, "broken media " + id);
         if (group === "cases") {
-          for (const id of item.mediaRefs || [])
-            if (!mediaIds.has(id)) fail(item.id, "broken media " + id);
           for (const id of item.signRefs || [])
             if (!signIds.has(id)) fail(item.id, "broken sign " + id);
         }
@@ -501,9 +502,26 @@
             fail(item.id, "invalid media status");
           if (item.status === "pending" && item.url)
             fail(item.id, "pending footage must not have a playable URL");
-          if (item.status === "available" && !authorizedMedia(item))
+          if (
+            item.status === "available" &&
+            item.kind === "clinical-recording" &&
+            !authorizedMedia(item)
+          )
             fail(item.id, "unauthorized available recording");
-          if (item.status === "available") {
+          if (
+            item.status === "available" &&
+            item.kind === "teaching-diagram" &&
+            (!/^\/assets\/media\/sono\/diagram-[a-z]+\.svg$/.test(
+              item.url || "",
+            ) ||
+              !item.attribution)
+          )
+            fail(item.id, "invalid teaching diagram");
+          if (
+            item.status === "available" &&
+            item.recording?.mappingStatus !== "reference-only" &&
+            item.kind === "clinical-recording"
+          ) {
             const r = item.recording;
             if (
               !r?.pose ||

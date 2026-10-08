@@ -250,10 +250,17 @@ python3 server.py
 
 SONO bietet sechs Module mit 73 kurzen Lektionsentwürfen, 16 Wissensfragen,
 fünf fiktiven Lehrfällen, separatem lokalem Fortschritt, Quellen/Prüfstatus,
-einem filterbaren Atlas mit ausstehenden Medien und einem Simulator für
-Schallkopfposition und Orientierung. **Alle medizinischen Inhalte warten auf
-Fachprüfung; lizenzierte klinische Clips fehlen noch.** Es werden keine
-synthetischen Krankheitsaufnahmen als klinische Bilder präsentiert.
+einem filterbaren Atlas mit sieben echten Ultraschallclips (CC BY 2.0),
+Vorschaubildern und fünf Lehrdiagrammen. Der Simulator bietet fünf animierte
+Szenarien, Probe-/Positionskontrollen, Gain, schematische Tiefe, Freeze und
+qualitative M-Mode-Zeitmuster für die Lungenfälle. Echte Referenzclips sind
+separat abspielbar; sie sind nicht auf die virtuelle Schallkopfposition kalibriert.
+Review-Metadaten sind informativ und sperren die Vorschau nicht. Die klinische
+Prüfung erfolgt vor Veröffentlichung durch den Betreiber.
+
+Medienherkunft, Lizenz und Bearbeitung: [Mediennachweis](docs/media/README.md).
+Für den intraabdominellen eFAST-Fall fehlt weiterhin ein Originalclip; das
+animierte anatomische Lehrdiagramm ist verfügbar.
 
 - [Architektur, Dateikarte und Erweiterung](docs/SONO_ARCHITECTURE.md)
 - [Lokaler Start, Tests, Build und Domainkonfiguration](docs/SONO_DEPLOYMENT.md)

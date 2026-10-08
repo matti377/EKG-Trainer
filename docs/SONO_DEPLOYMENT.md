@@ -67,7 +67,9 @@ Titel, Beschreibung und Favicon werden im Browser je Anwendung gesetzt. Suchmasc
 
 ## Medienhosting
 
-Aktuell werden keine klinischen Medien ausgeliefert oder extern eingebettet. Keine Quellenclips wurden heruntergeladen oder weiterverbreitet. Freigegebene Medien gehören künftig unter `/assets/media/`; Dateinamen ohne personenbezogene Angaben. MP4 (H.264) oder WebM sowie JPEG/PNG sind vorgesehen. Videos verwenden `preload="metadata"`, native Bedienelemente und `playsinline`; Bilder `loading="lazy"`.
+Sieben lokal gespeicherte klinische MP4-Clips (H.264, CC BY 2.0), JPEG-Vorschaubilder und fünf SVG-Lehrdiagramme liegen unter `/assets/media/sono/` und werden vom Build mitkopiert (zusammen rund 7 MB). Videos verwenden `preload="none"`, native Bedienelemente, `playsinline` und Poster; Bilder `loading="lazy"`. Keine externen Einbettungen oder Hotlinks. Lizenz, Attribution, Herkunft und Bearbeitung stehen im [Mediennachweis](media/README.md) und in der Oberfläche.
+
+Die Medien sind bereits vor der medizinischen Fachprüfung abspielbar. Rechte-/Herkunftsprüfungen bleiben aktiv; der Reviewstatus wird angezeigt. Der separate Publikationscheck bleibt für die spätere Freigabe verfügbar.
 
 Für größere Medienbestände empfiehlt sich die statische Auslieferung von `/assets/media/` durch den vorhandenen Proxy mit Range-Requests. Keine kostenpflichtigen Dienste nötig. Der Python-Standardserver ist keine optimierte Streaming-Plattform. Ein CDN oder externes Hosting würde eine bewusste Erweiterung der momentan auf lokale Medien beschränkten Freigabeprüfung erfordern.
 

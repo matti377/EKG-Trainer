@@ -157,8 +157,27 @@
     );
     root.append(
       notice(
-        "In fachlicher Vorbereitung",
-        "Alle medizinischen Inhalte warten auf unabhängige Fachprüfung. Originalclips sind noch nicht freigegeben. Du kannst bereits Theorie, Fragen und Schallkopforientierung erkunden.",
+        "Deine Review-Version",
+        "Arbeitsversion für deine fachliche Prüfung: echte Referenzclips, Bilder und interaktive Lehrdiagramme sind bereits nutzbar. Die Veröffentlichung und medizinische Freigabe erfolgen durch dich.",
+      ),
+    );
+    root.append(
+      heading(
+        "ECHTE REFERENZAUFNAHMEN",
+        "Vom Zeichen zum Bild.",
+        "Originalclips ansehen, dann mit den interaktiven Erklärungen vergleichen.",
+        "h2",
+      ),
+    );
+    root.append(
+      grid(
+        ["media-normal", "media-pneumothorax", "media-pleural"].map((id) => {
+          const m = find("media", id);
+          return h("a", { href: "#/atlas/" + id, class: "sono-atlas-card" }, [
+            mediaElement(m, true),
+            text("h2", m.title),
+          ]);
+        }),
       ),
     );
     root.append(
@@ -307,6 +326,10 @@
           refs(block.sources),
         ]),
       );
+    for (const mid of l.mediaRefs || []) {
+      const m = find("media", mid);
+      if (m) root.append(panel(m.title, [mediaElement(m)]));
+    }
     if (l.diagram)
       root.append(l.diagram === "wave" ? waveDiagram() : orientationDiagram());
     root.append(
@@ -493,7 +516,7 @@
       heading(
         "KLINISCH DENKEN",
         "Fünf Fälle. Klare Fragestellungen.",
-        "Fiktive Lehrfälle mit Anamnese, Akquisition und differenzierter Interpretation. Die klinischen Originalclips stehen noch aus.",
+        "Fiktive Lehrfälle mit interaktiven Diagrammen und echten Referenzclips aus veröffentlichten Lehrmaterialien. Die Clips gehören nicht zu den erfundenen Fallpersonen.",
       ),
     );
     root.append(
@@ -504,7 +527,7 @@
             text("h2", c.title),
             text("p", c.history),
             badge(c),
-            text("small", "Originalclip ausstehend · Fall öffnen →"),
+            text("small", "Bilder & Demonstration · Fall öffnen →"),
           ]),
         ),
       ),
@@ -544,7 +567,14 @@
         ),
       ]),
     );
-    root.append(panel("Bildinterpretation", [text("p", c.interpretation)]));
+    root.append(
+      illustrationPanel(c),
+      panel("Bildinterpretation", [text("p", c.interpretation)]),
+    );
+    for (const mid of c.mediaRefs) {
+      const m = find("media", mid);
+      if (K.authorizedMedia(m)) root.append(panel(m.title, [mediaElement(m)]));
+    }
     for (const sid of c.signRefs) {
       const s = find("signs", sid);
       root.append(
@@ -562,32 +592,128 @@
       refs(c.sources, true),
     );
   }
-  function mediaElement(m) {
-    if (!K.authorizedMedia(m))
+  function assetURL(url) {
+    return url && url.startsWith("/assets/")
+      ? resqlyAssetRoot + url.slice(1)
+      : url;
+  }
+  function mediaElement(m, preview = false) {
+    const diagram = m.kind === "teaching-diagram";
+    if (!diagram && !K.authorizedMedia(m))
       return h("div", { class: "sono-missing" }, [
-        text("span", "◎", "sono-missing-icon"),
-        text("strong", "Klinischer Clip ausstehend"),
-        text(
-          "p",
-          "Keine lizenzierte, fachlich freigegebene Aufnahme hinterlegt.",
-        ),
+        text("strong", "Originalaufnahme noch nicht hinterlegt"),
+        text("p", "Das zugehörige Lehrdiagramm ist bereits nutzbar."),
       ]);
-    if (m.mimeType.startsWith("video/"))
-      return h("video", {
-        controls: "",
-        playsinline: "",
-        preload: "metadata",
-        src: m.url,
-        "aria-label": m.title,
-      });
-    return h("img", { src: m.url, alt: m.title, loading: "lazy" });
+    const visual =
+      preview || diagram || !m.mimeType.startsWith("video/")
+        ? h("img", {
+            src: assetURL(preview ? m.poster || m.url : m.url),
+            alt: m.title,
+            loading: "lazy",
+          })
+        : h("video", {
+            controls: "",
+            playsinline: "",
+            preload: "none",
+            poster: assetURL(m.poster),
+            src: assetURL(m.url),
+            "aria-label": m.title,
+          });
+    const figure = h("figure", { class: "sono-media" }, [
+      visual,
+      text(
+        "figcaption",
+        diagram
+          ? "Anatomisches Lehrdiagramm · keine Originalaufnahme"
+          : "Originalaufnahme · Referenzmaterial",
+        "sono-media-kind",
+      ),
+    ]);
+    if (!preview)
+      figure.append(
+        h("div", { class: "sono-media-credit" }, [
+          text("p", m.attribution),
+          h("a", {
+            href: m.provenance.sourceURL,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            text: "Quelle",
+          }),
+          h("a", {
+            href: m.license.url,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            text: m.license.name,
+          }),
+          text("p", m.provenance.changes || "Unveränderte Darstellung."),
+          !diagram
+            ? text(
+                "p",
+                "Referenzmaterial aus einer Veröffentlichung; keine Aufnahme der fiktiven Fallperson. Originalorientierung beibehalten.",
+              )
+            : null,
+        ]),
+      );
+    visual.addEventListener("error", () => {
+      visual.replaceWith(
+        notice(
+          "Datei nicht verfügbar",
+          "Die lokale Mediendatei konnte nicht geladen werden. Bitte erneut laden.",
+        ),
+      );
+    });
+    return figure;
+  }
+  function illustrationPanel(c) {
+    const stage = h("div", { class: "sono-diagram" });
+    const local = {
+      labels: true,
+      gain: 85,
+      depth: 6,
+      frozen: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    };
+    const demo = SONO_ILLUSTRATIONS.create(stage, c.id);
+    demo.update(local);
+    UI.track(demo);
+    const pause = button(
+      local.frozen ? "Animation starten" : "Animation pausieren",
+      () => {
+        local.frozen = !local.frozen;
+        pause.textContent = local.frozen
+          ? "Animation starten"
+          : "Animation pausieren";
+        pause.setAttribute("aria-pressed", String(local.frozen));
+        demo.update(local);
+      },
+      "btn gray",
+    );
+    const labels = button(
+      "Beschriftungen ausblenden",
+      () => {
+        local.labels = !local.labels;
+        labels.textContent = local.labels
+          ? "Beschriftungen ausblenden"
+          : "Beschriftungen anzeigen";
+        demo.update(local);
+      },
+      "btn gray",
+    );
+    return panel("Interaktive Bild-Erklärung", [
+      stage,
+      h("div", { class: "sono-actions" }, [pause, labels]),
+      text(
+        "p",
+        "Schematisches Lehrdiagramm. Bewegung und Farben erklären Zusammenhänge; sie sind keine diagnostischen Ultraschalldaten.",
+        "sono-muted",
+      ),
+    ]);
   }
   function atlas() {
     root.append(
       heading(
         "BILD- UND VIDEOATLAS",
         "Gezielt finden. Bewusst einordnen.",
-        "Fünf vorbereitete Medieneinträge. Aktuell sind keine klinischen Aufnahmen freigegeben. Metadaten beschreiben den geplanten Lehrinhalt.",
+        "Echte Ultraschallclips mit Vorschaubildern und eigene Lehrdiagramme. Filtere nach Region, Zeichen und Bildmodus; öffne einen Eintrag für Quellen und Interpretation.",
       ),
     );
     const filters = h("div", { class: "sono-filters" });
@@ -649,11 +775,11 @@
         matches.length +
         " Einträge · " +
         matches.filter(K.authorizedMedia).length +
-        " freigegebene Originalaufnahmen";
+        " Originalaufnahmen mit belegter Lizenz";
       results.replaceChildren(
         ...matches.map((m) =>
           h("a", { href: "#/atlas/" + m.id, class: "sono-atlas-card" }, [
-            mediaElement(m),
+            mediaElement(m, true),
             h("div", {}, [
               text("h2", m.title),
               text("p", m.region + " · " + m.mode + "-Mode · " + m.probe),
@@ -681,7 +807,7 @@
       mediaElement(m),
     );
     const labels = h("div", {}, [
-      panel("Geplante Einordnung", [
+      panel("Einordnung", [
         text(
           "p",
           m.region +
@@ -715,7 +841,13 @@
       labels,
       notice("Befundgrenzen bleiben sichtbar", m.limitations.join(" ")),
       panel("Herkunft und Nutzungsrechte", [
-        text("p", "Medientyp: reale klinische Aufnahme (noch ausstehend)."),
+        text(
+          "p",
+          "Medientyp: " +
+            (m.kind === "teaching-diagram"
+              ? "Lehrdiagramm"
+              : "reale klinische Aufnahme"),
+        ),
         text(
           "p",
           "Lizenz: " +
@@ -803,7 +935,7 @@
     for (const [title, body] of [
       [
         "Medizinische Prüfung",
-        "Alle 73 Lektionen, 16 Fragen, 6 Zeichen, 5 Fälle und 5 geplanten Medieneinträge warten auf Fachprüfung. Es wurde keine ärztliche Freigabe vergeben. Quellenzugriff und technische Tests sind kein Ersatz dafür.",
+        "Du prüfst die Inhalte vor der Veröffentlichung. Der Prüfstatus ist eine redaktionelle Information und sperrt keine lizenzierten Referenzmedien. Es wird keine erfolgte ärztliche Freigabe behauptet.",
       ],
       [
         "Quellen & Aktualität",
@@ -811,7 +943,7 @@
       ],
       [
         "Vier unterschiedliche Bildarten",
-        "Reale klinische Aufnahmen benötigen belegte Rechte, anonymisierte Herkunft und Fachprüfung. Anatomische Illustrationen zeigen Orientierung. Lehrdiagramme vereinfachen Beziehungen. Simulierte diagnostische Ultraschallbilder sind hier nicht implementiert.",
+        "Reale klinische Aufnahmen werden mit Quellen- und Lizenznachweis gezeigt. Eigene anatomische Lehrdiagramme sind farbige, schematische Erklärungen. Die interaktive Animation bleibt sichtbar von diagnostischen Originalaufnahmen getrennt.",
       ],
       [
         "Demonstrationsmodus",
@@ -819,11 +951,11 @@
       ],
       [
         "Originalaufnahmen",
-        "Ein endlicher Datensatz kann keine kontinuierliche Untersuchung reproduzieren. Nur passende, freigegebene Aufnahmen dürfen erscheinen. Zwischen Positionen werden keine klinischen Bilder interpoliert. Aktuell sind alle Aufnahmen ausstehend.",
+        "Die Bibliothek enthält echte, offen lizenzierte Referenzclips. Ihre Aufnahmegeometrie ist nicht auf den virtuellen Körper kalibriert: im Referenzmodus ist die virtuelle Akquisition deshalb deaktiviert. Es werden keine klinischen Zwischenbilder interpoliert.",
       ],
       [
         "Tiefe, Gain und Freeze",
-        "Tiefe wählt eine aufgezeichnete Tiefe; nicht verfügbare Tiefen bleiben ohne Bild. Gain kann bei ausdrücklich erlaubter Bearbeitung die Anzeigehelligkeit verändern, kein Beamforming. Freeze hält die Anzeige und ihre Akquisitionsregler an. Ohne Originalclip haben diese Regler keine medizinische Bildwirkung.",
+        "Im Lehrdiagramm verändert die Tiefe einen schematischen Ausschnitt und Gain die Darstellung der Zeichnung. Es sind keine gemessenen Zentimeter oder echte Empfangsverstärkung. Originalclips bleiben in Geometrie und Helligkeit unverändert; Freeze hält die Wiedergabe an.",
       ],
       [
         "Orientierung",
@@ -862,18 +994,20 @@
       contact: true,
       probe: clinicalCase.probe,
       depth: 6,
-      gain: 50,
+      gain: 85,
       mode: "B",
-      frozen: false,
+      frozen: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      display: "diagram",
+      amount: 55,
     };
     root.append(
       heading(
         "INTERAKTIVES LERNLABOR",
         "Dein Schallkopf. Deine Perspektive.",
-        "Erkunde Position und Orientierung. Reale Bildinterpretation wird erst mit freigegebenen Aufnahmen möglich.",
+        "Wechsle zwischen interaktiver Bild-Erklärung und echten Referenzclips. Erkunde das Schallfenster und vergleiche Bewegung und Artefakte.",
       ),
     );
-    const modeLabel = text("span", K.modes.demo, "sono-badge");
+    const modeLabel = text("span", K.modes.simplified, "sono-badge");
     root.append(
       h("div", { class: "sono-sim-status" }, [modeLabel, badge(clinicalCase)]),
     );
@@ -890,6 +1024,20 @@
         }),
       );
     controls.append(field("Lehrfall", caseSelect));
+    const displaySelect = h("select", { "aria-label": "Darstellung" }, [
+      h("option", { value: "diagram", text: "Interaktives Lehrdiagramm" }),
+      h("option", { value: "recording", text: "Originalaufnahme ansehen" }),
+    ]);
+    controls.append(field("Darstellung", displaySelect));
+    const referenceSelect = h("select", { "aria-label": "Referenzclip" });
+    for (const m of C.media.filter(
+      (m) => clinicalCase.mediaRefs.includes(m.id) && K.authorizedMedia(m),
+    ))
+      referenceSelect.append(h("option", { value: m.id, text: m.title }));
+    const referenceField = field("Referenzclip", referenceSelect);
+    referenceField.hidden = true;
+    controls.append(referenceField);
+
     const positionSelect = h("select", {
       "aria-label": "Körperregion und Fenster",
     });
@@ -926,11 +1074,20 @@
         "Schallkopfposition: per Ziehen oder Pfeiltasten verschieben. Position auch über Schieberegler einstellbar.",
     });
     torso.innerHTML =
-      '<svg viewBox="0 0 300 340" role="img" aria-label="Schematische frontale Körperkarte, keine maßgetreue Anatomie"><path d="M122 22Q150 40 178 22L184 53Q202 59 224 63L245 142L220 156L211 117L209 243L218 302L162 319L150 280L138 319L82 302L91 243L89 117L80 156L55 142L76 63Q98 59 116 53Z" fill="#e6f0f1" stroke="#91b5b4" stroke-width="2"/><path d="M150 60V263M95 183H205" stroke="#abc5c7" stroke-dasharray="4 5"/><text x="16" y="43">R</text><text x="274" y="43">L</text><text x="94" y="333" font-size="10">Patientenansicht von vorn</text></svg>';
+      '<svg viewBox="0 0 300 340" role="img" aria-label="Schematische frontale Körperkarte, keine maßgetreue Anatomie"><path d="M122 22Q150 40 178 22L184 53Q202 59 224 63L245 142L220 156L211 117L209 243L218 302L162 319L150 280L138 319L82 302L91 243L89 117L80 156L55 142L76 63Q98 59 116 53Z" fill="#e6f0f1" stroke="#91b5b4" stroke-width="2"/><path d="M139 76Q106 71 97 120Q94 157 135 156Z M160 76Q195 75 203 122Q207 157 166 156Z" fill="#8cbfc8" opacity=".55"/><path d="M98 172Q132 156 175 173L164 198Q117 211 97 186Z" fill="#c6a084" opacity=".6"/><ellipse cx="125" cy="219" rx="10" ry="17" fill="#b6a2bb"/><ellipse cx="181" cy="219" rx="10" ry="17" fill="#b6a2bb"/><path d="M150 60V263M95 183H205" stroke="#abc5c7" stroke-dasharray="4 5"/><text x="16" y="43">R</text><text x="274" y="43">L</text><text x="94" y="333" font-size="10">Patientenansicht von vorn</text></svg>';
     const dot = h("div", { class: "sono-probe-dot", "aria-hidden": "true" }, [
       text("span", "●"),
     ]);
-    torso.append(dot);
+    const target = K.patientToScreen(initial.position);
+    torso.append(
+      h("div", {
+        class: "sono-probe-target",
+        style: "left:" + target.x + "%;top:" + target.y + "%",
+        "aria-hidden": "true",
+      }),
+      dot,
+    );
+
     const coordinate = text("p", "", "sono-coordinate");
     controls.append(
       torso,
@@ -948,7 +1105,7 @@
       ["rotation", "Rotation (°)", 0, 360, 5],
       ["tilt", "Kippen (°)", -45, 45, 5],
       ["rock", "Abwinkeln (°)", -45, 45, 5],
-      ["depth", "Gewünschte Tiefe (cm)", 2, 24, 1],
+      ["depth", "Tiefe (Lehrmaßstab)", 2, 24, 1],
       ["gain", "Anzeige-Gain (%)", 0, 100, 1],
     ]) {
       const input = h("input", {
@@ -987,8 +1144,7 @@
       h("option", { value: "B", text: "B-Mode" }),
       h("option", {
         value: "M",
-        text: "M-Mode · noch nicht verfügbar",
-        disabled: "",
+        text: "M-Mode · schematisches Zeitmuster",
       }),
       h("option", {
         value: "Doppler",
@@ -997,6 +1153,37 @@
       }),
     ]);
     controls.append(field("Bildmodus", modeSelect));
+    const amount = h("input", {
+      type: "range",
+      min: 0,
+      max: 100,
+      value: 55,
+      "aria-label": "Schematische Flüssigkeitsmenge",
+    });
+    const amountField = field("Flüssigkeit im Lehrdiagramm (relativ)", amount);
+    amountField.hidden = !["case-pleural", "case-trauma"].includes(
+      clinicalCase.id,
+    );
+    controls.append(amountField);
+    amount.addEventListener("input", () => {
+      s.amount = Number(amount.value);
+      refresh();
+    });
+    controls.append(
+      button(
+        "Startposition",
+        () => {
+          positionSelect.value = initial.id;
+          s.contact = true;
+          contact.checked = true;
+          s.probe = clinicalCase.probe;
+          probeSelect.value = s.probe;
+          preset();
+        },
+        "btn gray",
+      ),
+    );
+
     const right = h("div", { class: "sono-sim-right" });
     const viewer = h("section", {
       class: "sono-viewer",
@@ -1007,7 +1194,7 @@
     const marker = text("span", "● MARKER LINKS", "sono-screen-marker");
     viewer.append(marker, screen, viewerStatus);
     const freeze = button(
-      "❚❚ Anzeige einfrieren",
+      s.frozen ? "▶ Anzeige fortsetzen" : "❚❚ Anzeige einfrieren",
       () => {
         s.frozen = !s.frozen;
         freeze.textContent = s.frozen
@@ -1029,7 +1216,7 @@
       },
       "btn gray",
     );
-    freeze.setAttribute("aria-pressed", "false");
+    freeze.setAttribute("aria-pressed", String(s.frozen));
     const instruction = panel("Akquisition & Orientierung", []);
     const anatomy = panel("Anatomische Orientierung", []);
     const labelsToggle = button(
@@ -1040,6 +1227,7 @@
           ? "Anatomische Hinweise anzeigen"
           : "Anatomische Hinweise ausblenden";
         labelsToggle.setAttribute("aria-pressed", String(!anatomy.hidden));
+        refresh();
       },
       "btn gray",
     );
@@ -1051,7 +1239,7 @@
       anatomy,
       notice(
         "Was die Regler tatsächlich verändern",
-        "Ohne Aufnahme ändern Gain und Tiefe nur die Auswahlparameter. Tiefe zeigt keine nicht aufgezeichnete Anatomie. Helligkeitsänderungen an freigegebenen Medien sind keine echte Signalverstärkung oder Ultraschallrekonstruktion.",
+        "Im Lehrdiagramm ändern Gain und Tiefe Helligkeit und Ausschnitt der Zeichnung. Der Maßstab ist frei gewählt. Referenzclips bleiben unverändert und sind nicht mit der virtuellen Sondenposition gekoppelt.",
       ),
     );
     const layout = h("div", { class: "sono-simulator" }, [controls, right]);
@@ -1065,7 +1253,8 @@
     root.append(caseInfo);
     let activeMedia = null,
       video = null,
-      wasPlaying = false;
+      wasPlaying = false,
+      diagram = null;
     function sync() {
       for (const [key, control] of Object.entries(sliders)) {
         control.input.value = s[key];
@@ -1079,6 +1268,15 @@
       sync();
       refresh();
     }
+    displaySelect.addEventListener("change", () => {
+      s.display = displaySelect.value;
+      refresh();
+    });
+    referenceSelect.addEventListener("change", refresh);
+    modeSelect.addEventListener("change", () => {
+      s.mode = modeSelect.value;
+      refresh();
+    });
     positionSelect.addEventListener("change", preset);
     probeSelect.addEventListener("change", () => {
       s.probe = probeSelect.value;
@@ -1088,7 +1286,7 @@
       location.hash = "#/simulator/" + caseSelect.value;
     });
     function move(event) {
-      if (s.frozen) return;
+      if (s.frozen || s.display === "recording") return;
       const rect = torso.getBoundingClientRect();
       Object.assign(
         s,
@@ -1101,7 +1299,7 @@
       refresh();
     }
     torso.addEventListener("pointerdown", (e) => {
-      if (s.frozen) return;
+      if (s.frozen || s.display === "recording") return;
       torso.setPointerCapture(e.pointerId);
       move(e);
     });
@@ -1115,6 +1313,7 @@
     torso.addEventListener("keydown", (e) => {
       if (
         s.frozen ||
+        s.display === "recording" ||
         !["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)
       )
         return;
@@ -1158,69 +1357,89 @@
           .map((n) => n.toFixed(2))
           .join(", ") +
         "]";
-      const result = K.resolveRecording(s, clinicalCase, C.media);
+      const reference = s.display === "recording";
+      referenceField.hidden = !reference;
+      torso.setAttribute("aria-disabled", String(s.frozen || reference));
+      for (const control of controls.querySelectorAll("input,select,button"))
+        control.disabled =
+          s.frozen ||
+          (reference &&
+            control !== caseSelect &&
+            control !== displaySelect &&
+            control !== referenceSelect);
+      const lung = [
+        "case-normal",
+        "case-interstitial",
+        "case-pneumothorax",
+      ].includes(clinicalCase.id);
+      modeSelect.querySelector('option[value="M"]').disabled = !lung;
       modeLabel.textContent =
-        (result.status === "available" ? K.modes.recording : K.modes.demo) +
+        (reference ? K.modes.recording : K.modes.simplified) +
         (s.frozen ? " · eingefroren" : "");
-      viewerStatus.textContent =
-        "B-Mode angefragt · " +
-        s.depth +
-        " cm · Anzeige-Gain " +
-        s.gain +
-        " %" +
-        (s.frozen ? " · FREEZE" : "");
-      if (result.status === "available") {
-        if (activeMedia !== result.media.id) {
-          screen.replaceChildren(
-            mediaElement(result.media),
-            text("small", result.media.attribution),
-            h("a", {
-              href: result.media.provenance.sourceURL,
-              target: "_blank",
-              rel: "noopener noreferrer",
-              text: "Originalquelle",
-            }),
-            h("a", {
-              href: result.media.license.url,
-              target: "_blank",
-              rel: "noopener noreferrer",
-              text: result.media.license.name,
-            }),
-          );
-          activeMedia = result.media.id;
-          video = screen.querySelector("video");
-          if (video)
-            video.addEventListener("play", () => {
-              if (s.frozen) video.pause();
-            });
-          if (video)
-            video.addEventListener("error", () => {
-              screen.replaceChildren(
-                text(
-                  "p",
-                  "Aufnahme konnte nicht geladen werden. Keine Bildinterpretation möglich.",
-                ),
-              );
-            });
+      viewerStatus.textContent = reference
+        ? "Referenzclip · Originalgeometrie · unabhängig von virtueller Sondenposition"
+        : s.mode +
+          "-Mode-Prinzip · Tiefe " +
+          s.depth +
+          " (Lehrmaßstab) · Gain " +
+          s.gain +
+          " %" +
+          (s.frozen ? " · FREEZE" : "");
+      marker.textContent = reference
+        ? "ORIGINALORIENTIERUNG · NICHT AUF DEN TORSO KALIBRIERT"
+        : "● MARKER LINKS · LEHRDIAGRAMM";
+      if (reference) {
+        if (diagram) {
+          diagram.destroy();
+          diagram = null;
         }
-        sliders.gain.input.disabled =
-          s.frozen || !result.media.license.derivatives;
-        const element = screen.querySelector("video,img");
-        if (element)
-          element.style.filter = result.media.license.derivatives
-            ? "brightness(" + s.gain / 50 + ")"
-            : "none";
+        const m = find("media", referenceSelect.value);
+        if (m && K.authorizedMedia(m)) {
+          if (activeMedia !== m.id) {
+            if (video) video.pause();
+            screen.replaceChildren(mediaElement(m));
+            activeMedia = m.id;
+            video = screen.querySelector("video");
+            if (video)
+              video.addEventListener("play", () => {
+                if (s.frozen) video.pause();
+              });
+          }
+        } else {
+          screen.replaceChildren(
+            text(
+              "h2",
+              "Für diesen Fall ist noch kein Originalclip hinterlegt.",
+            ),
+            text(
+              "p",
+              "Die interaktive Bild-Erklärung ist im Lehrdiagramm-Modus verfügbar.",
+            ),
+          );
+          activeMedia = null;
+          video = null;
+        }
       } else {
-        sliders.gain.input.disabled = s.frozen;
-        if (video) video.pause();
+        if (video) {
+          video.pause();
+          video = null;
+        }
         activeMedia = null;
-        video = null;
-        screen.replaceChildren(
-          text("span", "◎", "sono-missing-icon"),
-          text("h2", "Kein klinisches Bild verfügbar"),
-          text("p", result.reason),
-          text("small", "Keine synthetische Ersatzaufnahme."),
-        );
+        const reason = SONO_ILLUSTRATIONS.available(s, initial);
+        if (reason) {
+          if (diagram) {
+            diagram.destroy();
+            diagram = null;
+          }
+          screen.replaceChildren(
+            text("h2", "Schallfenster einstellen"),
+            text("p", reason),
+          );
+        } else {
+          if (!diagram)
+            diagram = SONO_ILLUSTRATIONS.create(screen, clinicalCase.id);
+          diagram.update({ ...s, labels: !anatomy.hidden });
+        }
       }
       instruction.replaceChildren(
         text("h2", p.title),
@@ -1248,6 +1467,7 @@
     }
     refresh();
     transient = () => {
+      if (diagram) diagram.destroy();
       if (video) {
         video.pause();
         video.removeAttribute("src");
@@ -1330,35 +1550,4 @@
   persist();
   window.addEventListener("hashchange", route);
   route();
-  function devNotice() {
-    const close = () => overlay.remove();
-    const ok = h("button", { type: "button", text: "Verstanden" });
-    const overlay = h(
-      "div",
-      { class: "sono-dev-overlay", role: "dialog", "aria-modal": "true" },
-      [
-        h("div", { class: "sono-dev-modal" }, [
-          text("h2", "Seite in Entwicklung"),
-          text(
-            "p",
-            "Dieser Sono-Bereich befindet sich noch in der Entwicklung. Inhalte sind unvollständig und noch nicht medizinisch geprüft.",
-          ),
-          ok,
-        ]),
-      ],
-    );
-    ok.addEventListener("click", close);
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) close();
-    });
-    document.addEventListener("keydown", function esc(e) {
-      if (e.key === "Escape") {
-        close();
-        document.removeEventListener("keydown", esc);
-      }
-    });
-    document.body.append(overlay);
-    ok.focus();
-  }
-  devNotice();
 })();

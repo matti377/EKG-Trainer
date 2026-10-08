@@ -773,35 +773,67 @@
   }
 }
 
-.sono-dev-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.55);
+.sono-media {
+  margin: 0;
+  width: 100%;
+  overflow: hidden;
 }
-.sono-dev-modal {
-  max-width: 420px;
-  padding: 24px;
+.sono-media img,
+.sono-media video {
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  background: #071720;
   border-radius: 12px;
-  background: #fff;
-  color: #1b2a2c;
-  text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
-.sono-dev-modal h2 {
-  margin: 0 0 8px;
+.sono-media-kind {
+  padding: 9px 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--brand-dk);
 }
-.sono-dev-modal button {
-  margin-top: 16px;
-  padding: 10px 20px;
-  border: 0;
-  border-radius: 8px;
-  background: #1f7a7a;
-  color: #fff;
-  font: inherit;
-  cursor: pointer;
+.sono-media-credit {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.sono-media-credit a {
+  display: inline-block;
+  margin: 6px 15px 6px 0;
+}
+.sono-atlas-card .sono-media img {
+  aspect-ratio: 4/3;
+  object-fit: contain;
+}
+.sono-recording:has(.sono-diagram-stage),
+.sono-recording:has(video) {
+  padding: 14px 0;
+}
+.sono-diagram-stage {
+  width: 100%;
+}
+.sono-diagram-stage svg {
+  width: 100%;
+  display: block;
+}
+.sono-recording .sono-media-kind {
+  color: #76dace;
+}
+.sono-recording .sono-media-credit,
+.sono-recording .sono-media-credit p {
+  color: #b6c9d6;
+  font-size: 11px;
+}
+.sono-recording .sono-media-credit a {
+  color: #7ddccc;
+}
+.sono-probe-target {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border: 2px dashed #0a8d83;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: #12b3a61a;
 }

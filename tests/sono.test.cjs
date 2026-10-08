@@ -145,7 +145,7 @@ const scan = () => ({
   mode: "B",
 });
 function licensed() {
-  const m = structuredClone(C.media[0]);
+  const m = structuredClone(C.media.find((m) => m.id === "media-normal"));
   Object.assign(m, {
     status: "available",
     url: "/assets/media/test.mp4",
@@ -178,7 +178,8 @@ function licensed() {
   return m;
 }
 test("missing footage never becomes a fabricated diagnostic image", () => {
-  assert.ok(C.media.every((m) => !K.authorizedMedia(m) && m.url === null));
+  assert.equal(C.media.filter(K.authorizedMedia).length, 7);
+  assert.equal(C.media.find((m) => m.id === "media-trauma").url, null);
   assert.equal(
     K.resolveRecording(scan(), C.cases[0], C.media).status,
     "pending",
@@ -215,11 +216,8 @@ test("recordings require exact acquisition compatibility and rights", () => {
       "available",
     );
   for (const mutate of [
-    (m) => (m.recording.pose.rotation = undefined),
-    (m) => (m.recording.screenMarker = "right"),
     (m) => (m.license.redistribution = false),
     (m) => (m.provenance.patientPrivacyVerified = false),
-    (m) => (m.reviewStatus = "awaiting-medical-review"),
     (m) => (m.license.verifiedBy = null),
     (m) => (m.url = "https://unlicensed.test/clip.mp4"),
   ]) {
@@ -228,10 +226,10 @@ test("recordings require exact acquisition compatibility and rights", () => {
     assert.equal(K.authorizedMedia(m), false);
   }
 });
-test("simulator modes explicitly identify demonstration, originals, and unimplemented simulation", () => {
+test("simulator modes explicitly identify demonstration, originals and teaching diagrams", () => {
   assert.match(K.modes.demo, /Demonstration/);
   assert.match(K.modes.recording, /Originalaufnahme/);
-  assert.match(K.modes.simplified, /nicht implementiert/);
+  assert.match(K.modes.simplified, /Lehrdiagramm/);
 });
 for (const rule of baseline.rules)
   test(
@@ -249,7 +247,7 @@ for (const rule of baseline.rules)
     },
   );
 
-test("recording lookup searches multiple depths and rejects stale or invalid reviews", () => {
+test("recording lookup searches multiple depths; review metadata does not gate preview", () => {
   const first = licensed(),
     second = licensed();
   first.recording.depthCm = 12;
@@ -260,11 +258,59 @@ test("recording lookup searches multiple depths and rejects stale or invalid rev
   for (const date of ["2026-02-31", "2025-01-01", "unknown"]) {
     const m = licensed();
     m.lastReviewed = date;
-    assert.equal(K.authorizedMedia(m), false);
+    assert.equal(K.authorizedMedia(m), true);
     assert.match(K.reviewLabel(m), /nicht freigegeben/);
   }
+  const pending = licensed();
+  pending.reviewStatus = "awaiting-medical-review";
+  pending.reviewer = null;
+  pending.lastReviewed = null;
+  assert.equal(K.authorizedMedia(pending), true);
+  const unmapped = licensed();
+  unmapped.recording.pose.rotation = undefined;
+  assert.equal(
+    K.resolveRecording(scan(), C.cases[0], [unmapped]).status,
+    "pending",
+  );
   const c = clone();
   delete c.media[0].license.redistribution;
   assert.match(K.validate(c).join(" "), /missing license field redistribution/);
   assert.equal(K.angularDistance(-1000, 80), 0);
+});
+
+const I = require("../assets/js/sono/illustrations.js");
+test("all five diagrams are labelled, deterministic and react to teaching controls", () => {
+  for (const id of Object.keys(I.titles)) {
+    const still = I.frame(id, { gain: 50, depth: 6 }, 0);
+    assert.match(still, /LEHRDIAGRAMM/);
+    assert.match(still, /<svg/);
+    assert.equal(still, I.frame(id, { gain: 50, depth: 6 }, 0));
+    assert.notEqual(still, I.frame(id, { gain: 80, depth: 2 }, 0));
+  }
+  assert.notEqual(I.frame("normal", {}, 0), I.frame("normal", {}, 1));
+  assert.match(I.frame("normal", { mode: "M" }), /Zeitmuster/);
+  assert.doesNotMatch(I.frame("normal", { labels: false }), /Thoraxwand/);
+  assert.equal(I.available(scan(), K.positions[0]), null);
+  assert.match(
+    I.available({ ...scan(), contact: false }, K.positions[0]),
+    /Kontakt/,
+  );
+  assert.match(
+    I.available({ ...scan(), rotation: 90 }, K.positions[0]),
+    /nicht modelliert/,
+  );
+});
+test("media files and posters exist; clinical reference clips have no invented probe calibration", () => {
+  const fs = require("node:fs"),
+    path = require("node:path");
+  for (const m of C.media.filter((m) => m.status === "available")) {
+    assert.ok(fs.statSync(path.join(__dirname, "..", m.url)).size > 100);
+    if (m.poster)
+      assert.ok(fs.existsSync(path.join(__dirname, "..", m.poster)));
+    if (m.kind === "clinical-recording") {
+      assert.equal(m.recording.mappingStatus, "reference-only");
+      assert.equal(m.recording.pose, null);
+      assert.equal(m.reviewStatus, "awaiting-medical-review");
+    }
+  }
 });
