@@ -289,6 +289,25 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, fmt, *args):
         pass
 
+    def translate_path(self, path):
+        # Only known app routes fall back to the shell. Missing assets and API
+        # requests must remain real 404 responses (also works for HEAD).
+        route = urlparse(path).path.strip('/')
+        parts = route.split('/')
+        if parts[0] in ('sono', 'ekg'):
+            parts = parts[1:]
+        simple = {'home', 'pfad', 'trainer', 'bibliothek', 'labor',
+                  'ableitungen', 'challenge', 'faelle', 'wissen',
+                  'quellen', 'methodik', 'simulator', 'atlas'}
+        detail = {'lektion', 'modul', 'quiz', 'fall', 'simulator', 'atlas'}
+        is_route = (route in ('sono', 'ekg') or
+                    (len(parts) == 1 and parts[0] in simple) or
+                    (len(parts) == 2 and parts[0] in detail and
+                     parts[1] and all(c.isalnum() or c == '-' for c in parts[1])))
+        if is_route:
+            return os.path.join(HERE, 'index.html')
+        return super().translate_path(path)
+
     # ------------------------------------------------------------- Antwort
 
     def send_json(self, obj, status=200):

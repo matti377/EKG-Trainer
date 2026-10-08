@@ -235,3 +235,31 @@ Das Material dient dem Lernen und ersetzt keine medizinische Ausbildung,
 keine Leitlinie und keine ärztliche Beurteilung. Die Kurven sind
 mathematisch erzeugt und damit idealisiert — ein echtes Patienten-EKG ist
 unruhiger und vielgestaltiger.
+
+## SONO by Resqly — zweite Anwendung im selben Repository
+
+Zusätzlich zum unveränderten EKG-Kurs enthält das Projekt eine eigenständige
+SONO-Lernoberfläche. `sono.resqly.lu` lädt SONO, `ekg.resqly.lu` weiterhin EKG.
+Der gemeinsame Umschalter ist auf beiden Anwendungen sichtbar.
+
+```bash
+python3 server.py
+# EKG:  http://localhost:8000/#/pfad
+# SONO: http://localhost:8000/?app=sono#/home
+```
+
+SONO bietet sechs Module mit 73 kurzen Lektionsentwürfen, 16 Wissensfragen,
+fünf fiktiven Lehrfällen, separatem lokalem Fortschritt, Quellen/Prüfstatus,
+einem filterbaren Atlas mit ausstehenden Medien und einem Simulator für
+Schallkopfposition und Orientierung. **Alle medizinischen Inhalte warten auf
+Fachprüfung; lizenzierte klinische Clips fehlen noch.** Es werden keine
+synthetischen Krankheitsaufnahmen als klinische Bilder präsentiert.
+
+- [Architektur, Dateikarte und Erweiterung](docs/SONO_ARCHITECTURE.md)
+- [Lokaler Start, Tests, Build und Domainkonfiguration](docs/SONO_DEPLOYMENT.md)
+- [Medizinische Prüfaufgaben und fehlende Aufnahmen](MEDICAL_REVIEW.md)
+
+Die Laufzeit bleibt Vanilla-JavaScript ohne neue Backend-Abhängigkeiten.
+Node/Playwright sind optionale Entwicklungswerkzeuge (`npm ci`, `npm test`,
+`npm run test:browser`, `npm run build`). Der bestehende Deploymentablauf
+bleibt erhalten; DNS/Proxy/TLS müssen durch den Betreiber ergänzt werden.

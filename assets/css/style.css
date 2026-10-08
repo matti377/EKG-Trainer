@@ -895,3 +895,11 @@ main { padding: 22px 0 calc(var(--nav-h) + 34px); }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Shared product switcher; kept separate from the EKG progress renderer. */
+.application-switcher { display:flex; gap:3px; padding:3px; background:var(--line-soft); border:1px solid var(--line); border-radius:12px; margin-left:auto; }
+.application-switcher a { padding:7px 10px; text-decoration:none; font-size:12px; font-weight:900; border-radius:8px; }
+.application-switcher a[aria-current] { background:var(--card); color:var(--brand-dk); box-shadow:var(--shadow-sm); }
+.application-switcher a:focus-visible { outline:3px solid var(--violet); }
+.topbar-in { gap:10px; }
+@media(max-width:480px) { .topbar-in { gap:5px; } .brand { font-size:15px; } .application-switcher a { padding:7px 6px; font-size:11px; } #top-stats { gap:3px!important; } .topbar .stat { padding:5px; font-size:12px; } }

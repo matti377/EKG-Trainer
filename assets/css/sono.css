@@ -1,0 +1,774 @@
+/* SONO uses the existing Resqly palette, Nunito typography, buttons and shell. */
+[data-application="sono"] {
+  --nav-h: 76px;
+}
+[data-application="sono"] .app {
+  max-width: 1160px;
+}
+[data-application="sono"] .topbar-in {
+  max-width: 1160px;
+}
+[data-application="sono"] .nav-in {
+  max-width: 850px;
+}
+[data-application="sono"] .brand {
+  font-size: 19px;
+}
+[data-application="sono"] .brand-mark {
+  background: var(--brand-dk);
+  box-shadow: 0 3px 0 #06665f;
+}
+[data-application="sono"] main {
+  padding-bottom: 100px;
+}
+[data-application="sono"] .nav a {
+  min-width: 0;
+}
+[data-application="sono"] .nav a .ni {
+  font-family: system-ui, sans-serif;
+}
+[data-application="sono"] h1 {
+  font-size: clamp(30px, 4.2vw, 48px);
+  line-height: 1.12;
+}
+[data-application="sono"] h2 {
+  font-size: 22px;
+}
+[data-application="sono"] h3 {
+  font-size: 18px;
+}
+[data-application="sono"] a {
+  text-underline-offset: 3px;
+}
+[data-application="sono"] :focus-visible {
+  outline: 3px solid var(--violet);
+  outline-offset: 4px;
+}
+[data-application="sono"] [hidden] {
+  display: none !important;
+}
+.sono-kicker {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  font-weight: 900;
+  color: var(--brand-dk);
+  margin-bottom: 14px;
+}
+.sono-lead {
+  font-size: 17px;
+  color: #526582;
+  max-width: 690px;
+  margin-top: 20px;
+}
+.sono-heading {
+  margin: 35px 0 24px;
+}
+.sono-heading .sono-kicker {
+  margin-bottom: 10px;
+}
+.sono-muted {
+  color: #526582;
+  font-size: 13px;
+}
+.sono-stat {
+  font-size: 12px;
+  color: var(--brand-dk);
+  font-weight: 800;
+  white-space: nowrap;
+}
+.sono-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  align-items: center;
+  gap: 30px;
+  padding: 54px 0 28px;
+}
+.sono-hero h1 {
+  white-space: pre-line;
+  font-size: clamp(36px, 4.8vw, 57px);
+  letter-spacing: -0.04em;
+}
+.sono-hero .sono-lead {
+  font-size: 17px;
+  max-width: 590px;
+}
+.sono-hero-art {
+  background: radial-gradient(ellipse, #d8f1ed 0%, transparent 70%);
+  padding: 15px;
+}
+.sono-hero-art svg {
+  display: block;
+  width: 100%;
+}
+.sono-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 24px 0;
+}
+.sono-actions .btn,
+.sono-feature .btn {
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.sono-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 14px 0 26px;
+  padding: 23px 0;
+}
+.sono-metrics > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  border-right: 1px solid var(--line);
+}
+.sono-metrics > div:first-child {
+  padding-left: 0;
+}
+.sono-metrics > div:last-child {
+  border: 0;
+}
+.sono-metrics strong {
+  font-size: 31px;
+  font-weight: 900;
+}
+.sono-metrics span {
+  font-size: 12px;
+  color: #526582;
+}
+.sono-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 22px 0 30px;
+}
+.sono-module,
+.sono-atlas-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 24px;
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+  min-width: 0;
+}
+.sono-module:hover,
+.sono-atlas-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.sono-module h2 {
+  font-size: 20px;
+}
+.sono-module > p {
+  color: #526582;
+  font-size: 14px;
+  flex: 1;
+}
+.sono-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+.sono-number {
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: color-mix(
+    in srgb,
+    var(--module-color, var(--brand-dk)) 10%,
+    white
+  );
+  color: var(--module-color, var(--brand-dk));
+  font-size: 19px;
+  font-weight: 900;
+  width: 45px;
+  height: 45px;
+}
+.sono-module progress {
+  display: block;
+  width: 100%;
+  height: 7px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--line-soft);
+  accent-color: var(--module-color, var(--brand-dk));
+}
+.sono-module progress::-webkit-progress-bar {
+  background: var(--line-soft);
+  border-radius: 8px;
+}
+.sono-module progress::-webkit-progress-value {
+  background: var(--module-color, var(--brand-dk));
+  border-radius: 8px;
+}
+.sono-module small {
+  font-size: 12px;
+  color: #526582;
+}
+.sono-notice {
+  background: #fff8e9;
+  border: 1px solid #ecdfc2;
+  border-left: 4px solid #c28a35;
+  border-radius: 12px;
+  padding: 17px 20px;
+  margin: 20px 0;
+}
+.sono-notice strong {
+  font-size: 14px;
+  color: #70511d;
+}
+.sono-notice p {
+  margin-top: 5px;
+  color: #64573e;
+  font-size: 13px;
+}
+.sono-feature {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 45px;
+  padding: 32px;
+  border-radius: 23px;
+  background: #dff1ee;
+  margin: 35px 0;
+}
+.sono-feature h2 {
+  white-space: pre-line;
+  font-size: 29px;
+  margin-bottom: 16px;
+}
+.sono-feature p {
+  max-width: 670px;
+}
+.sono-feature .btn {
+  flex-shrink: 0;
+}
+.sono-footer {
+  margin-top: 48px;
+  padding: 24px 0 14px;
+  border-top: 1px solid var(--line);
+  color: #526582;
+  font-size: 12px;
+}
+.sono-footer > div {
+  display: flex;
+  gap: 25px;
+  margin-top: 12px;
+}
+.sono-card {
+  border: 1px solid var(--line);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  border-radius: 19px;
+  padding: 25px;
+  margin: 20px 0;
+  min-width: 0;
+}
+.sono-card h2 {
+  margin-bottom: 16px;
+}
+.sono-card > p + p {
+  margin-top: 12px;
+}
+.sono-card .sono-notice {
+  margin-bottom: 0;
+}
+.sono-grid > .sono-card {
+  margin: 0;
+}
+.sono-body-copy {
+  font-size: 19px;
+  line-height: 1.75;
+  max-width: 850px;
+}
+.sono-badge {
+  border-radius: 7px;
+  background: var(--brand-lt);
+  color: #06665f;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 5px 9px;
+  display: inline-block;
+  align-self: flex-start;
+}
+.sono-badge.review {
+  background: #fff2dc;
+  color: #765419;
+}
+.sono-review {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 23px;
+  font-size: 12px;
+  color: #526582;
+}
+.sono-references {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  font-size: 13px;
+}
+.sono-references summary {
+  cursor: pointer;
+  padding: 15px 0;
+  font-weight: 800;
+  color: var(--brand-dk);
+}
+.sono-references > div {
+  padding: 10px 0 18px;
+}
+.sono-references a {
+  font-weight: 800;
+}
+.sono-references p {
+  color: #526582;
+  font-size: 12px;
+}
+.sono-lessons {
+  list-style: none;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: #fff;
+  overflow: hidden;
+  margin: 24px 0;
+}
+.sono-lessons li + li {
+  border-top: 1px solid var(--line-soft);
+}
+.sono-lessons a {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 22px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.sono-lessons a:hover {
+  background: var(--brand-lt);
+}
+.sono-lessons a > div {
+  flex: 1;
+}
+.sono-lessons small {
+  display: block;
+  color: #526582;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.sono-step {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--brand-dk);
+  background: var(--brand-lt);
+  flex-shrink: 0;
+  font-weight: 900;
+}
+.sono-wave svg,
+.sono-orientation svg {
+  width: 100%;
+  max-height: 220px;
+}
+.sono-card input[type="range"] {
+  width: 100%;
+  accent-color: var(--brand-dk);
+  cursor: pointer;
+  min-height: 30px;
+}
+.sono-quiz fieldset {
+  padding: 0;
+  margin: 0 0 18px;
+  border: 0;
+}
+.sono-quiz legend {
+  font-weight: 800;
+  font-size: 19px;
+  padding: 0 0 17px;
+}
+.sono-option {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.sono-option:hover {
+  background: var(--line-soft);
+}
+.sono-option:has(input:checked) {
+  background: var(--brand-lt);
+  border-color: var(--brand);
+}
+.sono-option input {
+  margin-top: 5px;
+  accent-color: var(--brand-dk);
+  flex-shrink: 0;
+}
+.sono-feedback:not(:empty) {
+  background: #fff8e9;
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 18px;
+}
+.sono-feedback.correct {
+  background: var(--brand-lt);
+}
+.sono-feedback h3 {
+  margin-bottom: 12px;
+}
+.sono-feedback p {
+  font-size: 14px;
+  margin-top: 10px;
+}
+.sono-vitals {
+  font-weight: 800;
+  color: var(--brand-dk);
+  padding: 14px;
+  background: var(--brand-lt);
+  border-radius: 10px;
+}
+.sono-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  margin: 24px 0;
+}
+.sono-filters label > span,
+.sono-field > span {
+  display: block;
+  font-size: 12px;
+  color: #526582;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+.sono-filters input,
+.sono-filters select,
+.sono-controls select {
+  padding: 11px 9px;
+  border: 1px solid #bdcbdb;
+  background: #fff;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 13px;
+  width: 100%;
+  min-width: 0;
+  color: var(--ink);
+}
+.sono-missing {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  background: #edf3f6;
+  border-radius: 12px;
+  color: #526582;
+}
+.sono-missing p {
+  font-size: 12px;
+  max-width: 290px;
+}
+.sono-missing-icon {
+  font-size: 47px;
+  line-height: 1;
+  color: #65948f;
+}
+.sono-atlas-card {
+  padding: 10px;
+}
+.sono-atlas-card > div:last-child {
+  padding: 10px;
+}
+.sono-atlas-card h2 {
+  font-size: 19px;
+  margin-bottom: 12px;
+}
+.sono-atlas-card p {
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.sono-atlas-card .sono-missing {
+  min-height: 170px;
+}
+[data-application="sono"] video,
+[data-application="sono"] img {
+  display: block;
+  max-width: 100%;
+  border-radius: 12px;
+}
+.sono-sim-status {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+.sono-simulator {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.sono-controls {
+  padding: 21px;
+  margin: 0;
+}
+.sono-field {
+  display: block;
+  margin: 16px 0;
+}
+.sono-field > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sono-field output {
+  font-variant-numeric: tabular-nums;
+  color: var(--brand-dk);
+}
+.sono-torso {
+  position: relative;
+  background: linear-gradient(#f6fafb, #edf4f6);
+  border-radius: 14px;
+  touch-action: none;
+  margin-top: 20px;
+  cursor: crosshair;
+  aspect-ratio: 300/340;
+}
+.sono-torso svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.sono-probe-dot {
+  position: absolute;
+  width: 16px;
+  height: 34px;
+  background: #132d3b;
+  border: 2px solid white;
+  border-radius: 6px;
+  box-shadow: 0 1px 6px #14243f55;
+  pointer-events: none;
+}
+.sono-probe-dot span {
+  display: block;
+  color: #4aedd3;
+  font-size: 9px;
+  text-align: center;
+}
+.sono-coordinate {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  margin: 12px 0;
+}
+.sono-check {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+}
+.sono-check input {
+  accent-color: var(--brand-dk);
+}
+.sono-viewer {
+  background: #142637;
+  border-radius: 19px;
+  color: #eaf3f5;
+  min-height: 360px;
+  overflow: hidden;
+  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.sono-screen-marker {
+  font-size: 10px;
+  color: #76dace;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.sono-recording {
+  min-height: 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  padding: 26px;
+}
+.sono-recording p {
+  color: #b6c9d6;
+  font-size: 14px;
+  max-width: 450px;
+}
+.sono-recording small {
+  color: #a0b7c8;
+}
+.sono-recording h2 {
+  font-size: 22px;
+}
+.sono-recording .sono-missing-icon {
+  color: #73b6b0;
+}
+.sono-viewer-status {
+  font-size: 11px;
+  color: #a6bdcc;
+  border-top: 1px solid #385062;
+  padding-top: 14px;
+  margin-top: auto;
+}
+.sono-storage {
+  padding: 10px 20px;
+  background: #fff2dc;
+  color: #765419;
+  text-align: center;
+  font-size: 13px;
+}
+@media (min-width: 1100px) {
+  .sono-sim-right {
+    position: sticky;
+    top: 82px;
+  }
+}
+@media (max-width: 900px) {
+  .sono-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sono-hero {
+    gap: 5px;
+  }
+  .sono-simulator {
+    grid-template-columns: 290px minmax(0, 1fr);
+    gap: 16px;
+  }
+  .sono-recording {
+    padding: 20px 0;
+  }
+  .sono-feature {
+    display: block;
+  }
+  .sono-feature .btn {
+    margin-top: 22px;
+  }
+  .sono-metrics > div {
+    padding: 0 10px;
+  }
+}
+@media (max-width: 680px) {
+  .sono-hero {
+    grid-template-columns: 1fr;
+    padding-top: 30px;
+  }
+  .sono-hero-art {
+    max-width: 320px;
+    justify-self: center;
+  }
+  .sono-hero h1 {
+    font-size: 43px;
+  }
+  .sono-actions .btn {
+    font-size: 12px;
+    padding: 13px 16px;
+  }
+  .sono-metrics {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 0;
+  }
+  .sono-metrics > div:nth-child(3) {
+    padding-left: 0;
+  }
+  .sono-metrics > div:nth-child(2) {
+    border: 0;
+  }
+  .sono-simulator {
+    grid-template-columns: 1fr;
+  }
+  .sono-torso {
+    max-width: 300px;
+    margin: 20px auto 0;
+  }
+  .sono-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 15px;
+  }
+  .sono-grid {
+    gap: 12px;
+  }
+  .sono-module {
+    padding: 18px;
+  }
+  .sono-module h2 {
+    font-size: 18px;
+  }
+  .sono-card {
+    padding: 20px;
+  }
+  [data-application="sono"] .nav a {
+    font-size: 9px;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+  [data-application="sono"] .brand {
+    font-size: 15px;
+  }
+  .sono-stat {
+    font-size: 10px;
+  }
+  .sono-lessons a {
+    padding: 16px 13px;
+    gap: 12px;
+  }
+}
+@media (max-width: 410px) {
+  .sono-grid {
+    grid-template-columns: 1fr;
+  }
+  [data-application="sono"] .brand-mark {
+    width: 29px;
+    height: 29px;
+  }
+  [data-application="sono"] .brand {
+    gap: 6px;
+    font-size: 13px;
+  }
+  [data-application="sono"] .topbar-in {
+    padding: 0 10px;
+  }
+  .sono-card-top small {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sono-module,
+  .sono-atlas-card {
+    transition: none;
+  }
+}

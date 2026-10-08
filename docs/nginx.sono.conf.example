@@ -1,0 +1,20 @@
+# EXAMPLE ONLY: operator must supply valid certificate paths and upstream port.
+# Add this vhost; keep the existing ekg.resqly.lu vhost and API settings unchanged.
+server {
+    listen 80;
+    server_name sono.resqly.lu;
+    return 301 https://sono.resqly.lu$request_uri;
+}
+server {
+    listen 443 ssl;
+    server_name sono.resqly.lu;
+    ssl_certificate     /OPERATOR_SUPPLIED/sono-fullchain.pem;
+    ssl_certificate_key /OPERATOR_SUPPLIED/sono-private-key.pem;
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

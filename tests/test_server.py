@@ -148,5 +148,37 @@ class MultiplayerTest(unittest.TestCase):
             self.assertIn('POST', response.headers['Access-Control-Allow-Methods'])
 
 
+
+class ApplicationRoutingTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.httpd = server.Server(('127.0.0.1', 0), server.Handler)
+        cls.base = 'http://127.0.0.1:%d' % cls.httpd.server_port
+        cls.worker = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.worker.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+        cls.worker.join()
+
+    def test_known_spa_routes_and_assets(self):
+        for path in ('/', '/sono', '/sono/lektion/lunge-06', '/simulator', '/ekg/labor'):
+            with self.subTest(path=path), urlopen(self.base + path) as response:
+                self.assertEqual(response.status, 200)
+                self.assertIn(b'resqlyAssetRoot', response.read())
+        with urlopen(Request(self.base + '/sono/atlas', method='HEAD')) as response:
+            self.assertEqual(response.status, 200)
+        with urlopen(self.base + '/assets/js/sono/core.js') as response:
+            self.assertIn(b'probeFrame', response.read())
+
+    def test_missing_assets_and_unknown_routes_do_not_return_html_shell(self):
+        for path in ('/assets/missing.js', '/missing', '/sono/not-real', '/api/not-real'):
+            with self.subTest(path=path), self.assertRaises(HTTPError) as error:
+                urlopen(self.base + path)
+            self.assertEqual(error.exception.code, 404)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,18 @@
+{
+  "status": "awaiting-medical-review",
+  "lastSourceCheck": "2026-10-08",
+  "purpose": "Regression guard for source-linked conservative statements. Not a clinical validation or qualified reviewer approval.",
+  "rules": [
+    {"lesson":"lunge-04","source":"lung","patterns":["Reverberationsartefakte","keine anatomischen"]},
+    {"lesson":"lunge-05","source":"lung","patterns":["vertikale", "pleuraständige", "ohne Abschwächung", "nicht krankheitsspezifisch"]},
+    {"lesson":"lunge-06","source":"lung","patterns":["am untersuchten Ort", "allein diagnostiziert keinen", "Apnoe", "Adhäsionen", "Ventilation", "Technik"]},
+    {"lesson":"lunge-08","source":"lung","patterns":["allein sichern keinen"]},
+    {"lesson":"lunge-09","source":"lung","patterns":["hochspezifisch", "kann fehlen", "Fehlen schließt Pneumothorax nicht aus"]},
+    {"lesson":"efast-01","source":"fast","patterns":["schließt relevante Verletzungen nicht aus", "ersetzt keine indizierte definitive Bildgebung"]},
+    {"lesson":"efast-12","source":"fast","patterns":["Flüssigkeitsmenge", "Zeitpunkt", "Patient", "Untersuchungserfahrung"]},
+    {"lesson":"herz-08","source":"cardiac","patterns":["Fett", "Pleuraerguss"]},
+    {"lesson":"herz-09","source":"cardiac","patterns":["klinische Einordnung", "Ergussgröße allein genügt nicht"]},
+    {"lesson":"herz-01","source":"cardiac","patterns":["FoCUS ersetzt keine umfassende Echokardiographie"]},
+    {"lesson":"herz-12","source":"cardiac","patterns":["für quantitative Herzmessungen nicht validiert"]}
+  ]
+}
