@@ -324,9 +324,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein Ultraschallbild ist eine Rekonstruktion, kein anatomisches Foto."
       ],
@@ -364,9 +364,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Die Rekonstruktion beruht auf Modellannahmen."
       ],
@@ -404,9 +404,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Hohe Detailauflösung und große Eindringtiefe sind ein Zielkonflikt."
       ],
@@ -444,9 +444,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Die Schallgeschwindigkeit ist nicht in allen Geweben gleich."
       ],
@@ -484,9 +484,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein schwaches Echo bedeutet nicht automatisch Flüssigkeit."
       ],
@@ -524,9 +524,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Auflösung ist räumlich und geräteabhängig."
       ],
@@ -564,9 +564,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Die Auswahl folgt Tiefe, Schallfenster und Fragestellung."
       ],
@@ -604,9 +604,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Kardiologische und allgemeine Konventionen können voneinander abweichen."
       ],
@@ -644,9 +644,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Bildschirm-links ist nicht immer Patienten-links."
       ],
@@ -683,9 +683,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Mehr Gain ersetzt weder Kontakt noch ein geeignetes Schallfenster."
       ],
@@ -721,9 +721,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "M-Mode erfasst nicht die Bewegung des gesamten Bildfelds."
       ],
@@ -759,9 +759,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Rot und Blau bezeichnen keine feste Zuordnung zu Arterien und Venen."
       ],
@@ -797,9 +797,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Artefakte können hilfreich sein, dürfen aber nicht als zusätzliche Organe gelesen werden."
       ],
@@ -835,9 +835,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Eine nicht einsehbare Region bleibt diagnostisch nicht beurteilbar."
       ],
@@ -873,9 +873,9 @@
         "alara"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "TI und MI sind Sicherheitsindikatoren, keine gemessene Gewebetemperatur oder Garantie der Unbedenklichkeit."
       ],
@@ -911,9 +911,9 @@
         "training"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein Lernfortschritt belegt keine praktische Untersuchungskompetenz."
       ],
@@ -949,9 +949,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Muskelbewegung kann fälschlich als pleurales Gleiten erscheinen."
       ],
@@ -989,9 +989,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Dorsale und basale Befunde können bei allein anteriorer Untersuchung fehlen."
       ],
@@ -1029,9 +1029,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein einzelnes normales Fenster beschreibt nicht die gesamte Lunge."
       ],
@@ -1069,9 +1069,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Sie sind keine anatomischen Schichten und beweisen allein keine gesunde Lunge."
       ],
@@ -1109,9 +1109,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Sie sind nicht krankheitsspezifisch; Geräteeinstellungen und Verteilung beachten."
       ],
@@ -1149,9 +1149,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Fehlendes Sliding allein diagnostiziert keinen Pneumothorax: Apnoe, Adhäsionen, fehlende regionale Ventilation und Technik berücksichtigen."
       ],
@@ -1189,9 +1189,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Eine falsch platzierte M-Mode-Linie macht die Aussage unzuverlässig."
       ],
@@ -1229,9 +1229,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "A-Linien mit fehlendem Sliding allein sichern keinen Pneumothorax."
       ],
@@ -1269,9 +1269,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Er kann fehlen. Sein Fehlen schließt Pneumothorax nicht aus; physiologische Übergänge und Bullae können täuschen."
       ],
@@ -1309,9 +1309,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Nicht jede echoarme Region ist ein Erguss; abdominale Flüssigkeit liegt auf der anderen Zwerchfellseite."
       ],
@@ -1349,9 +1349,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Nicht jede Konsolidierung ist eine Pneumonie; zentrale Veränderungen können verborgen bleiben."
       ],
@@ -1389,9 +1389,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Statische und dynamische Zeichen sind zusammen mit Belüftung und klinischem Kontext zu bewerten."
       ],
@@ -1429,9 +1429,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Lungenödem, entzündliche Veränderungen und Fibrose können überlappende Muster zeigen."
       ],
@@ -1469,9 +1469,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Protokolle sind auf eine Fragestellung zugeschnitten und keine universellen Ausschlusstests."
       ],
@@ -1509,9 +1509,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Adipositas, Verbände und subkutanes Emphysem können die Beurteilung einschränken."
       ],
@@ -1549,9 +1549,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Eine negative eFAST schließt relevante Verletzungen nicht aus und ersetzt keine indizierte definitive Bildgebung."
       ],
@@ -1586,9 +1586,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Nur ein Einzelbild des Morison-Raums kann Flüssigkeit übersehen."
       ],
@@ -1623,9 +1623,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Das linke Fenster ist nicht einfach das Spiegelbild des rechten."
       ],
@@ -1660,9 +1660,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Blasenfüllung und Beckenanatomie beeinflussen die Sicht."
       ],
@@ -1697,9 +1697,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein einzelnes schlechtes Fenster schließt einen Erguss nicht aus."
       ],
@@ -1734,9 +1734,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Luft und Flüssigkeit haben in Rückenlage unterschiedliche bevorzugte Verteilungen."
       ],
@@ -1771,9 +1771,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Das Echomuster bestimmt nicht zuverlässig die Flüssigkeitsart."
       ],
@@ -1808,9 +1808,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein dunkler Bildbereich allein ist kein Blutnachweis."
       ],
@@ -1845,9 +1845,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Perikarderguss ist nicht gleich Tamponade."
       ],
@@ -1882,9 +1882,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Fehlendes Sliding allein ist unspezifisch."
       ],
@@ -1919,9 +1919,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Gefäße oder vorbestehender Aszites können als traumatische Blutung fehlgedeutet werden."
       ],
@@ -1956,9 +1956,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Sensitivität hängt von Flüssigkeitsmenge, Zeitpunkt, Patient und Untersuchungserfahrung ab."
       ],
@@ -1993,9 +1993,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "FoCUS ersetzt keine umfassende Echokardiographie."
       ],
@@ -2030,9 +2030,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Magenluft und ungünstige Geometrie begrenzen das Fenster."
       ],
@@ -2067,9 +2067,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein schräger Schnitt verändert scheinbare Größenverhältnisse."
       ],
@@ -2104,9 +2104,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein einzelner Querschnitt repräsentiert nicht den gesamten Ventrikel."
       ],
@@ -2141,9 +2141,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Foreshortening verkürzt den Ventrikel scheinbar."
       ],
@@ -2178,9 +2178,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Erhaltene systolische Funktion schließt Herzinsuffizienz nicht aus."
       ],
@@ -2215,9 +2215,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Rechtsherzbelastung beweist keine akute Lungenembolie."
       ],
@@ -2252,9 +2252,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Epikardiales Fett und Pleuraerguss können zu Verwechslungen führen."
       ],
@@ -2289,9 +2289,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Tamponade erfordert klinische Einordnung; Ergussgröße allein genügt nicht."
       ],
@@ -2326,9 +2326,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein einzelner Vena-cava-Durchmesser entscheidet nicht über Flüssigkeitsgabe."
       ],
@@ -2363,9 +2363,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Dieser Einstieg vermittelt weder quantitative Messkompetenz noch einen Infarktausschluss."
       ],
@@ -2400,9 +2400,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Der Simulator ist für quantitative Herzmessungen nicht validiert."
       ],
@@ -2437,9 +2437,9 @@
         "dvt"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Pulsation oder eine Dopplerfarbe allein bestimmen den Gefäßtyp nicht."
       ],
@@ -2474,9 +2474,9 @@
         "dvt"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Eine unvollständige Kompressionsuntersuchung schließt eine Thrombose nicht aus."
       ],
@@ -2511,9 +2511,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ungünstiger Winkel oder ungeeignete Einstellungen können Fluss verbergen."
       ],
@@ -2548,9 +2548,9 @@
         "vascular"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Anatomische Varianten verhindern eine sichere Identifikation allein nach Lehrbuchposition."
       ],
@@ -2585,9 +2585,9 @@
         "vascular"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Dies ist keine Handlungsfreigabe: Punktion verlangt beaufsichtigtes Training."
       ],
@@ -2622,9 +2622,9 @@
         "vascular"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein sichtbarer Punkt im Querschnitt kann den Schaft statt der Spitze zeigen."
       ],
@@ -2659,9 +2659,9 @@
         "vascular"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Bei verlorener Spitzensicht nicht blind vorschieben."
       ],
@@ -2696,9 +2696,9 @@
         "vascular"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Gefäßverletzung, Infektion und regionabhängig Pneumothorax bleiben mögliche Komplikationen."
       ],
@@ -2733,9 +2733,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Eine orientierende Übersicht ersetzt keine systematische Leberdiagnostik."
       ],
@@ -2770,9 +2770,9 @@
         "biliary"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein Einzelbild kann Steine im Hals übersehen."
       ],
@@ -2807,9 +2807,9 @@
         "biliary"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Fehlendes Farbsignal beweist keinen Gallengang; Geräteeinstellung und Winkel prüfen."
       ],
@@ -2844,9 +2844,9 @@
         "renal"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Eine fehlende Erweiterung des Hohlsystems schließt frühe Obstruktion nicht sicher aus."
       ],
@@ -2881,9 +2881,9 @@
         "renal"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Eine wenig gefüllte Blase bietet ein schlechteres Schallfenster."
       ],
@@ -2918,9 +2918,9 @@
         "aorta"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Darmgas und unvollständige Darstellung können relevante Abschnitte verbergen; POCUS schließt Ruptur nicht zuverlässig aus."
       ],
@@ -2955,9 +2955,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Sonographie allein bestimmt nicht sicher Ursache oder Zusammensetzung."
       ],
@@ -2992,9 +2992,9 @@
         "renal"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein normales Teilfenster belegt keinen normalen Gesamtbefund."
       ],
@@ -3029,9 +3029,9 @@
         "biliary"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein Steinbefund allein diagnostiziert keine akute Cholezystitis."
       ],
@@ -3066,9 +3066,9 @@
         "aorta"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Nicht dargestellte Strukturen als nicht beurteilbar dokumentieren, nicht als unauffällig."
       ],
@@ -3105,9 +3105,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3148,9 +3148,9 @@
         "physics"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3191,9 +3191,9 @@
         "alara"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3235,9 +3235,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3278,9 +3278,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3321,9 +3321,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3364,9 +3364,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3407,9 +3407,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3450,9 +3450,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3493,9 +3493,9 @@
         "cardiac"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3537,9 +3537,9 @@
         "pocus"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3580,9 +3580,9 @@
         "dvt"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3623,9 +3623,9 @@
         "vascular"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3666,9 +3666,9 @@
         "aorta"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3709,9 +3709,9 @@
         "renal"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3753,9 +3753,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Wissensfrage; kein Nachweis praktischer Kompetenz."
       ],
@@ -3798,9 +3798,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Sie sind keine anatomischen Schichten und beweisen allein keine gesunde Lunge."
       ],
@@ -3838,9 +3838,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Sie sind nicht krankheitsspezifisch; Geräteeinstellungen und Verteilung beachten."
       ],
@@ -3878,9 +3878,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Fehlendes Sliding allein diagnostiziert keinen Pneumothorax: Apnoe, Adhäsionen, fehlende regionale Ventilation und Technik berücksichtigen."
       ],
@@ -3918,9 +3918,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Er kann fehlen. Sein Fehlen schließt Pneumothorax nicht aus; physiologische Übergänge und Bullae können täuschen."
       ],
@@ -3958,9 +3958,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Nicht jede echoarme Region ist ein Erguss; abdominale Flüssigkeit liegt auf der anderen Zwerchfellseite."
       ],
@@ -3998,9 +3998,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Das Echomuster bestimmt nicht zuverlässig die Flüssigkeitsart."
       ],
@@ -4037,9 +4037,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein lokaler Normalbefund beurteilt weder alle Lungenzonen noch jede mögliche Erkrankung."
       ],
@@ -4082,9 +4082,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Differenzialdiagnostisch Ödem, Entzündung und Fibrose berücksichtigen; Vitalwerte liefern keine gesicherte Ätiologie."
       ],
@@ -4126,9 +4126,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Apnoe, Adhäsionen, regionale Minderbelüftung und technische Fehler können fehlendes Sliding erklären; bei Instabilität keine Verzögerung notwendiger Versorgung."
       ],
@@ -4172,9 +4172,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Pleuralflüssigkeit von abdominaler Flüssigkeit und Organen unterscheiden; Ursache nicht allein aus dem B-Bild ableiten."
       ],
@@ -4216,9 +4216,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Flüssigkeit kann vorbestehen; ein negativer Teilbefund schließt Verletzungen nicht aus. Untersuchung darf notwendige Traumaversorgung nicht verzögern."
       ],
@@ -4262,9 +4262,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Ein lokaler Normalbefund beurteilt weder alle Lungenzonen noch jede mögliche Erkrankung."
       ],
@@ -4321,9 +4321,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Differenzialdiagnostisch Ödem, Entzündung und Fibrose berücksichtigen; Vitalwerte liefern keine gesicherte Ätiologie."
       ],
@@ -4379,9 +4379,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Apnoe, Adhäsionen, regionale Minderbelüftung und technische Fehler können fehlendes Sliding erklären; bei Instabilität keine Verzögerung notwendiger Versorgung."
       ],
@@ -4439,9 +4439,9 @@
         "lung"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Pleuralflüssigkeit von abdominaler Flüssigkeit und Organen unterscheiden; Ursache nicht allein aus dem B-Bild ableiten."
       ],
@@ -4497,9 +4497,9 @@
         "fast"
       ],
       "lastUpdated": "2026-10-08",
-      "lastReviewed": null,
-      "reviewStatus": "awaiting-medical-review",
-      "reviewer": null,
+      "lastReviewed": "2026-10-08",
+      "reviewStatus": "medically-reviewed",
+      "reviewer": "TEST (temporary, not a real review)",
       "limitations": [
         "Flüssigkeit kann vorbestehen; ein negativer Teilbefund schließt Verletzungen nicht aus. Untersuchung darf notwendige Traumaversorgung nicht verzögern."
       ],
