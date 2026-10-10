@@ -884,6 +884,36 @@ main { padding: 22px 0 calc(var(--nav-h) + 34px); }
 .modal .row { display: flex; gap: 10px; }
 .modal .row .btn { flex: 1; }
 
+.app-store-badge { display: inline-flex; align-items: center; gap: 18px; min-height: 74px; padding: 12px 22px;
+  border: 2px solid #293348; border-radius: 27px; background: #0d1527; color: #fff;
+  text-decoration: none; white-space: nowrap; transition: background .15s ease, border-color .15s ease; }
+.app-store-badge:hover { background: #151f34; border-color: #536079; }
+.app-store-badge:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
+.app-store-mark { display: grid; place-items: center; width: 54px; height: 54px; flex: 0 0 54px; }
+.app-store-mark svg { width: 42px; height: 42px; fill: currentColor; }
+.app-store-copy { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.13; }
+.app-store-device { color: #b9bfcb; font-size: 17px; font-weight: 600; }
+.app-store-label { color: #fff; font-size: 24px; font-weight: 800; letter-spacing: -.025em; }
+.app-store-download { width: 100%; justify-content: flex-start; }
+.hero-actions .app-store-badge { min-height: 48px; gap: 8px; padding: 5px 12px; border-radius: 14px; }
+.hero-actions .app-store-mark { width: 28px; height: 28px; flex-basis: 28px; }
+.hero-actions .app-store-mark svg { width: 24px; height: 24px; }
+.hero-actions .app-store-device { font-size: 10px; }
+.hero-actions .app-store-label { font-size: 13px; }
+.app-promo-bg { z-index: 110; }
+.app-promo { position: relative; max-width: 440px; padding: 38px 30px 26px; }
+.app-promo-close { position: absolute; top: 12px; right: 14px; border: 0; background: transparent;
+  color: var(--muted); font-size: 28px; line-height: 1; cursor: pointer; }
+.app-promo-icon { width: 62px; height: 62px; margin: 0 auto 16px; border-radius: 19px;
+  display: grid; place-items: center; background: var(--heart); color: #fff; font-size: 30px; }
+.app-promo .app-promo-eyebrow { margin: 0 0 6px; color: var(--heart); font-size: 11px;
+  font-weight: 900; letter-spacing: .12em; }
+.app-promo h3 { margin: 0 0 9px; }
+.app-promo p:not(.app-promo-eyebrow) { margin: 0 0 22px; }
+.app-promo-later { margin-top: 18px; border: 0; background: none; color: var(--muted);
+  font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+@media (max-width: 480px) { .app-promo { padding: 34px 22px 22px; } }
+
 .xp-fly { position: fixed; z-index: 99; font-weight: 900; font-size: 20px; color: var(--gold-dk);
           pointer-events: none; animation: fly 1s ease-out forwards; }
 @keyframes fly { 0% { opacity: 0; transform: translateY(0) scale(.6); }

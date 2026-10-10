@@ -62,6 +62,40 @@
 
   // Begleitskript zum Kurs — liegt neben der index.html.
   const SKRIPT_PDF = 'EKG-Skript.pdf?v=26';
+  const APP_STORE_URL = 'https://apps.apple.com/de/app/ekg-lernen/id6819312200';
+
+  function appStoreBadge(extraClass) {
+    return h('a', { class: 'app-store-badge' + (extraClass ? ' ' + extraClass : ''), href: APP_STORE_URL,
+      target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'EKG Lernen für iPhone im App Store laden' }, [
+      h('span', { class: 'app-store-mark', 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.47-2.09-.49-3.24 0-1.44.63-2.2.45-3.06-.35C2.77 15.1 3.5 7.5 9.12 7.22c1.34.07 2.27.73 3.04.78 1.15-.23 2.25-.9 3.48-.81 1.48.12 2.6.7 3.34 1.73-3.07 1.84-2.34 5.88.48 7.01-.56 1.48-1.3 2.95-2.41 4.36zM12.1 7.17c-.14-2.2 1.64-4.03 3.7-4.17.29 2.53-2.3 4.45-3.7 4.17z"/></svg>' }),
+      h('span', { class: 'app-store-copy' }, [
+        h('span', { class: 'app-store-device', text: 'Für iPhone' }),
+        h('span', { class: 'app-store-label', text: 'Im App Store laden' })
+      ])
+    ]);
+  }
+
+  function showAppWelcome() {
+    try { if (sessionStorage.getItem('ekg-app-promo-dismissed')) return; } catch (e) { /* storage unavailable */ }
+    const bg = h('div', { class: 'modal-bg app-promo-bg' });
+    const close = function () {
+      bg.remove();
+      try { sessionStorage.setItem('ekg-app-promo-dismissed', '1'); } catch (e) { /* storage unavailable */ }
+    };
+    const box = h('section', { class: 'modal app-promo', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'app-promo-title' }, [
+      h('button', { class: 'app-promo-close', type: 'button', text: '×', 'aria-label': 'Schließen', onclick: close }),
+      h('div', { class: 'app-promo-icon', text: '♥' }),
+      h('p', { class: 'app-promo-eyebrow', text: 'EKG LERNEN FÜR UNTERWEGS' }),
+      h('h3', { id: 'app-promo-title', text: 'Jetzt auch als iPhone-App' }),
+      h('p', { text: 'Lerne EKGs jederzeit und überall. Lade EKG Lernen direkt aus dem App Store.' }),
+      appStoreBadge('app-store-download'),
+      h('button', { class: 'app-promo-later', type: 'button', text: 'Weiter zur Website', onclick: close })
+    ]);
+    bg.appendChild(box);
+    bg.addEventListener('click', function (e) { if (e.target === bg) close(); });
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape' && bg.isConnected) { close(); document.removeEventListener('keydown', esc); } });
+    document.body.appendChild(bg);
+  }
 
   function renderTop() {
     topStats.innerHTML = '';
@@ -112,6 +146,7 @@
           onclick: function () { location.hash = '#/lektion/' + firstOpenLesson(); } }),
         h('a', { class: 'btn gray', href: SKRIPT_PDF, target: '_blank',
                  rel: 'noopener', style: 'text-decoration:none', html: '📄 Skript (PDF)' }),
+        appStoreBadge(),
         h('button', { class: 'btn gray', text: 'Zum Labor',
           onclick: function () { location.hash = '#/labor'; } })
       ])
@@ -1895,5 +1930,6 @@
 
   S.on = state.sound;
   route();
+  showAppWelcome();
 
 })(window);
