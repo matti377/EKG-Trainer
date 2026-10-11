@@ -1,0 +1,103 @@
+import http.cookiejar
+import json
+import sys
+import tempfile
+import threading
+import unittest
+from pathlib import Path
+from urllib.error import HTTPError
+from urllib.request import HTTPCookieProcessor, Request, build_opener
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import server
+from account_store import AccountStore
+
+
+class AccountAPITest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temp = tempfile.TemporaryDirectory()
+        cls.previous_store = server.accounts
+        server.accounts = AccountStore(str(Path(cls.temp.name) / 'accounts.sqlite3'))
+        cls.httpd = server.Server(('127.0.0.1', 0), server.Handler)
+        cls.base = 'http://127.0.0.1:%d/api/' % cls.httpd.server_port
+        cls.worker = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.worker.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+        cls.worker.join()
+        server.accounts = cls.previous_store
+        cls.temp.cleanup()
+
+    def setUp(self):
+        self.browser = build_opener(HTTPCookieProcessor(http.cookiejar.CookieJar()))
+
+    def api(self, path, method='GET', data=None, status=200, browser=None, headers=None):
+        body = json.dumps(data).encode() if data is not None else None
+        request = Request(self.base + path, data=body, method=method,
+                          headers={'Content-Type': 'application/json', **(headers or {})})
+        try:
+            response = (browser or self.browser).open(request, timeout=5)
+        except HTTPError as error:
+            response = error
+        with response:
+            self.assertEqual(status, response.status)
+            return json.load(response), response.headers
+
+    def test_account_and_three_specialties_share_one_login(self):
+        self.api('progress', status=401)
+        result, headers = self.api('account/register', 'POST',
+                                   {'email': 'learner@example.org', 'password': 'long-secret-123'}, 201)
+        self.assertEqual('learner@example.org', result['user']['email'])
+        self.assertIn('HttpOnly', headers['Set-Cookie'])
+        self.assertNotIn('token', result)
+        self.api('progress/ekg', 'PUT', {'done': {'ekg-1': {'best': 70}}, 'xp': 10})
+        self.api('progress/sono', 'PUT', {'version': 1, 'read': {'lunge-01': True}})
+        self.api('progress/academy', 'PUT', {'v': 1, 'answers': {'q1': {'n': 1, 'ok': 1, 'last': True}}})
+        all_progress, _ = self.api('progress')
+        self.assertEqual({'academy', 'ekg', 'sono'}, set(all_progress))
+
+        second_browser = build_opener(HTTPCookieProcessor(http.cookiejar.CookieJar()))
+        self.api('account/login', 'POST',
+                 {'email': 'learner@example.org', 'password': 'long-secret-123'}, browser=second_browser)
+        remote, _ = self.api('progress/sono', browser=second_browser)
+        self.assertTrue(remote['data']['read']['lunge-01'])
+        # A stale device upload cannot erase completed lessons.
+        merged, _ = self.api('progress/sono', 'PUT',
+                             {'version': 1, 'read': {'lunge-02': True}}, browser=second_browser)
+        self.assertEqual({'lunge-01', 'lunge-02'}, set(merged['data']['read']))
+        self.api('account/logout', 'POST', {})
+        self.api('progress/ekg', status=401)
+        still_signed_in, _ = self.api('progress/ekg', browser=second_browser)
+        self.assertIn('ekg-1', still_signed_in['data']['done'])
+
+    def test_native_token_and_origin_protection(self):
+        result, _ = self.api('account/register', 'POST',
+                             {'email': 'native@example.org', 'password': 'native-secret-123', 'client': 'native'}, 201)
+        token = result['token']
+        empty, _ = self.api('progress')
+        self.assertEqual({}, empty)
+        browser = build_opener(HTTPCookieProcessor(http.cookiejar.CookieJar()))
+        me, _ = self.api('account/me', browser=browser, headers={'Authorization': 'Bearer ' + token})
+        self.assertEqual('native@example.org', me['user']['email'])
+        self.api('progress/ekg', 'PUT', {'done': {}}, status=403,
+                 headers={'Origin': 'https://untrusted.example'})
+        self.api('account/login', 'POST', {'email': 'native@example.org', 'password': 'wrong'}, status=401)
+        self.api('account/register', 'POST',
+                 {'email': 'native@example.org', 'password': 'native-secret-123'}, status=409)
+
+    def test_repeated_wrong_passwords_are_limited(self):
+        self.api('account/register', 'POST',
+                 {'email': 'limited@example.org', 'password': 'correct-secret-123'}, 201)
+        for _ in range(10):
+            self.api('account/login', 'POST',
+                     {'email': 'limited@example.org', 'password': 'wrong-secret'}, status=401)
+        self.api('account/login', 'POST',
+                 {'email': 'limited@example.org', 'password': 'wrong-secret'}, status=429)
+
+
+if __name__ == '__main__':
+    unittest.main()

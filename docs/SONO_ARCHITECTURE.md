@@ -2,17 +2,19 @@
 
 ## Bestand erhalten
 
-Vanilla-JavaScript mit IIFE-Globals und dem vorhandenen `UI.h`-DOM-Helfer; keine Frameworkmigration. EKG-Dateien `app.js`, `content.js`, `ekg.js`, `heart.js`, `ui.js` und `challenge.js` wurden nicht verändert. Das gemeinsame Designsystem, Buttons, Navigation und DOM-/Shuffle-Helfer werden weitergenutzt. SONO lädt keine EKG-Wellenengine; beide Anwendungen werden unabhängig gestartet.
+Vanilla-JavaScript mit IIFE-Globals und dem vorhandenen `UI.h`-DOM-Helfer; keine Frameworkmigration. Das gemeinsame Designsystem, Buttons, Navigation und DOM-/Shuffle-Helfer werden weitergenutzt. SONO lädt keine EKG-Wellenengine; beide Anwendungen werden unabhängig gestartet.
 
-Der EKG-Fortschritt bleibt unverändert unter `ekg-lernen-v1`. SONO benötigt eigene einfache Fortschrittslogik, weil Lesen und Wissenscheck getrennt zählen und ungeprüfte Inhalte kein klinisches Kompetenzsystem darstellen. Es gibt keinen Eingriff in die bestehenden Herzen, Streaks und Challenge-Punkte.
+EKG, SONO und Academy behalten ihre lokalen Speicherformate. Bei Anmeldung synchronisiert `assets/js/account.js` sie mit einem gemeinsamen Konto. Die SQLite-Datenbank hält je Fachgebiet einen eigenen Lernstand; abgeschlossene Lektionen bleiben beim Zusammenführen erhalten. Challenge-Lobbys sind weiterhin unabhängig vom Lernstand.
 
 ## Dateikarte
 
 | Datei | Aufgabe |
 |---|---|
-| `index.html` | Gemeinsame Shell, fehlertoleranter dynamischer Einstieg, Dateivorschau und rootrelative HTTP-Assets |
-| `assets/js/platform.js` | Testbare Hostauswahl, Produkt-URLs und Hash-/Pfadrouten |
-| `assets/js/bootstrap.js` | Produktwechsel, Branding, Metadaten, kanonische Links und bedingtes Laden |
+| `index.html` | Resqly Academy: Startseite, leitet alte Kurs-Einstiege in ihren Ordner weiter |
+| `ekg/index.html`, `sono/index.html` | Je Kurs eine Shell mit eigenem Titel, Metadaten und Branding; fehlertoleranter dynamischer Einstieg, Dateivorschau und rootrelative HTTP-Assets |
+| `assets/js/platform.js` | Testbare Kursordner-/Domain-URLs, Weiterleitung alter Einstiege und Hash-/Pfadrouten |
+| `assets/js/bootstrap.js` | Produktwechsel, kanonische Links und Laden der Skripte je Anwendung |
+| `assets/js/account.js`, `account_store.py` | Gemeinsame Kontoanzeige, Browser-Synchronisierung und persistente Konto-/Lernstandsdaten |
 | `assets/css/style.css` | Bestehendes Designsystem plus Produktumschalter |
 | `assets/js/sono/content.js` | 6 Module, 73 Kurzlektionen, 16 Fragen, 6 Zeichen, 5 Fälle, 13 Medieneinträge, 16 Quellen |
 | `assets/js/sono/core.js` | Schemaprüfung, Bewertung, Fortschritt, Koordinaten, Review- und Medienfreigabe |
@@ -20,7 +22,10 @@ Der EKG-Fortschritt bleibt unverändert unter `ekg-lernen-v1`. SONO benötigt ei
 | `assets/media/sono/`, `docs/media/` | Lokale Clips, Poster, SVGs und Herkunfts-/Lizenznachweise |
 | `assets/js/sono/app.js` | SONO-Ansichten, Lehrdiagramme, Filter, Quizformulare und Simulator |
 | `assets/css/sono.css` | Auf SONO begrenzte responsive Erweiterungen |
-| `server.py` | Zusätzlich gezielter SPA-Fallback für bekannte Routen; API und Dienstbetrieb unverändert |
+| `assets/js/academy/app.js`, `assets/css/academy.css` | Startseite mit Links zu den Kursordnern, Quiz des Tages, Themen-Quiz und Auswertung; Lernstand unter `resqly-academy-v1` |
+| `assets/js/academy/quiz.js` | DOM-freie Quizlogik: CSV einlesen und prüfen, Tagesquiz auswählen, Serie und Wissens-Score berechnen |
+| `assets/data/fragen.csv` | Fragenbank (drei Antworten, eine richtig, mit Erklärung); Spalten siehe README |
+| `server.py` | SPA-Fallback, Challenge-Lobbys und Konto-/Lernstand-API |
 | `scripts/validate-medical.cjs` | Normale Metadatenprüfung und strenger Publikationsmodus |
 | `scripts/build.cjs` | Optionale statische Paketierung inklusive EKG-PDF |
 | `tests/platform.test.cjs`, `tests/sono.test.cjs` | Domain-/Daten-/Fortschritts-/Orientierungs- und Konsistenztests |

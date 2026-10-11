@@ -148,13 +148,13 @@ test("all legacy EKG screens and initial lesson still render", async ({
     "ableitungen",
     "challenge",
   ]) {
-    await page.goto("/#/" + route);
+    await page.goto("/ekg/#/" + route);
     await expect(page.locator("#app")).not.toBeEmpty();
     await expect(
       page.locator(".application-switcher a[aria-current]"),
     ).toHaveText("EKG");
   }
-  await page.goto("/#/pfad");
+  await page.goto("/ekg/#/pfad");
   await page.locator(".node").first().click();
   await expect(page).toHaveURL(/#\/lektion\//);
   await expect(page.locator(".lesson-top")).toBeVisible();
@@ -201,12 +201,73 @@ test("production hostname selects app, branding and production switch targets", 
   ).toHaveText("SONO");
   await expect(
     page.locator(".application-switcher a").filter({ hasText: "EKG" }),
-  ).toHaveAttribute("href", "https://ekg.resqly.lu/#/pfad");
+  ).toHaveAttribute("href", "https://ekg.resqly.lu/ekg/#/pfad");
   await expect(page).toHaveTitle(/SONO by Resqly/);
   await expect(page.locator("meta[name=description]")).toHaveAttribute(
     "content",
     /Sonographie lernen/,
   );
+});
+
+test("academy is the main index and leads to the course folders", async ({
+  page,
+  request,
+}) => {
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/");
+  await expect(page).toHaveTitle(/Resqly Academy/);
+  await expect(page.locator(".brand")).toHaveText("Resqly Academy");
+  await expect(page.locator("h1")).toContainText("Schritt für Schritt");
+  await expect(page.locator(".application-switcher a[aria-current]")).toHaveCount(0);
+  await expect(page.locator(".academy-course")).toHaveCount(2);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  await page.getByRole("link", { name: /Zum Sono-Kurs/ }).click();
+  await expect(page).toHaveURL(/\/sono\/#\/home$/);
+  await expect(page).toHaveTitle(/SONO by Resqly/);
+  await expect(
+    page.locator(".application-switcher a[aria-current]"),
+  ).toHaveText("SONO");
+  await page.goto("/");
+  await page.getByRole("link", { name: /Zum EKG-Kurs/ }).click();
+  await expect(page).toHaveURL(/\/ekg\/#\/pfad$/);
+  await expect(page.locator("h1")).toContainText("EKG verstehen");
+  await expect(page.locator(".hero-actions a[href*='EKG-Skript.pdf']")).toHaveAttribute(
+    "href",
+    /^\/EKG-Skript\.pdf/,
+  );
+  expect(errors).toEqual([]);
+  await page.route("https://academy.resqly.lu/**", async (route) => {
+    const url = new URL(route.request().url());
+    const response = await request.get(
+      "http://127.0.0.1:8765" + url.pathname + url.search,
+    );
+    await route.fulfill({ response });
+  });
+  await page.goto("https://academy.resqly.lu/?app=academy");
+  await expect(page).toHaveTitle(/Resqly Academy/);
+  await expect(page.locator('[data-course="ekg"]')).toHaveAttribute(
+    "href",
+    "/ekg/#/pfad",
+  );
+  await expect(page.locator('[data-course="sono"]')).toHaveAttribute(
+    "href",
+    "/sono/#/home",
+  );
+});
+test("old root links and path links land in the course folders", async ({
+  page,
+}) => {
+  await page.goto("/?app=sono#/modul/lunge");
+  await expect(page).toHaveURL(/\/sono\/#\/modul\/lunge$/);
+  await page.goto("/?app=ekg");
+  await expect(page).toHaveURL(/\/ekg\/#\/pfad$/);
+  await expect(page.locator("h1")).toContainText("EKG verstehen");
+  await page.goto("/ekg/labor");
+  await expect(page).toHaveURL(/\/ekg\/#\/labor$/);
+  await expect(page.locator("#nav a.on")).toHaveText(/Labor/);
 });
 
 test("existing direct file preview remains usable for EKG and SONO", async ({
@@ -215,9 +276,16 @@ test("existing direct file preview remains usable for EKG and SONO", async ({
   const { pathToFileURL } = require("node:url");
   const path = require("node:path");
   const url = pathToFileURL(path.resolve(__dirname, "../index.html")).href;
-  await page.goto(url + "#/pfad");
+  await page.goto(url);
+  await expect(page).toHaveTitle(/Resqly Academy/);
+  await page.getByRole("link", { name: /Zum EKG-Kurs/ }).click();
+  await expect(page).toHaveURL(/\/ekg\/index\.html#\/pfad$/);
   await expect(page.locator("h1")).toContainText("EKG verstehen");
+  await expect(
+    page.locator(".application-switcher a").filter({ hasText: "SONO" }),
+  ).toHaveAttribute("href", "../sono/index.html#/home");
   await page.goto(url + "?app=sono#/home");
+  await expect(page).toHaveURL(/\/sono\/index\.html#\/home$/);
   await expect(page).toHaveTitle(/SONO by Resqly/);
 });
 

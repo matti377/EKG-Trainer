@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de" data-application="ekg">
+<head>
+<meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EKG lernen — interaktiv und Schritt für Schritt</title>
+<meta name="description" content="Interaktiver EKG-Kurs auf Deutsch: Erregungsleitung, Rhythmusstörungen, Blockbilder, Infarktzeichen und Medikamente — mit animierten Kurven, Übungen, Dosierungssimulation und EKG-Labor.">
+<meta name="theme-color" content="#eef3fa">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+// Root-relative over HTTP so deep links like /ekg/labor still find the assets.
+const resqlyAssetRoot = location.protocol === "file:" ? "../" : "/";
+const sharedStyle = document.createElement("link");
+sharedStyle.rel = "stylesheet"; sharedStyle.href = resqlyAssetRoot + "assets/css/style.css?v=30";
+document.head.append(sharedStyle);
+</script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💓</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#/pfad">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12h4l2-6 3.5 12L15 9l2 3h5"/>
+        </svg>
+      </span>
+      <span>EKG&nbsp;lernen</span>
+    </a>
+    <div id="top-stats" style="display:flex;align-items:center;gap:8px"></div>
+  </div>
+</header>
+
+<main>
+  <div class="app" id="app"></div>
+</main>
+
+<nav class="nav" id="nav" aria-label="Hauptnavigation">
+  <div class="nav-in">
+    <a href="#/pfad"        data-r="pfad"><span class="ni">🗺️</span>Lernpfad</a>
+    <a href="#/trainer"     data-r="trainer"><span class="ni">🎯</span>Trainer</a>
+    <a href="#/bibliothek"  data-r="bibliothek"><span class="ni">📚</span>Befunde</a>
+    <a href="#/labor"       data-r="labor"><span class="ni">🧪</span>Labor</a>
+    <a href="#/ableitungen" data-r="ableitungen"><span class="ni">🧭</span>Ableitungen</a>
+  </div>
+</nav>
+
+<noscript>Bitte JavaScript aktivieren, um den interaktiven Kurs zu verwenden.</noscript>
+<script>
+const platformScript = document.createElement("script");
+platformScript.src = resqlyAssetRoot + "assets/js/platform.js";
+platformScript.onload = function () {
+  const bootstrapScript = document.createElement("script");
+  bootstrapScript.src = resqlyAssetRoot + "assets/js/bootstrap.js";
+  document.body.append(bootstrapScript);
+};
+platformScript.onerror = function () { document.getElementById("app").textContent = "Die Anwendung konnte nicht geladen werden. Bitte neu laden."; };
+document.body.append(platformScript);
+</script>
+</body>
+</html>

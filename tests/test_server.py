@@ -163,18 +163,25 @@ class ApplicationRoutingTest(unittest.TestCase):
         cls.httpd.server_close()
         cls.worker.join()
 
-    def test_known_spa_routes_and_assets(self):
-        for path in ('/', '/sono', '/sono/lektion/lunge-06', '/simulator', '/ekg/labor'):
+    def test_academy_root_course_folders_and_spa_routes(self):
+        pages = {'/': 'academy', '/index.html': 'academy',
+                 '/ekg/': 'ekg', '/ekg': 'ekg', '/ekg/labor': 'ekg',
+                 '/labor': 'ekg', '/lektion/l1-1': 'ekg',
+                 '/sono/': 'sono', '/sono': 'sono', '/sono/lektion/lunge-06': 'sono',
+                 '/simulator': 'sono'}
+        for path, app in pages.items():
             with self.subTest(path=path), urlopen(self.base + path) as response:
                 self.assertEqual(response.status, 200)
-                self.assertIn(b'resqlyAssetRoot', response.read())
+                body = response.read()
+                self.assertIn(b'resqlyAssetRoot', body)
+                self.assertIn(b'data-application="%s"' % app.encode(), body)
         with urlopen(Request(self.base + '/sono/atlas', method='HEAD')) as response:
             self.assertEqual(response.status, 200)
         with urlopen(self.base + '/assets/js/sono/core.js') as response:
             self.assertIn(b'probeFrame', response.read())
 
     def test_missing_assets_and_unknown_routes_do_not_return_html_shell(self):
-        for path in ('/assets/missing.js', '/missing', '/sono/not-real', '/api/not-real'):
+        for path in ('/assets/missing.js', '/missing', '/sono/not-real', '/ekg/not-real', '/api/not-real'):
             with self.subTest(path=path), self.assertRaises(HTTPError) as error:
                 urlopen(self.base + path)
             self.assertEqual(error.exception.code, 404)

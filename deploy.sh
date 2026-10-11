@@ -29,6 +29,7 @@ cd "$HERE"
 PORT="${PORT:-8000}"
 HOST="${HOST:-0.0.0.0}"
 SERVICE="${SERVICE:-ekg-lernen}"
+RESQLY_DB_PATH="${RESQLY_DB_PATH:-/var/lib/${SERVICE}/academy.sqlite3}"
 RUN_USER="${RUN_USER:-$(id -un)}"
 UNIT_DIR="${UNIT_DIR:-/etc/systemd/system}"
 UNIT="${UNIT_DIR}/${SERVICE}.service"
@@ -194,11 +195,14 @@ WorkingDirectory=${HERE}
 Environment=PORT=${PORT}
 Environment=HOST=${HOST}
 Environment=PYTHONUNBUFFERED=1
+Environment=RESQLY_DB_PATH=${RESQLY_DB_PATH}
+StateDirectory=${SERVICE}
+StateDirectoryMode=0700
 ExecStart=$(command -v python3) ${HERE}/server.py
 Restart=always
 RestartSec=3
 
-# Der Dienst liest nur Dateien und schreibt nichts — entsprechend eng gesetzt.
+# Kursdateien bleiben geschützt; SQLite liegt im persistenten StateDirectory.
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full

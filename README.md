@@ -5,9 +5,38 @@ kurze Lektionen, ein Lernpfad mit Freischaltung, Herzen, XP und Streak.
 
 ## Starten
 
-`index.html` im Browser öffnen. Es gibt keinen Build-Schritt und keine
-Abhängigkeiten — reines HTML, CSS und JavaScript. Der Fortschritt liegt im
-`localStorage` des Browsers.
+`ekg/index.html` im Browser öffnen (oder `index.html`, die Kursübersicht der
+Resqly Academy). Es gibt keinen Build-Schritt und keine Abhängigkeiten — reines
+HTML, CSS und JavaScript. Ohne Anmeldung bleibt der Fortschritt im Browser.
+Mit einem Konto synchronisiert der Server Academy, EKG und Sono über dieselbe
+SQLite-Datenbank. Der lokale Fortschritt wird bei der ersten Anmeldung übernommen.
+
+## Konto und gemeinsamer Lernstand
+
+`python3 server.py` startet auch die Konto-API. Die Datenbank liegt lokal unter
+`data/academy.sqlite3`; im systemd-Dienst unter
+`/var/lib/ekg-lernen/academy.sqlite3`. Über `RESQLY_DB_PATH` kann der Pfad
+geändert werden. Diese Datei muss dauerhaft gespeichert und gesichert werden.
+Alle Kursdomains müssen auf denselben Backend-Dienst zeigen. Die Sitzungscookie
+gilt auf `*.resqly.lu`, sodass ein
+Konto auf Academy, EKG und Sono verwendet werden kann.
+
+API für spätere App-Anbindung (JSON):
+
+| Methode | Pfad | Zweck |
+|---|---|---|
+| `POST` | `/api/account/register` | Konto mit `email` und `password` erstellen |
+| `POST` | `/api/account/login` | Anmelden |
+| `POST` | `/api/account/logout` | Sitzung beenden |
+| `GET` | `/api/account/me` | Angemeldetes Konto lesen |
+| `GET` | `/api/progress` | Lernstand aller Fachgebiete lesen |
+| `GET`, `PUT` | `/api/progress/{academy,ekg,sono}` | Lernstand eines Fachgebiets lesen oder speichern |
+
+Browser verwenden eine HttpOnly-Sitzungscookie. Native Apps können beim
+Registrieren oder Anmelden `"client":"native"` senden und erhalten dann ein
+Token für `Authorization: Bearer <token>`. Ein Login per E-Mail und Passwort
+ist vorhanden; Passwortzurücksetzung und E-Mail-Bestätigung sind noch nicht
+implementiert.
 
 ## Challenge im Kurs (App und Browser, mehrere Geräte)
 
@@ -20,8 +49,8 @@ Im Browser bleibt die Auswahl ohne Eingabe automatisch: erst der Server dieser
 Seite, danach der öffentliche Kursserver. App-Neustarts und das Neuladen
 derselben Browser-Registerkarte stellen die eigene Sitzung wieder her.
 
-Nur für diesen einen Modus braucht es eine Stelle, die die Geräte verbindet.
-Dafür liegt `server.py` bei — reine Standardbibliothek, nichts zu installieren:
+Challenge und Kontosynchronisierung verwenden denselben `server.py`-Dienst —
+reine Standardbibliothek, nichts zu installieren:
 
 ```bash
 python3 server.py
@@ -73,10 +102,11 @@ geht es von selbst weiter. Am Ende stehen Podium, Endstand und die Auflösung
 aller EKGs.
 
 Die Lobbys liegen nur im Arbeitsspeicher; ein Neustart des Servers löscht sie.
-Das ist Absicht — es gibt nichts zu pflegen und nichts, was liegen bleibt.
+Das gilt nur für die Challenge. Konten und Lernstände bleiben in SQLite erhalten.
 Anderer Port: `PORT=9000 python3 server.py`.
 
-**Alle übrigen Bereiche laufen weiterhin ohne Server**, direkt aus dem Ordner.
+**Alle Kurse laufen weiterhin ohne Server**, direkt aus dem Ordner. In diesem
+Fall bleibt der Lernstand lokal und die Kontoanzeige wird ausgeblendet.
 
 ## Auf dem Server ausrollen
 
@@ -144,7 +174,8 @@ Standardbibliothek aus. `reportlab` braucht nur, wer das PDF baut.
 
 | Datei | Inhalt |
 |---|---|
-| `index.html` | Grundgerüst, Kopfzeile, Navigation |
+| `index.html` | Resqly Academy: Startseite mit Links zu den Kursordnern |
+| `ekg/index.html` | Grundgerüst, Kopfzeile, Navigation des EKG-Kurses |
 | `assets/css/style.css` | Designsystem (Farben, Buttons, Lernpfad, Aufgaben) |
 | `assets/js/ekg.js` | Signalerzeugung und Canvas-Darstellung der EKG-Kurven |
 | `assets/js/heart.js` | Schematisches Herz mit animiertem Erregungsleitungssystem |
@@ -238,33 +269,92 @@ unruhiger und vielgestaltiger.
 
 ## SONO by Resqly — zweite Anwendung im selben Repository
 
-Zusätzlich zum unveränderten EKG-Kurs enthält das Projekt eine eigenständige
-SONO-Lernoberfläche. `sono.resqly.lu` lädt SONO, `ekg.resqly.lu` weiterhin EKG.
-Der gemeinsame Umschalter ist auf beiden Anwendungen sichtbar.
+Zusätzlich zum EKG-Kurs enthält das Projekt eine eigenständige
+SONO-Lernoberfläche im Ordner `sono/`. Der gemeinsame Umschalter ist auf beiden
+Anwendungen sichtbar.
 
 ```bash
 python3 server.py
-# EKG:  http://localhost:8000/#/pfad
-# SONO: http://localhost:8000/?app=sono#/home
+# EKG:  http://localhost:8000/ekg/
+# SONO: http://localhost:8000/sono/
 ```
 
-SONO bietet sechs Module mit 73 kurzen Lektionsentwürfen, 16 Wissensfragen,
-fünf fiktiven Lehrfällen, separatem lokalem Fortschritt, Quellen/Prüfstatus,
-einem filterbaren Atlas mit sieben echten Ultraschallclips (CC BY 2.0),
-Vorschaubildern und fünf Lehrdiagrammen. Der Simulator bietet fünf animierte
-Szenarien, Probe-/Positionskontrollen, Gain, schematische Tiefe, Freeze und
-qualitative M-Mode-Zeitmuster für die Lungenfälle. Echte Referenzclips sind
-separat abspielbar; sie sind nicht auf die virtuelle Schallkopfposition kalibriert.
-Review-Metadaten sind informativ und sperren die Vorschau nicht. Die klinische
-Prüfung erfolgt vor Veröffentlichung durch den Betreiber.
+SONO zeigt sechs Module mit 73 kurzen Lektionen im EKG-Lernpfad. Jede Lektion
+hat eine Erklärungsseite, ein Beispiel und eine kleine Übung. Wo ein passender
+Originalclip vorhanden ist, erscheint er auf der Beispielseite. Der Fortschritt
+bleibt ohne Anmeldung lokal und wird nach Anmeldung im gemeinsamen Konto
+gespeichert. Die klinische Prüfung der Inhalte erfolgt vor Veröffentlichung
+durch den Betreiber.
 
 Medienherkunft, Lizenz und Bearbeitung: [Mediennachweis](docs/media/README.md).
-Für den intraabdominellen eFAST-Fall fehlt weiterhin ein Originalclip; das
-animierte anatomische Lehrdiagramm ist verfügbar.
+Für intraabdominelle eFAST-Aufnahmen fehlt weiterhin ein Originalclip.
 
 - [Architektur, Dateikarte und Erweiterung](docs/SONO_ARCHITECTURE.md)
 - [Lokaler Start, Tests, Build und Domainkonfiguration](docs/SONO_DEPLOYMENT.md)
 - [Medizinische Prüfaufgaben und fehlende Aufnahmen](MEDICAL_REVIEW.md)
+
+## Resqly Academy — gemeinsame Startseite
+
+Die Startseite (`index.html`, gedacht für `academy.resqly.lu`) ist die
+Kursübersicht im selben Design. Jedes Fachgebiet hat einen eigenen Ordner mit
+eigener `index.html`:
+
+```
+index.html        Resqly Academy     http://localhost:8000/
+ekg/index.html    EKG-Kurs           http://localhost:8000/ekg/
+sono/index.html   SONO-Kurs          http://localhost:8000/sono/
+assets/           gemeinsames Design, Skripte und Medien aller Kurse
+```
+
+Neben den Kurslinks bietet die Startseite das **Quiz des Tages** und das
+**Themen-Quiz** (siehe unten). Die
+bisherigen Adressen funktionieren weiter: `ekg.resqly.lu/` und
+`sono.resqly.lu/` sowie alte `?app=`-Links werden im Browser in den passenden
+Ordner weitergeleitet, die Route (`#/…`) bleibt erhalten.
+
+Domain, TLS und Proxy richtet der Betreiber wie bei SONO ein, siehe
+[Domainkonfiguration](docs/SONO_DEPLOYMENT.md#academy-startseite-und-kursordner).
+
+### Quiz des Tages, Themen-Quiz und die Fragen-CSV
+
+- **Quiz des Tages** (`/#/tagesquiz`): jeden Tag fünf Fragen zu genau einem
+  Thema, für alle dieselben. Die Themen laufen in der Reihenfolge der CSV durch;
+  eine Frage kommt erst wieder, wenn alle Fünferblöcke ihres Themas dran waren.
+  Das erste Ergebnis des Tages zählt, daraus entsteht die Serie (🔥).
+- **Themen-Quiz** (`/#/themen`): Runden mit zehn Fragen pro Thema — zuerst
+  neue Fragen, dann die zuletzt falsch beantworteten.
+- **Wissens-Score**: Anteil der Fragen, deren letzte Antwort richtig war.
+
+Ohne Anmeldung liegen Serie und Score im `localStorage` des Browsers
+(`resqly-academy-v1`). Mit Anmeldung werden sie im gemeinsamen Konto
+gespeichert. Die Fragen werden per `fetch`
+geladen; beide Quizformen brauchen deshalb `python3 server.py` (oder einen
+anderen Webserver) und laufen nicht aus einer direkt geöffneten Datei.
+
+Alle Fragen stehen in **`assets/data/fragen.csv`** (UTF-8, eine Zeile pro
+Frage, immer drei Antworten und genau eine richtige):
+
+| Spalte | Inhalt |
+|---|---|
+| `id` | eindeutig und dauerhaft, z. B. `EKG-042` — daran hängt der Lernstand |
+| `fach` | Fachgebiet, derzeit nur `EKG` |
+| `thema` | Thema; alle Fragen mit demselben Text bilden ein Thema |
+| `schwierigkeit` | `1` (Grundwissen) bis `3` (Vertiefung) |
+| `frage` | Fragetext, reiner Text ohne HTML |
+| `antwort_a`, `antwort_b`, `antwort_c` | die drei Antworten; angezeigt werden sie gemischt |
+| `richtig` | `A`, `B` oder `C` |
+| `erklaerung` | Begründung, erscheint nach der Antwort |
+
+Neue Fragen einfach als Zeilen anhängen; ein neues `thema` oder `fach`
+erscheint von selbst. Ein Thema braucht mindestens fünf Fragen, um als Quiz des
+Tages dranzukommen. Die Datei darf auch mit Semikolon als Trennzeichen
+gespeichert werden (deutsches Excel). Fehlerhafte Zeilen werden übersprungen
+und in der Browserkonsole gemeldet; `npm run validate:medical` und `npm test`
+prüfen die Datei vollständig.
+
+Die derzeit 320 EKG-Fragen in 16 Themen sind an die Grenzwerte des EKG-Kurses
+und an ESC-/ERC-Leitlinien angelehnt, aber **nicht fachärztlich geprüft** —
+vor einer Veröffentlichung gilt dasselbe wie für die Kursinhalte.
 
 Die Laufzeit bleibt Vanilla-JavaScript ohne neue Backend-Abhängigkeiten.
 Node/Playwright sind optionale Entwicklungswerkzeuge (`npm ci`, `npm test`,

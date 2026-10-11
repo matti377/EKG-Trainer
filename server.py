@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-server.py — Liefert die Seite aus und verwaltet die Challenge-Lobbys.
+server.py — Liefert die Academy aus, speichert Konten und Lernstände und
+verwaltet Challenge-Lobbys.
 
 Start:
     python3 server.py
 
-Nur Standardbibliothek — nichts zu installieren. Der Server hält die Lobbys
-im Arbeitsspeicher; ein Neustart löscht sie. Das ist Absicht: Es gibt nichts
-zu pflegen und keine Daten, die liegen bleiben.
+Nur Standardbibliothek — nichts zu installieren. Konten und Lernstände liegen
+dauerhaft in SQLite. Challenge-Lobbys bleiben flüchtig im Arbeitsspeicher.
 
 Gespielt wird wie bei Kahoot: Punkte für jede richtige Antwort, mehr Punkte
 für schnelle Antworten, Zuschlag für Serien — und am Ende ein Podium.
@@ -26,13 +26,18 @@ import socket
 import string
 import threading
 import time
+from http.cookies import SimpleCookie
 from urllib.parse import urlparse, parse_qs
+
+from account_store import AccountError, AccountStore, SESSION_SECONDS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PORT = int(os.environ.get('PORT', '8000'))
 # Hinter einem Reverse-Proxy (nginx) HOST=127.0.0.1 setzen — dann ist der
 # Port nicht mehr direkt von außen erreichbar.
 HOST = os.environ.get('HOST', '0.0.0.0')
+ACCOUNT_DB = os.environ.get('RESQLY_DB_PATH', os.path.join(HERE, 'data', 'academy.sqlite3'))
+accounts = AccountStore(ACCOUNT_DB)
 
 # I, O, 0 und 1 fehlen — die werden beim Abtippen zu oft verwechselt.
 CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -290,34 +295,42 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         pass
 
     def translate_path(self, path):
-        # Only known app routes fall back to the shell. Missing assets and API
-        # requests must remain real 404 responses (also works for HEAD).
-        route = urlparse(path).path.strip('/')
-        parts = route.split('/')
+        # Each course folder has its own index.html. Only known app routes fall
+        # back to that shell. Missing assets and API requests must remain real
+        # 404 responses (also works for HEAD).
+        parts = urlparse(path).path.strip('/').split('/')
+        course = None
         if parts[0] in ('sono', 'ekg'):
-            parts = parts[1:]
-        simple = {'home', 'pfad', 'trainer', 'bibliothek', 'labor',
-                  'ableitungen', 'challenge', 'faelle', 'wissen',
-                  'quellen', 'methodik', 'simulator', 'atlas'}
+            course, parts = parts[0], parts[1:]
+        ekg = {'pfad', 'trainer', 'bibliothek', 'labor', 'ableitungen',
+               'challenge'}
+        simple = ekg | {'home', 'faelle', 'wissen', 'quellen', 'methodik',
+                        'simulator', 'atlas'}
         detail = {'lektion', 'modul', 'quiz', 'fall', 'simulator', 'atlas'}
-        is_route = (route in ('sono', 'ekg') or
-                    (len(parts) == 1 and parts[0] in simple) or
+        is_route = ((len(parts) == 1 and parts[0] in simple) or
                     (len(parts) == 2 and parts[0] in detail and
                      parts[1] and all(c.isalnum() or c == '-' for c in parts[1])))
         if is_route:
-            return os.path.join(HERE, 'index.html')
+            # Routes without a folder predate the folders: EKG names stay EKG.
+            if course is None:
+                course = 'ekg' if parts[0] in ekg | {'lektion'} else 'sono'
+            return os.path.join(HERE, course, 'index.html')
         return super().translate_path(path)
 
     # ------------------------------------------------------------- Antwort
 
-    def send_json(self, obj, status=200):
+    def send_json(self, obj, status=200, extra_headers=None):
         body = json.dumps(obj).encode('utf-8')
         self.send_response(status)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', str(len(body)))
         self.send_header('Cache-Control', 'no-store')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('X-Content-Type-Options', 'nosniff')
+        if not self.path.startswith(('/api/account/', '/api/progress')):
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        for name, value in (extra_headers or {}).items():
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(body)
 
@@ -338,10 +351,80 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.send_response(204)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        if not self.path.startswith(('/api/account/', '/api/progress')):
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
+
+    def account_token(self):
+        bearer = self.headers.get('Authorization', '')
+        if bearer.startswith('Bearer '):
+            return bearer[7:]
+        cookie = SimpleCookie()
+        try:
+            cookie.load(self.headers.get('Cookie', ''))
+        except Exception:
+            return None
+        return cookie['resqly_session'].value if 'resqly_session' in cookie else None
+
+    def account_user(self):
+        user = accounts.user_for_token(self.account_token())
+        if not user:
+            self.fail('Bitte anmelden', 401)
+        return user
+
+    def same_origin(self):
+        origin = self.headers.get('Origin')
+        if not origin:
+            return True  # native apps do not send an Origin header
+        parsed = urlparse(origin)
+        return parsed.scheme in ('http', 'https') and parsed.netloc.lower() == self.headers.get('Host', '').lower()
+
+    def session_cookie(self, token=None):
+        parts = ['resqly_session=' + (token or ''), 'Path=/', 'HttpOnly', 'SameSite=Lax',
+                 'Max-Age=' + str(SESSION_SECONDS if token else 0)]
+        host = self.headers.get('Host', '').split(':')[0].lower()
+        if host == 'resqly.lu' or host.endswith('.resqly.lu'):
+            parts.append('Domain=.resqly.lu')
+        if self.headers.get('X-Forwarded-Proto', '').lower() == 'https':
+            parts.append('Secure')
+        return '; '.join(parts)
+
+    def account_post(self, path, data):
+        if not self.same_origin():
+            return self.fail('Ungültiger Ursprung', 403)
+        try:
+            if path == '/api/account/register':
+                user, token = accounts.register(data.get('email'), data.get('password'))
+                result = {'user': user}
+                if data.get('client') == 'native':
+                    result['token'] = token
+                return self.send_json(result, 201, {'Set-Cookie': self.session_cookie(token)})
+            if path == '/api/account/login':
+                user, token = accounts.login(data.get('email'), data.get('password'))
+                result = {'user': user}
+                if data.get('client') == 'native':
+                    result['token'] = token
+                return self.send_json(result, extra_headers={'Set-Cookie': self.session_cookie(token)})
+            if path == '/api/account/logout':
+                accounts.logout(self.account_token())
+                return self.send_json({'ok': True}, extra_headers={'Set-Cookie': self.session_cookie()})
+        except AccountError as error:
+            return self.fail(str(error), error.status)
+        return self.fail('Unbekannter Endpunkt', 404)
+
+    def progress_put(self, path, data):
+        if not self.same_origin():
+            return self.fail('Ungültiger Ursprung', 403)
+        user = self.account_user()
+        if not user:
+            return
+        specialty = path.removeprefix('/api/progress/')
+        try:
+            return self.send_json(accounts.save_progress(user['id'], specialty, data))
+        except AccountError as error:
+            return self.fail(str(error), error.status)
 
     # ------------------------------------------------------------- Routing
 
@@ -359,6 +442,20 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
     def api_get(self, path, q):
+        if path == '/api/account/me':
+            user = self.account_user()
+            if user:
+                return self.send_json({'user': user})
+            return
+        if path == '/api/progress' or path.startswith('/api/progress/'):
+            user = self.account_user()
+            if not user:
+                return
+            specialty = path.removeprefix('/api/progress/') if path != '/api/progress' else None
+            try:
+                return self.send_json(accounts.get_progress(user['id'], specialty))
+            except AccountError as error:
+                return self.fail(str(error), error.status)
         if path == '/api/ping':
             return self.send_json({'ok': True, 'lobbies': len(lobbies), 'protocol': 1})
 
@@ -384,6 +481,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             data = self.read_json()
         except ValueError as e:
             return self.fail(str(e))
+
+        if path.startswith('/api/account/'):
+            return self.account_post(path, data)
 
         for field in ('name', 'code', 'player', 'token'):
             if field in data and not isinstance(data[field], str):
@@ -480,6 +580,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self.send_json({'ok': True})
 
         return self.fail('Unbekannter Endpunkt', 404)
+
+    def do_PUT(self):
+        path = urlparse(self.path).path
+        if not path.startswith('/api/progress/'):
+            return self.fail('Unbekannter Endpunkt', 404)
+        try:
+            data = self.read_json()
+        except ValueError as error:
+            return self.fail(str(error))
+        return self.progress_put(path, data)
 
     def new_code(self):
         while True:

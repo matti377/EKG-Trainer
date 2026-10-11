@@ -1,7 +1,7 @@
 const { defineConfig, devices } = require("@playwright/test");
 module.exports = defineConfig({
   testDir: "tests",
-  testMatch: "browser.spec.cjs",
+  testMatch: ["browser.spec.cjs", "academy.spec.cjs"],
   fullyParallel: true,
   timeout: 30000,
   use: { baseURL: "http://127.0.0.1:8765", trace: "retain-on-failure" },

@@ -2,18 +2,6 @@
 [data-application="sono"] {
   --nav-h: 76px;
 }
-[data-application="sono"] .app {
-  max-width: 1160px;
-}
-[data-application="sono"] .topbar-in {
-  max-width: 1160px;
-}
-[data-application="sono"] .nav-in {
-  max-width: 850px;
-}
-[data-application="sono"] .brand {
-  font-size: 19px;
-}
 [data-application="sono"] .brand-mark {
   background: var(--brand-dk);
   box-shadow: 0 3px 0 #06665f;
@@ -27,16 +15,6 @@
 [data-application="sono"] .nav a .ni {
   font-family: system-ui, sans-serif;
 }
-[data-application="sono"] h1 {
-  font-size: clamp(30px, 4.2vw, 48px);
-  line-height: 1.12;
-}
-[data-application="sono"] h2 {
-  font-size: 22px;
-}
-[data-application="sono"] h3 {
-  font-size: 18px;
-}
 [data-application="sono"] a {
   text-underline-offset: 3px;
 }
@@ -47,6 +25,27 @@
 [data-application="sono"] [hidden] {
   display: none !important;
 }
+/* SONO uses the EKG shell and path components, with SONO artwork in the units. */
+[data-application="sono"] #nav { display: none !important; }
+[data-application="sono"] main { padding: 22px 0 48px; }
+[data-application="sono"] .sono-heading { margin: 18px 0 26px; }
+.sono-hero-image { background: #fff; }
+.sono-hero-image video { width: 100%; height: 100%; object-fit: cover; border-radius: 0; opacity: .9; }
+.sono-path-unit .unit-head { align-items: center; }
+.sono-unit-image { overflow: hidden; padding: 0; }
+.sono-unit-image video { width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+.sono-lesson-stage { max-width: 740px; margin: 14px auto 0; }
+.sono-step-page { min-height: 280px; }
+.sono-step-count { color: var(--muted); font-size: 13px; font-weight: 900; white-space: nowrap; }
+.sono-teach-card, .sono-question, .sono-example-card { padding: 22px; font-size: 18px; font-weight: 700; line-height: 1.6; }
+.sono-example-card { margin-top: 18px; }
+.sono-example-card strong { display: block; color: var(--brand-dk); font-size: 13px; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+.sono-example-card p + p { margin-top: 12px; }
+.sono-question { margin: 18px 0; }
+.sono-lesson-stage .sono-media { max-width: 620px; margin: 18px auto; }
+.sono-clip-source { max-width: 620px; margin: -5px auto 16px; color: var(--muted); font-size: 12px; }
+.sono-clip-source summary { cursor: pointer; font-weight: 800; }
+.sono-clip-source a { display: inline-block; margin: 6px 12px 0 0; }
 .sono-kicker {
   font-size: 11px;
   letter-spacing: 0.14em;

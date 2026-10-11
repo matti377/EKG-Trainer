@@ -19,16 +19,17 @@
     h("a", { href: "#/" + to, text: label, class: cls });
   function persist() {
     const ok = K.saveProgress(storage, state);
+    window.ResqlyAccount?.saveProgress("sono", state);
     document.getElementById("sono-storage").hidden = ok;
     renderStats();
   }
   function renderStats() {
     const completed = C.modules.filter(
-      (m) => K.moduleProgress(m, state).complete,
+      (m) => m.lessons.every((id) => state.read[id]),
     ).length;
     document
       .getElementById("top-stats")
-      .replaceChildren(text("span", completed + "/6 Module", "sono-stat"));
+      .replaceChildren(text("span", "🩻 " + completed + "/6", "stat gold"));
   }
   function badge(item) {
     return text("span", K.reviewLabel(item), "sono-badge review");
@@ -208,6 +209,15 @@
   }
   function moduleCard(m) {
     const p = K.moduleProgress(m, state);
+    const covers = {
+      grundlagen: "diagram-normal",
+      lunge: "diagram-interstitial",
+      efast: "diagram-trauma",
+      herz: "diagram-normal",
+      gefaesse: "diagram-pleural",
+      abdomen: "diagram-trauma",
+    };
+    const cover = find("media", covers[m.id]);
     return h(
       "a",
       {
@@ -216,8 +226,9 @@
         style: "--module-color:" + m.color,
       },
       [
+        h("img", { class: "sono-module-image", src: assetURL(cover.url), alt: "", loading: "lazy" }),
         h("div", { class: "sono-card-top" }, [
-          text("span", m.number, "sono-number"),
+          text("span", p.complete ? "✓" : m.number, "sono-number"),
           text(
             "span",
             p.complete ? "Abgeschlossen" : m.lessons.length + " Lektionen",
@@ -249,20 +260,58 @@
     );
   }
   function path() {
-    root.append(
-      heading(
-        "SCHRITT FÜR SCHRITT",
-        "Dein Lernpfad",
-        "Gelesene Lektionen und bestandene Wissensfragen werden auf diesem Gerät gespeichert. Ein Modul zählt erst nach beiden Schritten als abgeschlossen.",
-      ),
-    );
-    root.append(grid(C.modules.map(moduleCard)));
-    root.append(
-      notice(
-        "Lernfortschritt ist keine Qualifikation",
-        "Diese Anzeige dokumentiert Selbststudium, keine klinische Befähigung oder Zertifizierung.",
-      ),
-    );
+    const totalRead = Object.keys(state.read).filter((id) => state.read[id]).length;
+    const totalLessons = C.lessons.length;
+    const nextLesson = C.modules.flatMap((m) => m.lessons).find((id) => !state.read[id]) || C.modules[0].lessons[0];
+    const heroClip = find("media", "media-normal");
+    root.append(h("section", { class: "hero" }, [
+      text("h1", totalRead ? "Weiter geht’s!" : "Sono verstehen — Schritt für Schritt"),
+      text("p", totalRead
+        ? "Du hast " + totalRead + " von " + totalLessons + " Lektionen geschafft. Bleib dran — jeder Schritt bringt dich näher ans Bild."
+        : "Von den Grundlagen bis zum klinischen Ultraschallbild: kurze Lektionen, echte Aufnahmen und ein Lernpfad, der hängen bleibt."),
+      h("div", { class: "hero-strip sono-hero-image" }, [h("video", {
+        src: assetURL(heroClip.url), controls: "", muted: "", playsinline: "",
+        preload: "metadata", "aria-label": "Originalclip: Lung Sliding",
+      })]),
+      h("div", { class: "hero-actions" }, [
+        h("a", { class: "btn heart", href: "#/lektion/" + nextLesson, text: totalRead ? "Weiterlernen" : "Lernen starten" }),
+      ]),
+    ]));
+    const moduleClips = { lunge: "media-normal" };
+    const sides = ["", "fr", "r", "fr", "", "fl", "l", "fl"];
+    C.modules.forEach((m) => {
+      const clip = moduleClips[m.id] ? find("media", moduleClips[m.id]) : null;
+      const doneCount = m.lessons.filter((id) => state.read[id]).length;
+      const unit = h("section", { class: "unit sono-path-unit" });
+      unit.style.setProperty("--u", m.color);
+      unit.style.setProperty("--u-dk", m.color);
+      unit.style.setProperty("--u-lt", "#e2f7f5");
+      unit.append(h("div", { class: "unit-head" }, [
+        h("div", { class: "unit-badge sono-unit-image" }, clip
+          ? [h("video", { src: assetURL(clip.url), controls: "", muted: "", playsinline: "", preload: "metadata", "aria-label": clip.title })]
+          : [text("span", m.number)]),
+        h("div", {}, [text("h3", m.title), text("p", m.description)]),
+        text("div", doneCount + "/" + m.lessons.length, "unit-prog"),
+      ]));
+      const pathNodes = h("div", { class: "path" });
+      m.lessons.forEach((lid, i) => {
+        const lesson = find("lessons", lid);
+        const done = !!state.read[lid];
+        const available = i === 0 || !!state.read[m.lessons[i - 1]];
+        const row = h("div", { class: "path-row", "data-side": sides[i % sides.length] });
+        const node = h("button", {
+          class: "node" + (done ? " done" : "") + (!available ? " locked" : "") + (available && !done ? " current" : ""),
+          type: "button", "aria-label": lesson.title + (available ? "" : " (gesperrt)"),
+          text: !available ? "🔒" : done ? "⭐" : "🩺",
+          onclick: () => { if (available) location.hash = "#/lektion/" + lid; },
+        });
+        node.append(h("span", { class: "node-label", text: lesson.title }));
+        row.append(node);
+        pathNodes.append(row);
+      });
+      unit.append(pathNodes);
+      root.append(unit);
+    });
   }
   function moduleView(id) {
     const m = find("modules", id);
@@ -310,58 +359,110 @@
     const l = find("lessons", id);
     if (!l) return notFound();
     const m = find("modules", l.relatedModules[0]);
-    root.append(link("← " + m.title, "modul/" + m.id));
-    root.append(heading("LEKTION · " + m.title.toUpperCase(), l.title));
-    root.append(review(l));
-    root.append(
-      panel(
-        "Dein Lernziel",
-        l.objectives.map((s) => text("p", s)),
-      ),
-    );
-    for (const block of l.content)
-      root.append(
-        panel(block.heading, [
-          text("p", block.text, "sono-body-copy"),
-          refs(block.sources),
-        ]),
-      );
-    for (const mid of l.mediaRefs || []) {
-      const m = find("media", mid);
-      if (m) root.append(panel(m.title, [mediaElement(m)]));
+    const principle = l.content[0]?.text || l.objectives[0];
+    const clip = (l.mediaRefs || []).map((mid) => find("media", mid))
+      .find((item) => item && item.kind !== "teaching-diagram" && K.authorizedMedia(item));
+    const contexts = {
+      grundlagen: "Du stellst den Schallkopf ein und betrachtest das Bild.",
+      lunge: "Du untersuchst den Thorax zwischen zwei Rippen.",
+      efast: "Du führst eine fokussierte Untersuchung nach einem Trauma durch.",
+      herz: "Du betrachtest ein fokussiertes Herzfenster.",
+      gefaesse: "Du untersuchst ein Gefäß im Querschnitt.",
+      abdomen: "Du suchst eine Struktur im Bauchraum.",
+    };
+    const index = m.lessons.indexOf(id);
+    const otherTitles = [Math.floor(m.lessons.length / 3), Math.floor(2 * m.lessons.length / 3)]
+      .map((offset) => find("lessons", m.lessons[(index + offset) % m.lessons.length]).title);
+    const choices = UI.shuffle([l.title, ...otherTitles], index + 17);
+    let step = 0;
+    let selected = null;
+
+    const progressBar = h("i");
+    const stage = h("div", { class: "sono-lesson-stage" });
+    const action = button("Weiter", () => {}, "btn wide violet");
+    const actionBar = h("div", { class: "actionbar" }, [h("div", { class: "ab-in" }, [action])]);
+    const feedbackTitle = text("h4", "");
+    const feedbackText = text("p", "");
+    const feedbackNext = button("Weiter", () => {}, "btn ok");
+    const feedback = h("div", { class: "feedback" }, [h("div", { class: "fb-in" }, [
+      text("div", "💡", "fb-icon"),
+      h("div", { class: "fb-txt" }, [feedbackTitle, feedbackText]),
+      feedbackNext,
+    ])]);
+    root.append(h("div", { class: "lesson-top" }, [
+      button("✕", () => { location.hash = "#/pfad"; }, "iconbtn"),
+      h("div", { class: "pbar" }, [progressBar]),
+      text("span", "1 / 3", "sono-step-count"),
+    ]), stage);
+    document.body.append(actionBar, feedback);
+    transient = () => { actionBar.remove(); feedback.remove(); };
+
+    function renderStep() {
+      stage.replaceChildren();
+      feedback.classList.remove("show", "good", "bad");
+      actionBar.hidden = false;
+      progressBar.style.width = ((step + 1) / 3 * 100) + "%";
+      root.querySelector(".sono-step-count").textContent = (step + 1) + " / 3";
+      const wrap = h("div", { class: "q-wrap sono-step-page" });
+      stage.append(wrap);
+      if (step === 0) {
+        wrap.append(text("p", "VERSTEHEN", "q-kicker"), text("h1", l.title, "q-title"),
+          h("div", { class: "card sono-teach-card" }, [text("p", principle)]));
+        action.textContent = "Beispiel ansehen";
+        action.disabled = false;
+        action.onclick = () => { step = 1; renderStep(); };
+      } else if (step === 1) {
+        wrap.append(text("p", "BEISPIEL", "q-kicker"), text("h1", l.title, "q-title"));
+        if (clip) wrap.append(mediaElement(clip, true), h("details", { class: "sono-clip-source" }, [
+          text("summary", "Quelle zum Originalclip"),
+          text("p", clip.attribution),
+          h("a", { href: clip.provenance.sourceURL, target: "_blank", rel: "noopener noreferrer", text: "Originalquelle" }),
+          h("a", { href: clip.license.url, target: "_blank", rel: "noopener noreferrer", text: clip.license.name }),
+        ]));
+        wrap.append(h("div", { class: "card sono-example-card" }, [
+          text("strong", "Darauf achten"),
+          text("p", contexts[m.id]),
+          text("p", l.limitations[0] || principle),
+        ]));
+        action.textContent = "Zur Übung";
+        action.disabled = false;
+        action.onclick = () => { step = 2; renderStep(); };
+      } else {
+        wrap.append(text("p", "KURZE ÜBUNG", "q-kicker"),
+          text("h1", "Welches Thema passt zu dieser Aussage?", "q-title"),
+          h("div", { class: "card sono-question" }, [text("p", principle)]));
+        const options = h("div", { class: "opts" });
+        choices.forEach((choice, i) => options.append(button((i + 1) + "  " + choice, () => {
+          selected = choice;
+          options.querySelectorAll("button").forEach((btn, j) => btn.classList.toggle("sel", j === i));
+          action.disabled = false;
+        }, "opt")));
+        wrap.append(options);
+        action.textContent = "Prüfen";
+        action.disabled = true;
+        action.onclick = checkAnswer;
+      }
     }
-    if (l.diagram)
-      root.append(l.diagram === "wave" ? waveDiagram() : orientationDiagram());
-    root.append(
-      notice("Grenzen & mögliche Fehlinterpretation", l.limitations.join(" ")),
-    );
-    const i = m.lessons.indexOf(l.id);
-    const readButton = button(
-      state.read[id]
-        ? "✓ Als gelesen gespeichert"
-        : "Lektion als gelesen markieren",
-      () => {
+    function checkAnswer() {
+      const correct = selected === l.title;
+      feedbackTitle.textContent = correct ? "Richtig!" : "Noch nicht ganz";
+      feedbackText.textContent = correct ? "Lektion geschafft." : "Die richtige Antwort ist: " + l.title;
+      feedback.classList.add("show", correct ? "good" : "bad");
+      actionBar.hidden = true;
+      if (correct) {
         K.markRead(state, id, C);
         persist();
-        readButton.textContent = "✓ Als gelesen gespeichert";
-      },
-    );
-    root.append(
-      h("div", { class: "sono-actions" }, [
-        readButton,
-        i < m.lessons.length - 1
-          ? link("Nächste Lektion →", "lektion/" + m.lessons[i + 1], "btn gray")
-          : link("Zum Wissenscheck →", "quiz/" + m.id, "btn gray"),
-      ]),
-    );
-    root.append(
-      text(
-        "p",
-        "Die Wissensfragen werden am Ende des Moduls geprüft.",
-        "sono-muted",
-      ),
-      refs(l.sources, true),
-    );
+        feedbackNext.textContent = "Weiter";
+        feedbackNext.onclick = () => {
+          location.hash = index + 1 < m.lessons.length
+            ? "#/lektion/" + m.lessons[index + 1] : "#/pfad";
+        };
+      } else {
+        feedbackNext.textContent = "Nochmal versuchen";
+        feedbackNext.onclick = () => { selected = null; renderStep(); };
+      }
+    }
+    renderStep();
   }
   function waveDiagram() {
     const out = text("output", "");
@@ -599,33 +700,24 @@
   }
   function mediaElement(m, preview = false) {
     const diagram = m.kind === "teaching-diagram";
-    if (!diagram && !K.authorizedMedia(m))
+    if (diagram) return null;
+    if (!K.authorizedMedia(m))
       return h("div", { class: "sono-missing" }, [
         text("strong", "Originalaufnahme noch nicht hinterlegt"),
-        text("p", "Das zugehörige Lehrdiagramm ist bereits nutzbar."),
       ]);
-    const visual =
-      preview || diagram || !m.mimeType.startsWith("video/")
-        ? h("img", {
-            src: assetURL(preview ? m.poster || m.url : m.url),
-            alt: m.title,
-            loading: "lazy",
-          })
-        : h("video", {
-            controls: "",
-            playsinline: "",
-            preload: "none",
-            poster: assetURL(m.poster),
-            src: assetURL(m.url),
-            "aria-label": m.title,
-          });
+    const visual = h("video", {
+      controls: "",
+      playsinline: "",
+      preload: preview ? "metadata" : "none",
+      ...(preview ? { muted: "" } : {}),
+      src: assetURL(m.url),
+      "aria-label": m.title,
+    });
     const figure = h("figure", { class: "sono-media" }, [
       visual,
       text(
         "figcaption",
-        diagram
-          ? "Anatomisches Lehrdiagramm · keine Originalaufnahme"
-          : "Originalaufnahme · Referenzmaterial",
+        "Originalaufnahme · Referenzmaterial",
         "sono-media-kind",
       ),
     ]);
@@ -1500,44 +1592,19 @@
       else a.removeAttribute("aria-current");
     });
     const views = {
-      home,
+      home: path,
       pfad: path,
-      modul: moduleView,
       lektion: lesson,
-      quiz: quizView,
-      faelle: cases,
-      fall: caseView,
-      atlas: id ? () => atlasDetail(id) : atlas,
-      simulator,
-      wissen: knowledge,
-      quellen: sources,
-      methodik: methodology,
     };
-    (views[r] || notFound)(id);
-    root.append(footer());
+    (views[r] || path)(id);
     const title = root.querySelector("h1");
     document.title =
       (title ? title.textContent.replace(/\n/g, " ") : "Lernen") +
       " — SONO by Resqly";
-    if (title) {
-      title.tabIndex = -1;
-      title.focus({ preventScroll: true });
-    }
     window.scrollTo(0, 0);
   }
   const nav = document.getElementById("nav");
-  nav.append(
-    h(
-      "div",
-      { class: "nav-in" },
-      K.navigation.map(([route, label, icon]) =>
-        h("a", { href: "#/" + route, "data-r": route, "aria-label": label }, [
-          h("span", { text: icon, class: "ni", "aria-hidden": "true" }),
-          text("span", label),
-        ]),
-      ),
-    ),
-  );
+  nav.hidden = true;
   const storageNote = text(
     "p",
     "Dein Browser erlaubt derzeit keinen dauerhaften Speicher. Der Lernstand bleibt nur in dieser Sitzung erhalten.",

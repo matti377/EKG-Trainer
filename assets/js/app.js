@@ -25,6 +25,7 @@
   function save() {
     try { global.localStorage.setItem(KEY, JSON.stringify(state)); }
     catch (e) { /* egal */ }
+    global.ResqlyAccount?.saveProgress('ekg', state);
   }
 
   function today() {
@@ -61,7 +62,7 @@
   const nav = document.getElementById('nav');
 
   // Begleitskript zum Kurs — liegt neben der index.html.
-  const SKRIPT_PDF = 'EKG-Skript.pdf?v=26';
+  const SKRIPT_PDF = resqlyAssetRoot + 'EKG-Skript.pdf?v=26';
   const APP_STORE_URL = 'https://apps.apple.com/de/app/ekg-lernen/id6819312200';
 
   function appStoreBadge(extraClass) {
@@ -817,7 +818,7 @@
     if (serverOverride) candidates.push(serverOverride);
     else {
       if (location.protocol === 'http:' || location.protocol === 'https:') {
-        candidates.push(new URL('./', location.href).href);
+        candidates.push(new URL('/', location.href).href);
       }
       if (candidates.indexOf(CHALLENGE_SERVER) < 0) candidates.push(CHALLENGE_SERVER);
     }
