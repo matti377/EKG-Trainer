@@ -551,15 +551,34 @@
         body.appendChild(wrap);
         let picked = null, zones = null;
 
-        let hits = null;
-        const render = function (hl) {
+        // Der Tipp wird nur als neutrale Markierung gezeigt — würde der ganze
+        // Abschnitt aufleuchten, könnte man so lange tippen, bis die Grenzen
+        // der gesuchten Strecke sichtbar sind.
+        let hits = null, pickedAt = null, revealed = null;
+        const render = function () {
           const r = EKG.drawSingleBeat(cv, { theme: 'paper', tpl: step.tpl || {},
-                                             pq: 0.16, highlight: hl });
+                                             pq: 0.16, highlight: revealed });
           zones = r.zones;
           hits = r.hit;
+          if (pickedAt === null) return;
+          const ctx = cv.getContext('2d');
+          const x = pickedAt * r.width;
+          ctx.save();
+          ctx.strokeStyle = 'rgba(124,92,255,.85)';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 5]);
+          ctx.beginPath();
+          ctx.moveTo(x, 4); ctx.lineTo(x, r.height - 4);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = 'rgba(124,92,255,1)';
+          ctx.beginPath();
+          ctx.arc(x, r.height - 12, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
         };
-        requestAnimationFrame(function () { render(null); });
-        const onResize = function () { render(picked); };
+        requestAnimationFrame(render);
+        const onResize = function () { render(); };
         global.addEventListener('resize', onResize);
         track({ destroy: function () { global.removeEventListener('resize', onResize); } });
 
@@ -570,7 +589,8 @@
           for (const k in hits) {
             if (x >= hits[k].x0 && x < hits[k].x1) {
               picked = k;
-              render(k);
+              pickedAt = x / rect.width;
+              render();
               Sound.tap();
               setReady(true);
               return;
@@ -581,7 +601,8 @@
         api.check = function () {
           wrap.classList.add('locked');
           const ok = picked === step.target;
-          render(step.target);
+          revealed = step.target;
+          render();
           const ctx = cv.getContext('2d');
           const z = zones[step.target];
           ctx.fillStyle = ok ? 'rgba(53,199,89,.9)' : 'rgba(255,75,75,.9)';
